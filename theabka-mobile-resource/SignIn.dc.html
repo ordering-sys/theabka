@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Sign in</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 20px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;width:100%}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-off{background:#D9CFC0;color:#6B6358;cursor:not-allowed}
+.btn-s{background:#fff;color:#2B2B2B;border:1.5px solid #D9CFC0}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.field{width:100%;min-height:52px;border:1.5px solid #D9CFC0;border-radius:12px;background:#fff;font:inherit;font-size:17px;padding:0 14px;color:#2B2B2B;outline:none}
+.field:focus{border-color:#7A1F2B}
+.otp{letter-spacing:0.6em;text-align:center;font-size:24px;font-weight:700}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6;">
+<div style="position: absolute; inset: 0; overflow-y: auto; display: flex; flex-direction: column;">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 12px 12px;">
+<a href="Main.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #2B2B2B;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+</header>
+
+<div style="padding: 16px 24px 0; display: flex; flex-direction: column; align-items: center; text-align: center;">
+<div style="width: 64px; height: 64px; border-radius: 18px; background: #7A1F2B; display: flex; align-items: center; justify-content: center;">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.5" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path><path d="M6 17h12"></path><path d="M8 20h8"></path></svg>
+</div>
+<h1 style="margin: 18px 0 4px; font-size: 24px; font-weight: 700;">{{t.title}}</h1>
+<p style="margin: 0; font-size: 14px; color: #5C5C5C;">{{sub}}</p>
+</div>
+
+<div style="padding: 28px 24px 0; display: flex; flex-direction: column; gap: 14px;">
+<sc-if value="{{isPhone}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<label for="phone" style="font-size: 14px; font-weight: 600;">{{t.phone}}</label>
+<div style="display: flex; gap: 8px;">
+<div style="flex: none; min-height: 52px; padding: 0 14px; border: 1.5px solid #D9CFC0; border-radius: 12px; background: #F6EFE2; display: flex; align-items: center; font-size: 17px; font-weight: 600;">+855</div>
+<input id="phone" class="field" type="tel" inputmode="numeric" placeholder="12 345 678" value="{{phone}}" onChange="{{onPhone}}">
+</div>
+<sc-if value="{{phoneOk}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-p" onClick="{{sendCode}}">{{t.send}}</button>
+</sc-if>
+<sc-if value="{{phoneNotOk}}" hint-placeholder-val="{{true}}">
+<button class="btn btn-off" disabled="{{true}}">{{t.send}}</button>
+</sc-if>
+<button style="background: none; border: 0; font: inherit; font-size: 13px; color: #7A1F2B; text-decoration: underline; cursor: pointer; min-height: 44px;" onClick="{{fillDemo}}">{{t.demo}}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isOtp}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<label for="otp" style="font-size: 14px; font-weight: 600;">{{t.code}}</label>
+<input id="otp" class="field otp" inputmode="numeric" maxlength="6" placeholder="••••••" value="{{otp}}" onChange="{{onOtp}}">
+<div style="font-size: 13px; color: #5C5C5C; text-align: center;">{{t.hint}}</div>
+<sc-if value="{{otpOk}}" hint-placeholder-val="{{false}}">
+<a href="Templates.dc.html" class="btn btn-p">{{t.cont}}</a>
+</sc-if>
+<sc-if value="{{otpNotOk}}" hint-placeholder-val="{{true}}">
+<button class="btn btn-off" disabled="{{true}}">{{t.cont}}</button>
+</sc-if>
+<div style="display: flex; justify-content: center; gap: 16px; font-size: 13px;">
+<button style="background: none; border: 0; font: inherit; color: #7A1F2B; cursor: pointer; min-height: 44px;" onClick="{{back}}">{{t.change}}</button>
+<span style="color: #6B6358; display: flex; align-items: center;">{{t.resend}}</span>
+</div>
+</div>
+</sc-if>
+
+<div style="display: flex; align-items: center; gap: 12px; color: #6B6358; font-size: 13px; margin: 6px 0;">
+<div style="flex-grow: 1; height: 1px; background: #E3D8C6;"></div><span>{{t.or}}</span><div style="flex-grow: 1; height: 1px; background: #E3D8C6;"></div>
+</div>
+<a href="Templates.dc.html" class="btn btn-s">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.6a4.8 4.8 0 0 1-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.5z"></path><path fill="#34A853" d="M12 22c2.8 0 5.2-.9 6.9-2.5l-3.4-2.6c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.7A10 10 0 0 0 12 22z"></path><path fill="#FBBC05" d="M6.2 13.6a6 6 0 0 1 0-3.8V7.1H2.7a10 10 0 0 0 0 9.2l3.5-2.7z"></path><path fill="#EA4335" d="M12 5.9c1.5 0 2.9.5 4 1.5l3-3A10 10 0 0 0 2.7 7.1l3.5 2.7C7 7.7 9.3 5.9 12 5.9z"></path></svg>
+{{t.google}}
+</a>
+</div>
+
+<div style="margin-top: auto; padding: 24px; text-align: center; font-size: 12px; color: #6B6358;">{{t.terms}}</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { lang: null, step: 'phone', phone: '', otp: '' };
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const T = {
+      km: { title: 'ចូលគណនី', subPhone: 'យើងនឹងផ្ញើលេខកូដ ៦ ខ្ទង់ទៅទូរស័ព្ទរបស់អ្នក', subOtp: 'បញ្ចូលលេខកូដដែលបានផ្ញើទៅ ', phone: 'លេខទូរស័ព្ទ', send: 'ផ្ញើលេខកូដ', code: 'លេខកូដ ៦ ខ្ទង់', hint: 'គំរូសាកល្បង៖ វាយលេខ ៦ ខ្ទង់ណាមួយ', cont: 'បន្ត', change: 'ប្ដូរលេខ', resend: 'ផ្ញើម្ដងទៀតក្នុង ០:៤៥', or: 'ឬ', google: 'បន្តជាមួយ Google', demo: 'បំពេញលេខគំរូ', terms: 'ដោយបន្ត អ្នកយល់ព្រមលក្ខខណ្ឌប្រើប្រាស់ និងគោលការណ៍ឯកជនភាព' },
+      en: { title: 'Sign in', subPhone: "We'll text a 6-digit code to your phone", subOtp: 'Enter the code sent to ', phone: 'Phone number', send: 'Send code', code: '6-digit code', hint: 'Prototype: type any 6 digits', cont: 'Continue', change: 'Change number', resend: 'Resend in 0:45', or: 'or', google: 'Continue with Google', demo: 'Fill a sample number', terms: 'By continuing you agree to the Terms and Privacy Policy' }
+    };
+    const t = T[lang];
+    const km = lang === 'km';
+    const digits = (this.state.phone || '').replace(/\D/g, '');
+    const phoneOk = digits.length >= 8;
+    const otpOk = (this.state.otp || '').replace(/\D/g, '').length === 6;
+    const isOtp = this.state.step === 'otp';
+    return {
+      t, phone: this.state.phone, otp: this.state.otp,
+      sub: isOtp ? t.subOtp + '+855 ' + this.state.phone : t.subPhone,
+      isPhone: !isOtp, isOtp, phoneOk, phoneNotOk: !phoneOk, otpOk, otpNotOk: !otpOk,
+      onPhone: (e) => this.setState({ phone: e.target.value }),
+      onOtp: (e) => this.setState({ otp: e.target.value.replace(/\D/g, '').slice(0, 6) }),
+      fillDemo: () => this.setState({ phone: '12 345 678' }),
+      sendCode: () => this.setState({ step: 'otp' }),
+      back: () => this.setState({ step: 'phone', otp: '' }),
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

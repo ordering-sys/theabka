@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Extra states</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 18px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+@keyframes shimmer{0%{opacity:.55}50%{opacity:1}100%{opacity:.55}}
+.sk{background:#EADFCB;border-radius:8px;animation:shimmer 1.4s infinite}
+</style>
+</helmet>
+<div style="width: 1720px; height: 844px; box-sizing: border-box; padding: 20px; background: #EFE8DC; display: flex; gap: 40px; font-family: Inter, 'Kantumruy Pro', sans-serif; color: #2B2B2B; line-height: 1.6;">
+
+<div style="width: 390px; display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 14px; font-weight: 700; color: #5C5C5C;">Empty dashboard</div>
+<div style="height: 760px; border-radius: 28px; background: #FBF6EE; overflow: hidden; display: flex; flex-direction: column;">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 16px;"><span style="font-family: Moul, serif; color: #7A1F2B;">ធៀបការ</span><span style="width: 36px; height: 36px; border-radius: 999px; background: #C9A24B; display: flex; align-items: center; justify-content: center; font-weight: 700;">ដ</span></div>
+<div style="padding: 0 16px;"><h1 style="margin: 0; font-size: 22px;">ធៀបការរបស់ខ្ញុំ</h1><div style="font-size: 13px; color: #5C5C5C;">My invitations</div></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 10px;">
+<div style="width: 120px; height: 120px; border-radius: 999px; background: #F3E6C8; display: flex; align-items: center; justify-content: center;"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#7A1F2B" stroke-width="1.1" aria-hidden="true"><path d="M3 7h18v12H3z"></path><path d="M3 8l9 6 9-6"></path><path d="M12 2c1 1.5 1 3 0 4.5-1-1.5-1-3 0-4.5z"></path></svg></div>
+<div style="font-size: 18px; font-weight: 700;">មិនទាន់មានធៀបការនៅឡើយ</div>
+<div style="font-size: 14px; color: #5C5C5C;">No invitations yet. Pick a template and make your first one. It's free until you publish.</div>
+<a href="Templates.dc.html" class="btn btn-p" style="margin-top: 8px; width: 100%;">បង្កើតធៀបការដំបូង · Create your first</a>
+</div>
+</div>
+</div>
+
+<div style="width: 390px; display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 14px; font-weight: 700; color: #5C5C5C;">Loading skeleton (dashboard)</div>
+<div style="height: 760px; border-radius: 28px; background: #FBF6EE; overflow: hidden; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; justify-content: space-between;"><div class="sk" style="width: 90px; height: 24px;"></div><div class="sk" style="width: 36px; height: 36px; border-radius: 999px;"></div></div>
+<div class="sk" style="width: 200px; height: 26px;"></div>
+<div style="background: #fff; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div class="sk" style="width: 80px; height: 12px;"></div><div class="sk" style="height: 18px;"></div><div style="display: flex; gap: 10px;"><div class="sk" style="flex: 1; height: 44px; border-radius: 999px;"></div><div class="sk" style="flex: 1; height: 44px; border-radius: 999px;"></div><div class="sk" style="flex: 1; height: 44px; border-radius: 999px;"></div></div></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="background: #fff; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div class="sk" style="width: 60%; height: 12px;"></div><div class="sk" style="width: 40%; height: 26px;"></div></div>
+<div style="background: #fff; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div class="sk" style="width: 60%; height: 12px;"></div><div class="sk" style="width: 40%; height: 26px;"></div></div>
+<div style="background: #fff; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div class="sk" style="width: 60%; height: 12px;"></div><div class="sk" style="width: 40%; height: 26px;"></div></div>
+<div style="background: #fff; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div class="sk" style="width: 60%; height: 12px;"></div><div class="sk" style="width: 40%; height: 26px;"></div></div>
+</div>
+<div style="background: #fff; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; gap: 10px;"><div class="sk" style="width: 36px; height: 36px; border-radius: 999px;"></div><div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px;"><div class="sk" style="width: 50%; height: 12px;"></div><div class="sk" style="width: 30%; height: 12px;"></div></div></div>
+<div style="display: flex; gap: 10px;"><div class="sk" style="width: 36px; height: 36px; border-radius: 999px;"></div><div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px;"><div class="sk" style="width: 60%; height: 12px;"></div><div class="sk" style="width: 25%; height: 12px;"></div></div></div>
+<div style="display: flex; gap: 10px;"><div class="sk" style="width: 36px; height: 36px; border-radius: 999px;"></div><div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px;"><div class="sk" style="width: 45%; height: 12px;"></div><div class="sk" style="width: 35%; height: 12px;"></div></div></div>
+</div>
+</div>
+</div>
+
+<div style="width: 390px; display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 14px; font-weight: 700; color: #5C5C5C;">Invitation not found (404)</div>
+<div style="height: 760px; border-radius: 28px; background: #7A1F2B; color: #FBF6EE; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px; gap: 10px; position: relative;">
+<div style="position: absolute; inset: 16px; border: 1px solid #C9A24B; border-radius: 18px;"></div>
+<div style="font-family: 'Playfair Display', serif; font-size: 72px; color: #E3C277; line-height: 1;">404</div>
+<div style="font-family: Moul, serif; font-size: 16px; color: #E3C277; line-height: 1.9;">រកមិនឃើញធៀបការនេះទេ</div>
+<div style="font-size: 15px;">We couldn't find this invitation.</div>
+<div style="font-size: 13px; opacity: 0.85; max-width: 270px;">The link may be mistyped, or the hosts may have taken it down. Please check with the person who sent it.</div>
+<a href="Main.dc.html" class="btn" style="background: #C9A24B; color: #2B2B2B; margin-top: 12px; position: relative;">ទៅទំព័រដើម · Go to TheabKa</a>
+</div>
+</div>
+
+<div style="width: 390px; display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 14px; font-weight: 700; color: #5C5C5C;">Link preview card in a chat app (mockup, OG image 1200×630)</div>
+<div style="height: 760px; border-radius: 28px; background: #C9D7C0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; gap: 8px;">
+<div style="align-self: flex-end; width: 320px; background: #EEFFDE; border-radius: 14px 14px 4px 14px; padding: 8px; font-size: 14px;">
+<div style="color: #1F6FB2; padding: 0 4px 6px; word-break: break-all;">https://theabka.com/i/dara-sophea</div>
+<div style="border-left: 3px solid #3A9A5B; padding-left: 8px; display: flex; flex-direction: column; gap: 4px;">
+<div style="font-size: 13px; font-weight: 700; color: #3A9A5B;">TheabKa</div>
+<div style="font-size: 13px; font-weight: 700;">Dara &amp; Sophea · សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-size: 12px; color: #4A4A4A;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦ · Sokha Phnom Penh Hotel</div>
+<div style="width: 296px; height: 156px; border-radius: 8px; background: #7A1F2B; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: #FBF6EE; overflow: hidden;">
+<div style="position: absolute; inset: 6px; border: 1px solid #C9A24B; border-radius: 6px;"></div>
+<div>
+<div style="font-family: Moul, serif; font-size: 10px; color: #E3C277; line-height: 1.9;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 26px; line-height: 1.2;">Dara &amp; Sophea</div>
+<div style="font-size: 11px; margin-top: 4px;">13 December 2026 · Phnom Penh</div>
+</div>
+</div>
+</div>
+<div style="text-align: right; font-size: 11px; color: #5C8A5C; padding-top: 4px;">10:24</div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1720,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

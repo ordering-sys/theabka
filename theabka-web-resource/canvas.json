@@ -1,0 +1,67 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 3600,
+      "title": "1 · Landing page",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    {
+      "file": "WebHowItWorks.dc.html",
+      "x": 1520,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "2 · How it works walkthrough",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    {
+      "file": "WebEditor.dc.html",
+      "x": 3040,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "3 · Editor with live preview",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    {
+      "file": "WebDashboard.dc.html",
+      "x": 4560,
+      "y": 0,
+      "w": 1440,
+      "h": 1000,
+      "title": "4 · Host dashboard",
+      "expand": "fill",
+      "is_interactive": true
+    }
+  ],
+  "annotations": [
+    {
+      "id": "webtitle",
+      "x": 0,
+      "y": -300,
+      "w": 240,
+      "maxW": 6000,
+      "text": "TheabKa website: landing → how it works → editor → dashboard",
+      "kind": "title1"
+    },
+    {
+      "id": "howto",
+      "x": 1520,
+      "y": 1020,
+      "w": 360,
+      "text": "Press Play on any screen to click through. Publishing in the editor pays by KHQR and succeeds by itself after 3 seconds. The sample invitation opens the mobile prototype in a new tab.",
+      "size": 24,
+      "fill": "orange"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

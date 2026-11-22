@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>TheabKa landing</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{background:#5A1520;color:#fff}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.faq{width:100%;text-align:left;background:#fff;border:0;border-radius:12px;padding:14px 16px;font:inherit;font-size:14px;font-weight:600;color:#2B2B2B;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;min-height:48px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6;">
+<div style="position: absolute; inset: 0; overflow-y: auto;">
+
+<header style="position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(251,246,238,0.95); border-bottom: 1px solid #EADFCB;">
+<div style="display: flex; align-items: center; gap: 8px;">
+<div style="width: 34px; height: 34px; border-radius: 10px; background: #7A1F2B; display: flex; align-items: center; justify-content: center;">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.6" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path><path d="M6 17h12"></path><path d="M8 20h8"></path></svg>
+</div>
+<div style="line-height: 1.1;">
+<div style="font-family: Moul, serif; font-size: 14px; color: #7A1F2B;">ធៀបការ</div>
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #5C5C5C;">THEABKA</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px;">
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<a href="SignIn.dc.html" style="font-size: 13px; font-weight: 600; text-decoration: none; padding: 8px 4px; min-height: 44px; display: flex; align-items: center;">{{t.signin}}</a>
+</div>
+</header>
+
+<section style="padding: 28px 20px 8px; text-align: center;">
+<div style="display: inline-block; padding: 4px 12px; border-radius: 999px; background: #F3E6C8; color: #6E5418; font-size: 12px; font-weight: 600;">{{t.badge}}</div>
+<h1 style="margin: 14px 0 8px; font-family: Moul, 'Playfair Display', serif; font-weight: 400; font-size: 26px; line-height: 1.7; color: #7A1F2B;">{{t.heroTitle}}</h1>
+<p style="margin: 0 0 20px; font-size: 15px; color: #4A4A4A;">{{t.heroSub}}</p>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<a href="SignIn.dc.html" class="btn btn-p">{{t.cta}}</a>
+<a href="Invite.dc.html" class="btn btn-s">{{t.sample}}</a>
+</div>
+</section>
+
+<section style="padding: 24px 20px 8px; display: flex; justify-content: center;">
+<div style="width: 220px; height: 400px; border-radius: 34px; background: #2B2B2B; padding: 9px; box-shadow: 0 18px 40px rgba(122,31,43,0.25);">
+<div style="width: 100%; height: 100%; border-radius: 26px; background: #7A1F2B; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; color: #FBF6EE;">
+<div style="position: absolute; inset: 12px; border: 1px solid #C9A24B; border-radius: 16px;"></div>
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.4" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path></svg>
+<div style="font-family: Moul, serif; font-size: 12px; color: #C9A24B; margin-top: 8px; line-height: 1.8;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-family: 'Kantumruy Pro', sans-serif; font-size: 15px; font-weight: 600; margin-top: 10px;">សុខ ដារ៉ា &amp; ចាន់ សុភា</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px; margin-top: 2px;">Dara &amp; Sophea</div>
+<div style="width: 60px; height: 1px; background: #C9A24B; margin: 12px 0;"></div>
+<div style="font-size: 11px; line-height: 1.8;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦</div>
+<div style="font-size: 10px; opacity: 0.85;">Sunday, 13 December 2026</div>
+<div style="margin-top: 14px; padding: 6px 14px; border-radius: 999px; background: #C9A24B; color: #2B2B2B; font-size: 11px; font-weight: 700;">RSVP</div>
+</div>
+</div>
+</section>
+
+<section style="padding: 28px 20px 8px;">
+<h2 style="margin: 0 0 14px; font-size: 18px; font-weight: 700; text-align: center;">{{t.howTitle}}</h2>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; gap: 14px; align-items: center; background: #fff; border-radius: 12px; padding: 14px; box-shadow: 0 2px 12px rgba(43,43,43,0.06);">
+<div style="flex: none; width: 40px; height: 40px; border-radius: 999px; background: #F3E6C8; color: #7A1F2B; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{s.n}}</div>
+<div>
+<div style="font-weight: 600; font-size: 15px;">{{s.title}}</div>
+<div style="font-size: 13px; color: #5C5C5C;">{{s.sub}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding: 28px 0 8px;">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 20px; margin-bottom: 12px;">
+<h2 style="margin: 0; font-size: 18px; font-weight: 700;">{{t.galleryTitle}}</h2>
+<a href="Templates.dc.html" style="font-size: 13px; font-weight: 600;">{{t.seeAll}}</a>
+</div>
+<div style="display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 8px;">
+<sc-for list="{{templates}}" as="tp" hint-placeholder-count="4">
+<a href="Templates.dc.html" style="flex: none; width: 130px; text-decoration: none; color: #2B2B2B;">
+<div style="height: 180px; border-radius: 12px; background: {{tp.bg}}; padding: 8px; box-shadow: 0 2px 10px rgba(43,43,43,0.1);">
+<div style="height: 100%; border: 1px solid {{tp.accent}}; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: {{tp.fg}}; padding: 6px;">
+<div style="font-family: Moul, serif; font-size: 9px; color: {{tp.accent}}; line-height: 1.8;">សិរីមង្គល</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px;">Dara &amp; Sophea</div>
+<div style="font-size: 9px;">13 · 12 · 2026</div>
+</div>
+</div>
+<div style="font-size: 13px; font-weight: 600; margin-top: 6px;">{{tp.name}}</div>
+<div style="font-size: 12px; color: #5C5C5C;">{{tp.tier}}</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section style="padding: 28px 20px 8px;">
+<h2 style="margin: 0 0 4px; font-size: 18px; font-weight: 700; text-align: center;">{{t.priceTitle}}</h2>
+<p style="margin: 0 0 14px; font-size: 13px; color: #5C5C5C; text-align: center;">{{t.priceSub}}</p>
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<div style="background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 12px rgba(43,43,43,0.06); border: 1px solid #EADFCB;">
+<div style="font-weight: 700; font-size: 16px;">{{t.basic}}</div>
+<div style="display: flex; align-items: baseline; gap: 8px; margin: 4px 0 10px;"><span style="font-size: 30px; font-weight: 700; color: #7A1F2B;">$5</span><span style="font-size: 14px; color: #5C5C5C;">២០,០០០ ៛</span></div>
+<sc-for list="{{basicFeat}}" as="f" hint-placeholder-count="3">
+<div style="display: flex; gap: 8px; font-size: 14px; align-items: flex-start;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E8C7A" stroke-width="2.2" aria-hidden="true" style="flex: none; margin-top: 3px;"><path d="M5 12l5 5 9-10"></path></svg><span>{{f}}</span></div>
+</sc-for>
+</div>
+<div style="background: #7A1F2B; color: #FBF6EE; border-radius: 12px; padding: 18px; box-shadow: 0 6px 20px rgba(122,31,43,0.25); position: relative;">
+<div style="position: absolute; top: 14px; right: 14px; background: #C9A24B; color: #2B2B2B; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px;">{{t.popular}}</div>
+<div style="font-weight: 700; font-size: 16px;">{{t.premium}}</div>
+<div style="display: flex; align-items: baseline; gap: 8px; margin: 4px 0 10px;"><span style="font-size: 30px; font-weight: 700; color: #E3C277;">$15</span><span style="font-size: 14px; opacity: 0.85;">៦០,០០០ ៛</span></div>
+<sc-for list="{{premFeat}}" as="f" hint-placeholder-count="4">
+<div style="display: flex; gap: 8px; font-size: 14px; align-items: flex-start;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E3C277" stroke-width="2.2" aria-hidden="true" style="flex: none; margin-top: 3px;"><path d="M5 12l5 5 9-10"></path></svg><span>{{f}}</span></div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="padding: 28px 20px 8px;">
+<h2 style="margin: 0 0 12px; font-size: 18px; font-weight: 700; text-align: center;">{{t.faqTitle}}</h2>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<sc-for list="{{faqs}}" as="q" hint-placeholder-count="4">
+<div>
+<button class="faq" onClick="{{q.toggle}}" aria-expanded="{{q.open}}"><span>{{q.q}}</span><span style="color: #7A1F2B; font-size: 18px;">{{q.sign}}</span></button>
+<sc-if value="{{q.open}}" hint-placeholder-val="{{false}}">
+<div style="padding: 10px 16px 4px; font-size: 14px; color: #4A4A4A;">{{q.a}}</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<footer style="margin-top: 28px; padding: 24px 20px 32px; background: #2B2B2B; color: #E8E2D8; font-size: 13px;">
+<div style="font-family: Moul, serif; color: #C9A24B; font-size: 15px;">ធៀបការ TheabKa</div>
+<div style="margin-top: 6px;">[COMPANY NAME] Co., Ltd. · Phnom Penh</div>
+<div>[CONTACT EMAIL] · [PHONE]</div>
+<div style="display: flex; gap: 16px; margin-top: 10px;">
+<a href="https://t.me/" style="color: #E3C277;">Telegram</a>
+<a href="https://facebook.com/" style="color: #E3C277;">Facebook</a>
+</div>
+<div style="margin-top: 14px; color: #A8A29A; font-size: 12px;">© 2026 TheabKa</div>
+</footer>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { lang: null, open: 0 };
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const T = {
+      km: {
+        signin: 'ចូល', badge: 'ធៀបការឌីជីថល ជាភាសាខ្មែរ និងអង់គ្លេស',
+        heroTitle: 'ធៀបការដ៏ស្រស់ស្អាត ចែករំលែកតែមួយតំណ',
+        heroSub: 'បង្កើតធៀបការអាពាហ៍ពិពាហ៍ ឬភ្ជាប់ពាក្យ ក្នុងរយៈពេល ១០ នាទី ផ្ញើតាម Telegram ហើយទទួលការឆ្លើយតបពីភ្ញៀវភ្លាមៗ។',
+        cta: 'បង្កើតធៀបការរបស់អ្នក', sample: 'មើលគំរូធៀបការ',
+        howTitle: 'របៀបប្រើ ៣ ជំហាន', galleryTitle: 'គំរូធៀបការ', seeAll: 'មើលទាំងអស់',
+        priceTitle: 'តម្លៃសាមញ្ញ', priceSub: 'បង់តែម្ដងក្នុងមួយធៀបការ តាម KHQR។ បង្កើត និងមើលជាមុន ឥតគិតថ្លៃ។',
+        basic: 'មូលដ្ឋាន', premium: 'ពិសេស', popular: 'ពេញនិយម', faqTitle: 'សំណួរញឹកញាប់'
+      },
+      en: {
+        signin: 'Sign in', badge: 'Digital invitations in Khmer and English',
+        heroTitle: 'Beautiful invitations, shared in one link',
+        heroSub: 'Make a wedding or engagement invitation in 10 minutes, send it on Telegram, and see who is coming right away.',
+        cta: 'Create your invitation', sample: 'See a sample invitation',
+        howTitle: 'How it works', galleryTitle: 'Templates', seeAll: 'See all',
+        priceTitle: 'Simple pricing', priceSub: 'Pay once per invitation by KHQR. Building and previewing are free.',
+        basic: 'Basic', premium: 'Premium', popular: 'Popular', faqTitle: 'Questions'
+      }
+    };
+    const t = T[lang];
+    const km = lang === 'km';
+    const steps = km ? [
+      { n: '១', title: 'ជ្រើសរើសគំរូ', sub: 'គំរូអាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ ៨ ប្រភេទ' },
+      { n: '២', title: 'បំពេញព័ត៌មាន', sub: 'ឈ្មោះ កាលបរិច្ឆេទ ទីកន្លែង រូបថត និងតន្ត្រី' },
+      { n: '៣', title: 'ចែករំលែក និងទទួលការឆ្លើយតប', sub: 'ផ្ញើតំណមួយ ភ្ញៀវឆ្លើយតបដោយមិនចាំបាច់ដំឡើងកម្មវិធី' }
+    ] : [
+      { n: '1', title: 'Pick a template', sub: '8 wedding and engagement designs' },
+      { n: '2', title: 'Add your details', sub: 'Names, date, venue, photos and music' },
+      { n: '3', title: 'Share and collect RSVPs', sub: 'Send one link. Guests reply with no app to install' }
+    ];
+    const templates = [
+      { name: km ? 'ក្រហមរាជ' : 'Royal Maroon', tier: km ? 'ពិសេស · $15' : 'Premium · $15', bg: '#7A1F2B', fg: '#FBF6EE', accent: '#C9A24B' },
+      { name: km ? 'ផ្កាឈូកមាស' : 'Golden Lotus', tier: km ? 'ពិសេស · $15' : 'Premium · $15', bg: '#FBF6EE', fg: '#2B2B2B', accent: '#9C7A2E' },
+      { name: km ? 'ផ្កាម្លិះ' : 'Jasmine', tier: km ? 'មូលដ្ឋាន · $5' : 'Basic · $5', bg: '#FFFFFF', fg: '#2B2B2B', accent: '#5E8C7A' },
+      { name: km ? 'ស្រីអង្គរ' : 'Angkor Dusk', tier: km ? 'ពិសេស · $15' : 'Premium · $15', bg: '#3B2A4A', fg: '#F6EEDD', accent: '#D9B866' }
+    ];
+    const basicFeat = km ? ['រូបថត ៣ សន្លឹក', 'តន្ត្រីជ្រើសរើស ៥ បទ', 'RSVP និង KHQR ចំណងដៃ'] : ['3 photos', '5 built-in music tracks', 'RSVP list and KHQR gift'];
+    const premFeat = km ? ['រូបថត ៦ សន្លឹក', 'បង្ហោះតន្ត្រីផ្ទាល់ខ្លួន', 'គំរូពិសេស និងចលនាបើកធៀប', 'នាំចេញបញ្ជីភ្ញៀវ CSV'] : ['6 photos', 'Upload your own music', 'Premium designs and opening animation', 'Export guest list as CSV'];
+    const faqRaw = km ? [
+      ['ភ្ញៀវត្រូវដំឡើងកម្មវិធីទេ?', 'ទេ។ ភ្ញៀវគ្រាន់តែចុចតំណពី Telegram ឬ Messenger ហើយបើកក្នុងកម្មវិធីរុករក។'],
+      ['ខ្ញុំអាចកែប្រែបន្ទាប់ពីបង់ប្រាក់បានទេ?', 'បាន។ ការកែសម្រួលក្រោយផ្សព្វផ្សាយ ឥតគិតថ្លៃ។'],
+      ['ចំណងដៃតាម KHQR ដំណើរការយ៉ាងដូចម្ដេច?', 'អ្នកបង្ហោះរូប KHQR ផ្ទាល់ខ្លួន។ ភ្ញៀវស្កេនដោយ ABA, ACLEDA ឬ Wing ហើយប្រាក់ចូលគណនីអ្នកផ្ទាល់។'],
+      ['តំណនៅបានរយៈពេលប៉ុន្មាន?', 'យ៉ាងហោចណាស់ ១២ ខែបន្ទាប់ពីថ្ងៃកម្មវិធី។']
+    ] : [
+      ['Do guests need to install an app?', 'No. Guests tap the link in Telegram or Messenger and it opens in their browser.'],
+      ['Can I edit after I pay?', 'Yes. Editing after publishing is free.'],
+      ['How do KHQR gifts work?', 'You upload your own KHQR image. Guests scan it with ABA, ACLEDA or Wing, and the money goes straight to your account.'],
+      ['How long does the link stay up?', 'At least 12 months after the event date.']
+    ];
+    const faqs = faqRaw.map((f, i) => ({
+      q: f[0], a: f[1], open: this.state.open === i, sign: this.state.open === i ? '−' : '+',
+      toggle: () => this.setState({ open: this.state.open === i ? -1 : i })
+    }));
+    return {
+      t, steps, templates, basicFeat, premFeat, faqs,
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

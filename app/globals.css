@@ -1,26 +1,115 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Brand */
+  --color-maroon: #7a1f2b;
+  --color-maroon-dark: #5a1520;
+  --color-gold: #c9a24b;
+  --color-gold-light: #e3c277;
+  --color-gold-soft: #f3e6c8;
+  --color-gold-ink: #6e5418;
+  --color-ivory: #fbf6ee;
+  --color-charcoal: #2b2b2b;
+  --color-jade: #5e8c7a;
+  --color-jade-soft: #e4efea;
+  --color-jade-ink: #2f5a4a;
+  --color-rose-soft: #f6e3e0;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Neutrals from the prototypes */
+  --color-muted: #5c5c5c;
+  --color-sand: #f1e8d8;
+  --color-sand-light: #f6efe2;
+  --color-line: #eadfcb;
+  --color-line-strong: #d9cfc0;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --radius-card: 12px;
+  --shadow-card: 0 2px 12px rgba(43, 43, 43, 0.06);
+  --shadow-sheet: 0 -8px 30px rgba(43, 43, 43, 0.12);
+
+  --font-sans: var(--font-inter-face), var(--font-kantumruy-face), sans-serif;
+  --font-khmer: var(--font-kantumruy-face), sans-serif;
+  --font-moul: var(--font-moul-face), serif;
+  --font-serif: var(--font-playfair-face), serif;
+
+  /* Third-party brand colours (share buttons, payment). */
+  --color-telegram: #229ed9;
+  --color-messenger: #0866ff;
+  --color-khqr: #e1232e;
+
+  /* Extra palette used only in the prototypes' small details. */
+  --color-ink-soft: #4a4a4a;
+  --color-gold-deep: #8a6a1f;
+  --color-footer: #e8e2d8;
+  --color-footer-muted: #a8a29a;
+  --color-jade-light: #8fc1ac;
+  --color-scrim: rgba(20, 12, 12, 0.55);
+
+  --animate-toast: toast 2.2s ease forwards;
+  --animate-sheet-up: sheet-up 0.25s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
+
+  @keyframes toast {
+    0% { opacity: 0; transform: translateY(8px); }
+    10%, 85% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(8px); }
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  --animate-pop: pop 0.5s ease-out;
+  --animate-petal: petal 3s ease-in infinite;
+  --animate-eq: eq 0.8s ease-in-out infinite;
+
+  @keyframes pop {
+    0% { transform: scale(0.4); opacity: 0; }
+    70% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @keyframes petal {
+    0% { transform: translateY(-40px) rotate(0); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translateY(520px) rotate(320deg); opacity: 0; }
+  }
+  @keyframes eq {
+    0%, 100% { height: 4px; }
+    50% { height: 14px; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* In the base layer so Tailwind utilities (font-moul, leading-*) still win. */
+@layer base {
+  html {
+    background: var(--color-ivory);
+    color: var(--color-charcoal);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    /* Khmer stacked vowels and subscripts need room. */
+    line-height: 1.6;
+  }
+
+  :lang(km) {
+    font-family: var(--font-khmer);
+    line-height: 1.7;
+    /* text-xs/sm/lg… set line-height via --tw-leading; Khmer needs at least 1.6. */
+    --tw-leading: 1.7;
+  }
+
+  :lang(en) {
+    --tw-leading: initial;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

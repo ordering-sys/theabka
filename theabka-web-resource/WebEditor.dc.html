@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Invitation editor (desktop)</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF6EE}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:14px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.side{width:100%;display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:transparent;font:inherit;font-size:14px;font-weight:600;color:#4A4A4A;cursor:pointer;text-align:left}
+.side:hover{background:#F6EFE2}
+.side-on{background:#7A1F2B;color:#fff}.side-on:hover{background:#7A1F2B}
+.lbl{font-size:13px;font-weight:600;color:#4A4A4A;display:block;margin-bottom:4px}
+.field{width:100%;min-height:46px;border:1.5px solid #D9CFC0;border-radius:12px;background:#fff;font:inherit;font-size:15px;padding:0 12px;color:#2B2B2B;outline:none}
+.field:focus{border-color:#7A1F2B}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(43,43,43,.06)}
+.track{display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border-radius:12px;border:1.5px solid #E3D8C6;background:#fff;font:inherit;color:#2B2B2B;cursor:pointer;text-align:left;width:100%}
+.track-on{border-color:#7A1F2B;background:#FBF1EF}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+</style>
+</helmet>
+<div style="background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6; min-height: 900px; position: relative;">
+<header style="background: #fff; border-bottom: 1px solid #EADFCB;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 24px;">
+<div style="display: flex; align-items: center; gap: 14px;">
+<a href="WebDashboard.dc.html" aria-label="Back to dashboard" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #2B2B2B;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<div><div style="font-weight: 700;">{{f.groomEn}} &amp; {{f.brideEn}}</div><div style="font-size: 12px; color: {{saveColor}};">{{saveText}}</div></div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px;">
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<a href="Main.dc.html" class="btn btn-s">{{t.site}}</a>
+<button class="btn btn-p" onClick="{{openPay}}">{{t.publish}} · $15</button>
+</div>
+</div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 24px; max-width: 1440px; margin: 0 auto;">
+<nav style="flex: 1 1 200px; max-width: 240px; display: flex; flex-direction: column; gap: 4px;" aria-label="Sections">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="7">
+<button class="side {{tb.cls}}" onClick="{{tb.go}}"><span style="width: 24px; height: 24px; border-radius: 999px; background: {{tb.dotBg}}; color: {{tb.dotFg}}; font-size: 12px; display: flex; align-items: center; justify-content: center; flex: none;">{{tb.n}}</span>{{tb.label}}</button>
+</sc-for>
+</nav>
+
+<main style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700;">{{stepTitle}}</h1>
+<sc-if value="{{s0}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+<div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+<div style="font-weight: 700; color: #7A1F2B;">{{t.groom}}</div>
+<div><label class="lbl" for="gk">{{t.nameKm}}</label><input id="gk" class="field" value="{{f.groomKm}}" onChange="{{on.groomKm}}"></div>
+<div><label class="lbl" for="ge">{{t.nameEn}}</label><input id="ge" class="field" value="{{f.groomEn}}" onChange="{{on.groomEn}}"></div>
+<div><label class="lbl" for="gp">{{t.parents}}</label><input id="gp" class="field" value="{{f.groomParents}}" onChange="{{on.groomParents}}"></div>
+</div>
+<div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+<div style="font-weight: 700; color: #7A1F2B;">{{t.bride}}</div>
+<div><label class="lbl" for="bk">{{t.nameKm}}</label><input id="bk" class="field" value="{{f.brideKm}}" onChange="{{on.brideKm}}"></div>
+<div><label class="lbl" for="be">{{t.nameEn}}</label><input id="be" class="field" value="{{f.brideEn}}" onChange="{{on.brideEn}}"></div>
+<div><label class="lbl" for="bp">{{t.parents}}</label><input id="bp" class="field" value="{{f.brideParents}}" onChange="{{on.brideParents}}"></div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{s1}}" hint-placeholder-val="{{false}}">
+<div class="card" style="display: flex; flex-direction: column; gap: 12px; max-width: 560px;">
+<div><label class="lbl" for="dt">{{t.date}}</label><input id="dt" type="date" class="field" value="{{f.date}}" onChange="{{on.date}}"></div>
+<div style="background: #FBF1EF; border-radius: 10px; padding: 14px; text-align: center;"><div style="font-size: 12px; color: #6B6358;">{{t.khDate}}</div><div style="font-size: 18px; font-weight: 600; color: #7A1F2B; line-height: 1.8;">{{khDate}}</div><div style="font-size: 13px; color: #5C5C5C;">{{enDate}}</div></div>
+<div><label class="lbl" for="tm">{{t.time}}</label><input id="tm" type="time" class="field" value="{{f.time}}" onChange="{{on.time}}"></div>
+</div>
+</sc-if>
+<sc-if value="{{s2}}" hint-placeholder-val="{{false}}">
+<div class="card" style="display: flex; flex-direction: column; gap: 12px;">
+<div><label class="lbl" for="vn">{{t.venueKm}}</label><input id="vn" class="field" value="{{f.venueKm}}" onChange="{{on.venueKm}}"></div>
+<div><label class="lbl" for="ve">{{t.venueEn}}</label><input id="ve" class="field" value="{{f.venueEn}}" onChange="{{on.venueEn}}"></div>
+<div style="height: 220px; border-radius: 12px; background: #E8E4D8; position: relative; overflow: hidden;">
+<div style="position: absolute; left: -20px; right: -20px; top: 90px; height: 40px; background: #B9D3DC; transform: rotate(-8deg);"></div>
+<div style="position: absolute; left: 30%; top: 0; bottom: 0; width: 10px; background: #fff;"></div>
+<div style="position: absolute; left: 0; right: 0; top: 170px; height: 8px; background: #fff;"></div>
+<div style="position: absolute; left: 52%; top: 60px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="#7A1F2B" stroke="#fff" stroke-width="1.2" aria-hidden="true"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5" fill="#fff"></circle></svg></div>
+<div style="position: absolute; right: 10px; bottom: 10px; background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 12px;">{{t.dragPin}}</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{s3}}" hint-placeholder-val="{{false}}">
+<div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+<sc-for list="{{schedule}}" as="ev" hint-placeholder-count="4">
+<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+<input class="field" type="time" value="{{ev.time}}" onChange="{{ev.onTime}}" aria-label="Time" style="width: 130px; flex: none;">
+<input class="field" value="{{ev.km}}" onChange="{{ev.onKm}}" aria-label="Title in Khmer" style="flex: 1 1 200px; width: auto;">
+<input class="field" value="{{ev.en}}" onChange="{{ev.onEn}}" aria-label="Title in English" style="flex: 1 1 200px; width: auto;">
+</div>
+</sc-for>
+<button class="btn btn-s" onClick="{{addEvent}}" style="align-self: flex-start;">+ {{t.addEvent}}</button>
+</div>
+</sc-if>
+<sc-if value="{{s4}}" hint-placeholder-val="{{false}}">
+<div class="card">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">
+<sc-for list="{{photos}}" as="p" hint-placeholder-count="6"><div style="height: 160px; border-radius: 10px; background: {{p.bg}}; border: {{p.border}}; display: flex; align-items: center; justify-content: center; color: {{p.fg}}; font-size: 13px; font-weight: 600;">{{p.label}}</div></sc-for>
+</div>
+<div style="font-size: 13px; color: #6B6358; margin-top: 10px;">{{t.photoNote}}</div>
+</div>
+</sc-if>
+<sc-if value="{{s5}}" hint-placeholder-val="{{false}}">
+<div class="card" style="display: flex; flex-direction: column; gap: 8px; max-width: 560px;">
+<sc-for list="{{tracks}}" as="tr" hint-placeholder-count="5"><button class="track {{tr.cls}}" onClick="{{tr.pick}}"><span style="width: 36px; height: 36px; border-radius: 999px; background: {{tr.dotBg}}; color: {{tr.dotFg}}; display: flex; align-items: center; justify-content: center; flex: none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5l11 7-11 7z"></path></svg></span><span><span style="display: block; font-weight: 600;">{{tr.name}}</span><span style="font-size: 12px; color: #5C5C5C;">{{tr.meta}}</span></span></button></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{s6}}" hint-placeholder-val="{{false}}">
+<div class="card" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+<div style="width: 170px; border: 1px solid #EADFCB; border-radius: 12px; overflow: hidden;"><div style="background: #E1232E; color: #fff; font-weight: 800; text-align: center; padding: 6px;">KHQR</div><div style="display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); padding: 12px;"><sc-for list="{{qr}}" as="c" hint-placeholder-count="441"><div style="aspect-ratio: 1; background: {{c}};"></div></sc-for></div></div>
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 10px;"><div style="font-size: 14px; color: #4A4A4A;">{{t.giftHint}}</div><button class="btn btn-s" onClick="{{noop}}" style="align-self: flex-start;">{{t.replaceQr}}</button></div>
+</div>
+</sc-if>
+<div style="display: flex; gap: 10px;">
+<sc-if value="{{notFirst}}" hint-placeholder-val="{{false}}"><button class="btn btn-s" onClick="{{prev}}">{{t.back}}</button></sc-if>
+<sc-if value="{{notLast}}" hint-placeholder-val="{{true}}"><button class="btn btn-p" onClick="{{next}}">{{t.next}}</button></sc-if>
+<sc-if value="{{isLast}}" hint-placeholder-val="{{false}}"><button class="btn btn-p" onClick="{{openPay}}">{{t.publish}}</button></sc-if>
+</div>
+</main>
+
+<aside style="flex: 1 1 300px; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+<div style="font-size: 13px; font-weight: 700; color: #5C5C5C;">{{t.livePreview}}</div>
+<div style="width: 300px; height: 600px; border-radius: 40px; background: #2B2B2B; padding: 10px; box-shadow: 0 18px 44px rgba(122,31,43,0.22);">
+<div style="height: 100%; border-radius: 31px; background: #7A1F2B; color: #FBF6EE; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px;">
+<div style="position: absolute; inset: 14px; border: 1px solid #C9A24B; border-radius: 20px;"></div>
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.3" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path></svg>
+<div style="font-family: Moul, serif; font-size: 13px; color: #C9A24B; line-height: 1.9; margin-top: 8px;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-size: 17px; font-weight: 600; margin-top: 12px;">{{f.groomKm}} &amp; {{f.brideKm}}</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 24px; line-height: 1.3;">{{f.groomEn}} &amp; {{f.brideEn}}</div>
+<div style="width: 70px; height: 1px; background: #C9A24B; margin: 14px 0;"></div>
+<div style="font-size: 13px; line-height: 1.9;">{{khDate}}</div>
+<div style="font-size: 11px; opacity: 0.85;">{{enDate}}</div>
+<div style="font-size: 13px; margin-top: 12px;">{{f.venueKm}}</div>
+<div style="font-size: 11px; opacity: 0.85;">{{f.venueEn}}</div>
+<div style="margin-top: 16px; display: flex; gap: 8px;"><span style="padding: 6px 16px; border-radius: 999px; background: #C9A24B; color: #2B2B2B; font-size: 12px; font-weight: 700;">RSVP</span><span style="padding: 6px 16px; border-radius: 999px; border: 1px solid #C9A24B; font-size: 12px; font-weight: 700;">{{t.gift}}</span></div>
+</div>
+</div>
+</aside>
+</div>
+
+<sc-if value="{{payOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(20,12,12,0.55); z-index: 20; display: flex; align-items: center; justify-content: center; padding: 24px;">
+<div role="dialog" aria-label="Pay with KHQR" style="width: 100%; max-width: 420px; background: #fff; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;">
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"><div style="font-size: 18px; font-weight: 700;">{{t.scan}}</div><button onClick="{{closePay}}" aria-label="Close" style="width: 44px; height: 44px; border: 0; border-radius: 999px; background: #F6EFE2; cursor: pointer; display: flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+<sc-if value="{{waiting}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+<div style="width: 220px; border: 1px solid #EADFCB; border-radius: 12px; overflow: hidden;"><div style="background: #E1232E; color: #fff; font-weight: 800; padding: 6px;">KHQR</div><div style="font-size: 22px; font-weight: 700; padding-top: 6px;">$15.00</div><div style="display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); padding: 10px 20px 16px;"><sc-for list="{{qr}}" as="c" hint-placeholder-count="441"><div style="aspect-ratio: 1; background: {{c}};"></div></sc-for></div></div>
+<div style="color: #5C5C5C;">៦០,០០០ ៛</div>
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: #7A1F2B;"><span style="width: 10px; height: 10px; border-radius: 99px; background: #C9A24B; animation: pulse 1s infinite;"></span>{{t.waitingPay}}</div>
+</div>
+</sc-if>
+<sc-if value="{{paid}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+<div style="width: 72px; height: 72px; border-radius: 999px; background: #5E8C7A; color: #fff; display: flex; align-items: center; justify-content: center; animation: pop .5s;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></div>
+<div style="font-size: 20px; font-weight: 700;">{{t.live}}</div>
+<div style="background: #F6EFE2; border-radius: 10px; padding: 10px 14px; font-weight: 600;">theabka.com/i/dara-sophea</div>
+<a href="WebDashboard.dc.html" class="btn btn-p" style="width: 100%;">{{t.toDash}}</a>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  state = {
+    lang: null, step: 0, saving: false, track: 0, pay: 'closed',
+    f: { groomKm: 'សុខ ដារ៉ា', groomEn: 'Sok Dara', groomParents: 'លោក សុខ វណ្ណៈ & លោកស្រី កែវ ស្រីមុំ', brideKm: 'ចាន់ សុភា', brideEn: 'Chan Sophea', brideParents: 'លោក ចាន់ រិទ្ធី & លោកស្រី ម៉ៅ សុខា', date: '2026-12-13', time: '07:00', venueKm: 'សណ្ឋាគារ សុខា ភ្នំពេញ', venueEn: 'Sokha Phnom Penh Hotel' },
+    schedule: [{ time: '07:00', km: 'ពិធីកាត់សក់', en: 'Hair-cutting ceremony' }, { time: '09:00', km: 'ពិធីសូត្រមន្តចម្រើនព្រះបរិត្ត', en: 'Monk blessing' }, { time: '11:00', km: 'ពិធីសំពះផ្ទឹម និងចងដៃ', en: 'Tying of the knot' }, { time: '17:00', km: 'ពិធីជប់លៀងអាពាហ៍ពិពាហ៍', en: 'Wedding reception' }]
+  };
+  saved() { this.setState({ saving: true }); clearTimeout(this._s); this._s = setTimeout(() => this.setState({ saving: false }), 800); }
+  componentWillUnmount() { clearTimeout(this._s); clearTimeout(this._p); }
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km ? {
+      site: 'គេហទំព័រ', publish: 'ផ្សព្វផ្សាយ', saved: 'បានរក្សាទុកដោយស្វ័យប្រវត្តិ', saving: 'កំពុងរក្សាទុក…', tabs: ['គូស្វាមីភរិយា', 'កាលបរិច្ឆេទ', 'ទីកន្លែង', 'កម្មវិធី', 'រូបថត', 'តន្ត្រី', 'ចំណងដៃ'],
+      groom: 'កូនកំលោះ', bride: 'កូនក្រមុំ', nameKm: 'ឈ្មោះ (ខ្មែរ)', nameEn: 'ឈ្មោះ (អង់គ្លេស)', parents: 'ឪពុកម្ដាយ', date: 'កាលបរិច្ឆេទ', khDate: 'បង្ហាញលើធៀបការជា', time: 'ម៉ោងចាប់ផ្ដើម',
+      venueKm: 'ឈ្មោះទីកន្លែង (ខ្មែរ)', venueEn: 'ឈ្មោះទីកន្លែង (អង់គ្លេស)', dragPin: 'អូសម្ជុលដើម្បីកែទីតាំង', addEvent: 'បន្ថែមកម្មវិធី', photoNote: 'អូសដើម្បីរៀបលំដាប់។ រូបទីមួយជារូបក្រប។',
+      giftHint: 'បង្ហោះរូប KHQR របស់អ្នក។ ប្រាក់ចូលគណនីអ្នកផ្ទាល់។', replaceQr: 'ប្ដូររូប KHQR', back: 'ថយក្រោយ', next: 'បន្ទាប់', livePreview: 'មើលផ្ទាល់', gift: 'ចំណងដៃ',
+      scan: 'ស្កេនដើម្បីបង់ប្រាក់', waitingPay: 'កំពុងរង់ចាំការបង់ប្រាក់…', live: 'ធៀបការរបស់អ្នករួចរាល់ហើយ!', toDash: 'ទៅផ្ទាំងគ្រប់គ្រង', cover: 'ក្រប', add: '+ បន្ថែម'
+    } : {
+      site: 'Website', publish: 'Publish', saved: 'All changes saved', saving: 'Saving…', tabs: ['Couple', 'Date and time', 'Venue', 'Schedule', 'Photos', 'Music', 'Gift'],
+      groom: 'Groom', bride: 'Bride', nameKm: 'Name (Khmer)', nameEn: 'Name (English)', parents: 'Parents', date: 'Date', khDate: 'Shows on the invitation as', time: 'Start time',
+      venueKm: 'Venue name (Khmer)', venueEn: 'Venue name (English)', dragPin: 'Drag the pin to adjust', addEvent: 'Add event', photoNote: 'Drag to reorder. The first photo is the cover.',
+      giftHint: 'Upload your own KHQR. The money goes straight to your account.', replaceQr: 'Replace KHQR image', back: 'Back', next: 'Next', livePreview: 'Live preview', gift: 'Gift',
+      scan: 'Scan to pay', waitingPay: 'Waiting for payment…', live: 'Your invitation is live!', toDash: 'Go to dashboard', cover: 'Cover', add: '+ Add'
+    };
+    const step = this.state.step;
+    const kn = (s) => String(s).replace(/[0-9]/g, (d) => '០១២៣៤៥៦៧៨៩'[d]);
+    const tabs = t.tabs.map((label, i) => ({ label, n: km ? kn(i + 1) : i + 1, cls: i === step ? 'side-on' : '', dotBg: i === step ? '#C9A24B' : '#F1E8D8', dotFg: '#2B2B2B', go: () => this.setState({ step: i }) }));
+    const f = this.state.f;
+    const on = {};
+    Object.keys(f).forEach((k) => { on[k] = (e) => { this.setState({ f: Object.assign({}, this.state.f, { [k]: e.target.value }) }); this.saved(); }; });
+    const dKm = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+    const mKm = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+    const dEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const mEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    let khDate = '—', enDate = '';
+    const p = (f.date || '').split('-').map(Number);
+    if (p.length === 3 && p[0]) {
+      const wd = new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay();
+      khDate = 'ថ្ងៃ' + dKm[wd] + ' ទី' + kn(p[2]) + ' ខែ' + mKm[p[1] - 1] + ' ឆ្នាំ' + kn(p[0]);
+      enDate = dEn[wd] + ', ' + p[2] + ' ' + mEn[p[1] - 1] + ' ' + p[0] + ' · ' + (f.time || '');
+    }
+    const setEv = (i, k, v) => { this.setState({ schedule: this.state.schedule.map((e, j) => (j === i ? Object.assign({}, e, { [k]: v }) : e)) }); this.saved(); };
+    const schedule = this.state.schedule.map((e, i) => ({ time: e.time, km: e.km, en: e.en, onTime: (ev) => setEv(i, 'time', ev.target.value), onKm: (ev) => setEv(i, 'km', ev.target.value), onEn: (ev) => setEv(i, 'en', ev.target.value) }));
+    const tones = ['#9C5B4E', '#7A6A4E', '#5E7A6E', '#8A4A5A'];
+    const photos = [0, 1, 2, 3, 4, 5].map((i) => i < 4
+      ? { bg: tones[i], border: i === 0 ? '3px solid #C9A24B' : '0', fg: '#fff', label: i === 0 ? t.cover : 'Photo ' + (i + 1) }
+      : { bg: '#fff', border: '1.5px dashed #C9A24B', fg: '#7A1F2B', label: t.add });
+    const tn = km ? [['ភ្លេងការ សារិកាកែវ', 'ភ្លេងប្រពៃណី · 3:12'], ['ផ្កាឈូករីក', 'Piano · 2:48'], ['ស្នេហាអមតៈ', 'Acoustic · 3:30'], ['ពិធីមង្គល', 'ភ្លេងខ្មែរ · 2:55'], ['Golden Day', 'Strings · 3:05']]
+      : [['Sarika Keo (wedding pinpeat)', 'Traditional · 3:12'], ['Lotus in Bloom', 'Piano · 2:48'], ['Forever Love', 'Acoustic · 3:30'], ['Mangala Ceremony', 'Khmer instrumental · 2:55'], ['Golden Day', 'Strings · 3:05']];
+    const tracks = tn.map((n, i) => ({ name: n[0], meta: n[1], cls: this.state.track === i ? 'track-on' : '', dotBg: this.state.track === i ? '#7A1F2B' : '#F1E8D8', dotFg: this.state.track === i ? '#fff' : '#7A1F2B', pick: () => { this.setState({ track: i }); this.saved(); } }));
+    let seed = 9;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const qr = [];
+    for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
+      const inF = (cx, cy) => x >= cx && x < cx + 7 && y >= cy && y < cy + 7;
+      const fin = (cx, cy) => { const dx = x - cx, dy = y - cy; return (dx === 0 || dx === 6 || dy === 0 || dy === 6) || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4); };
+      let v;
+      if (inF(0, 0)) v = fin(0, 0); else if (inF(14, 0)) v = fin(14, 0); else if (inF(0, 14)) v = fin(0, 14); else v = rnd() > 0.5;
+      qr.push(v ? '#1E1E1E' : '#FFFFFF');
+    }
+    return {
+      t, tabs, f, on, khDate, enDate, schedule, photos, tracks, qr, stepTitle: t.tabs[step],
+      s0: step === 0, s1: step === 1, s2: step === 2, s3: step === 3, s4: step === 4, s5: step === 5, s6: step === 6,
+      notFirst: step > 0, notLast: step < 6, isLast: step === 6,
+      prev: () => this.setState({ step: Math.max(0, step - 1) }), next: () => this.setState({ step: Math.min(6, step + 1) }),
+      saveText: this.state.saving ? t.saving : t.saved, saveColor: this.state.saving ? '#8A6A1F' : '#3E6B5A',
+      addEvent: () => { this.setState({ schedule: this.state.schedule.concat([{ time: '18:00', km: 'កម្មវិធីថ្មី', en: 'New event' }]) }); this.saved(); },
+      noop: () => this.saved(),
+      payOpen: this.state.pay !== 'closed', waiting: this.state.pay === 'waiting', paid: this.state.pay === 'paid',
+      openPay: () => { clearTimeout(this._p); this.setState({ pay: 'waiting' }); this._p = setTimeout(() => this.setState({ pay: 'paid' }), 3000); },
+      closePay: () => { clearTimeout(this._p); this.setState({ pay: 'closed' }); },
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

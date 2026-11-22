@@ -1,0 +1,71 @@
+const en = {
+  myInv: "My invitations",
+  hello: (name: string) => `Hi ${name}! Here are your invitations.`,
+  helloNew: "Welcome! Your invitations will show up here.",
+  newInv: "New invitation",
+  notPublished: "Not published yet",
+  going: "going",
+  account: "Account",
+  signOut: "Sign out",
+  empty: {
+    title: "No invitations yet",
+    body: "Pick a template and make your first one. It's free until you publish.",
+    cta: "Create your first invitation",
+  },
+  detail: {
+    back: "Back to my invitations",
+    edit: "Edit invitation (free)",
+    publishCta: "Preview and publish",
+    draftNote: "This invitation is a draft. Publish it to get a link for your guests.",
+    stats: { opened: "Opened", attending: "Attending", notAttending: "Not attending", total: "Total guests" },
+    rsvps: "RSVPs",
+    search: "Search names…",
+    searchLabel: "Search guests",
+    all: "All",
+    csv: "Export CSV",
+    csvDone: (file: string) => `Downloaded ${file}`,
+    noMatch: "No guests match that search",
+    noRsvps: "No replies yet. Share your link to start getting RSVPs.",
+    cols: { name: "Name", status: "Reply", people: "People", message: "Message", date: "Date" },
+    people: "people",
+    notFound: "We couldn't find this invitation.",
+  },
+};
+
+export type DashboardContent = typeof en;
+
+const km: DashboardContent = {
+  myInv: "ធៀបការរបស់ខ្ញុំ",
+  hello: (name) => `សួស្ដី ${name}! នេះជាធៀបការរបស់អ្នក។`,
+  helloNew: "សូមស្វាគមន៍! ធៀបការរបស់អ្នកនឹងបង្ហាញនៅទីនេះ។",
+  newInv: "បង្កើតធៀបការថ្មី",
+  notPublished: "មិនទាន់ផ្សព្វផ្សាយ",
+  going: "នាក់ចូលរួម",
+  account: "គណនី",
+  signOut: "ចាកចេញ",
+  empty: {
+    title: "មិនទាន់មានធៀបការនៅឡើយ",
+    body: "ជ្រើសរើសគំរូ ហើយបង្កើតធៀបការដំបូងរបស់អ្នក។ ឥតគិតថ្លៃ រហូតដល់ពេលផ្សព្វផ្សាយ។",
+    cta: "បង្កើតធៀបការដំបូង",
+  },
+  detail: {
+    back: "ត្រឡប់ទៅធៀបការរបស់ខ្ញុំ",
+    edit: "កែសម្រួលធៀបការ (ឥតគិតថ្លៃ)",
+    publishCta: "មើល និងផ្សព្វផ្សាយ",
+    draftNote: "ធៀបការនេះនៅជាសេចក្ដីព្រាង។ ផ្សព្វផ្សាយដើម្បីទទួលបានតំណសម្រាប់ភ្ញៀវ។",
+    stats: { opened: "បានបើក", attending: "ចូលរួម", notAttending: "មិនចូលរួម", total: "ភ្ញៀវសរុប" },
+    rsvps: "ការឆ្លើយតប",
+    search: "ស្វែងរកឈ្មោះ…",
+    searchLabel: "ស្វែងរកភ្ញៀវ",
+    all: "ទាំងអស់",
+    csv: "នាំចេញ CSV",
+    csvDone: (file) => `បានទាញយក ${file}`,
+    noMatch: "រកមិនឃើញឈ្មោះនេះទេ",
+    noRsvps: "មិនទាន់មានការឆ្លើយតបទេ។ ចែករំលែកតំណរបស់អ្នក ដើម្បីចាប់ផ្ដើមទទួលការឆ្លើយតប។",
+    cols: { name: "ឈ្មោះ", status: "ចម្លើយ", people: "ចំនួន", message: "សារ", date: "កាលបរិច្ឆេទ" },
+    people: "នាក់",
+    notFound: "រកមិនឃើញធៀបការនេះទេ។",
+  },
+};
+
+export const dashboardContent = { km, en };

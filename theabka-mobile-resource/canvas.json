@@ -1,0 +1,114 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Landing",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "SignIn.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · Sign in",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "Templates.dc.html",
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Pick a template",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "Editor.dc.html",
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4 · Edit invitation",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "Pay.dc.html",
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · Preview and pay",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "Dashboard.dc.html",
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "6 · Host dashboard",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "Invite.dc.html",
+      "x": 0,
+      "y": 1300,
+      "w": 390,
+      "h": 844,
+      "title": "7–9 · Guest invitation, RSVP and Gift",
+      "is_interactive": true,
+      "radius": 32
+    },
+    {
+      "file": "States.dc.html",
+      "x": 470,
+      "y": 1300,
+      "w": 1720,
+      "h": 844,
+      "title": "Extra states"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "hostflow",
+      "x": 0,
+      "y": -300,
+      "w": 240,
+      "maxW": 2740,
+      "text": "Host flow: landing → sign in → template → edit → pay → dashboard",
+      "kind": "title1"
+    },
+    {
+      "id": "guestflow",
+      "x": 0,
+      "y": 1000,
+      "w": 240,
+      "maxW": 2190,
+      "text": "Guest flow and extra states",
+      "kind": "title1"
+    },
+    {
+      "id": "howto",
+      "x": 2820,
+      "y": 0,
+      "w": 320,
+      "text": "How to test: open any screen with Play, then tap through. Everything is fake sample data. Payment succeeds by itself 3 seconds after the KHQR sheet opens. Tap the KH / EN toggle on any screen to switch the app's language.",
+      "size": 24,
+      "fill": "orange"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

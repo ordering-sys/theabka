@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Host dashboard</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:14px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.inv{width:100%;display:flex;gap:12px;align-items:center;background:#fff;border:0;border-radius:12px;padding:10px;box-shadow:0 2px 12px rgba(43,43,43,.07);font:inherit;color:#2B2B2B;text-align:left;cursor:pointer;text-decoration:none}
+.chip{min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid #D9CFC0;background:#fff;font:inherit;font-size:13px;font-weight:600;color:#2B2B2B;cursor:pointer}
+.chip-on{background:#2B2B2B;border-color:#2B2B2B;color:#fff}
+.share{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#2B2B2B;text-decoration:none;background:none;border:0;font-family:inherit;cursor:pointer;min-height:44px}
+.share-ic{width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center}
+.field{width:100%;min-height:44px;border:1.5px solid #D9CFC0;border-radius:12px;background:#fff;font:inherit;font-size:14px;padding:0 12px 0 38px;color:#2B2B2B;outline:none}
+.field:focus{border-color:#7A1F2B}
+@keyframes toast{0%{opacity:0;transform:translateY(10px)}10%,85%{opacity:1;transform:none}100%{opacity:0}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6;">
+<div style="position: absolute; inset: 0; overflow-y: auto;">
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+<div>
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 6px;">
+<a href="Main.dc.html" style="font-family: Moul, serif; font-size: 16px; color: #7A1F2B; text-decoration: none; min-height: 44px; display: flex; align-items: center;">ធៀបការ</a>
+<div style="display: flex; align-items: center; gap: 8px;">
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<div style="width: 36px; height: 36px; border-radius: 999px; background: #C9A24B; color: #2B2B2B; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center;" aria-label="Account">ដ</div>
+</div>
+</header>
+<div style="padding: 8px 16px;">
+<h1 style="margin: 0; font-size: 22px; font-weight: 700;">{{t.myInv}}</h1>
+<p style="margin: 0 0 14px; font-size: 13px; color: #5C5C5C;">{{t.hello}}</p>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<button class="inv" onClick="{{openLive}}">
+<div style="width: 64px; height: 84px; border-radius: 8px; background: #7A1F2B; flex: none; padding: 4px;"><div style="height: 100%; border: 1px solid #C9A24B; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-style: italic; color: #FBF6EE; font-size: 11px; text-align: center;">D &amp; S</div></div>
+<div style="flex-grow: 1; min-width: 0;">
+<div style="display: flex; align-items: center; gap: 6px;"><span style="font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #E4EFEA; color: #2F5A4A;">{{t.live}}</span><span style="font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #F3E6C8; color: #6E5418;">{{t.paid}}</span></div>
+<div style="font-weight: 700; font-size: 15px; margin-top: 2px;">ដារ៉ា &amp; សុភា · Dara &amp; Sophea</div>
+<div style="font-size: 12px; color: #5C5C5C;">{{t.wedding}} · 13.12.2026 · {{attendSummary}}</div>
+</div>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6358" stroke-width="2" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</button>
+<a class="inv" href="Editor.dc.html">
+<div style="width: 64px; height: 84px; border-radius: 8px; background: #3F6B5B; flex: none; padding: 4px;"><div style="height: 100%; border: 1px solid #E3C277; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-style: italic; color: #F6EEDD; font-size: 11px; text-align: center;">V &amp; L</div></div>
+<div style="flex-grow: 1; min-width: 0;">
+<div><span style="font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #ECE6DC; color: #5C5C5C;">{{t.draft}}</span></div>
+<div style="font-weight: 700; font-size: 15px; margin-top: 2px;">វិបុល &amp; ស្រីល័ក្ខ · Vibol &amp; Sreyleak</div>
+<div style="font-size: 12px; color: #5C5C5C;">{{t.engagement}} · {{t.notPublished}}</div>
+</div>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6358" stroke-width="2" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</a>
+<a href="Templates.dc.html" class="btn" style="border: 1.5px dashed #C9A24B; background: #fff; color: #7A1F2B; min-height: 56px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>{{t.newInv}}</a>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{false}}">
+<div>
+<header style="position: sticky; top: 0; z-index: 4; display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #FBF6EE; border-bottom: 1px solid #EADFCB;">
+<button onClick="{{back}}" aria-label="Back to my invitations" style="width: 44px; height: 44px; border: 0; background: none; display: flex; align-items: center; justify-content: center; color: #2B2B2B; cursor: pointer;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<div style="font-size: 15px; font-weight: 700;">Dara &amp; Sophea</div>
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+</header>
+
+<div style="padding: 14px 16px 0; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 2px 12px rgba(43,43,43,0.06);">
+<div style="font-size: 12px; color: #5C5C5C; font-weight: 600;">{{t.shareLink}}</div>
+<div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+<div style="flex-grow: 1; min-width: 0; font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">theabka.com/i/dara-sophea</div>
+<button onClick="{{copy}}" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: #7A1F2B; color: #fff; font: inherit; font-weight: 600; font-size: 13px; cursor: pointer;">{{copyLabel}}</button>
+</div>
+<div style="display: flex; margin-top: 10px;">
+<a class="share" href="https://t.me/share/url?url=https://theabka.com/i/dara-sophea"><span class="share-ic" style="background: #229ED9; color: #fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 4.3L2.9 11.5c-1 .4-1 1.6 0 1.9l4.6 1.5 1.8 5.6c.2.6 1 .8 1.5.3l2.6-2.4 4.6 3.4c.6.4 1.4.1 1.6-.6l3.1-15.6c.2-.9-.6-1.6-1.2-1.3z"></path></svg></span>Telegram</a>
+<a class="share" href="https://www.facebook.com/dialog/send?link=https://theabka.com/i/dara-sophea"><span class="share-ic" style="background: #0866FF; color: #fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 6.1 2 11.3c0 2.9 1.4 5.5 3.7 7.2V22l3.4-1.9c.9.3 1.9.4 2.9.4 5.5 0 10-4.1 10-9.2S17.5 2 12 2zm1 12.4l-2.6-2.7-5 2.7 5.5-5.8 2.6 2.7 4.9-2.7-5.4 5.8z"></path></svg></span>Messenger</a>
+<button class="share" onClick="{{qrToast}}"><span class="share-ic" style="background: #2B2B2B; color: #fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3zM17 20h4v-3"></path></svg></span>{{t.qr}}</button>
+<a class="share" href="Invite.dc.html"><span class="share-ic" style="background: #F3E6C8; color: #7A1F2B;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>{{t.view}}</a>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+<div style="background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 2px 12px rgba(43,43,43,0.06);">
+<div style="font-size: 12px; color: #5C5C5C; font-weight: 600;">{{s.label}}</div>
+<div style="font-size: 26px; font-weight: 700; color: {{s.color}}; line-height: 1.3;">{{s.value}}</div>
+</div>
+</sc-for>
+</div>
+
+<a href="Editor.dc.html" class="btn btn-s"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg>{{t.edit}}</a>
+
+<div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">{{t.rsvps}} ({{count}})</h2>
+<button onClick="{{exportCsv}}" style="min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #D9CFC0; background: #fff; font: inherit; font-size: 13px; font-weight: 600; color: #2B2B2B; cursor: pointer; display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"></path></svg>CSV</button>
+</div>
+<div style="position: relative;">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6358" stroke-width="2" aria-hidden="true" style="position: absolute; left: 12px; top: 13px;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<input class="field" placeholder="{{t.search}}" value="{{q}}" onChange="{{onQ}}" aria-label="Search guests">
+</div>
+<div style="display: flex; gap: 6px; margin: 10px 0;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><button class="chip {{f.cls}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+</div>
+<div style="background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(43,43,43,0.06); overflow: hidden; margin-bottom: 24px;">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div style="padding: 10px 12px; border-bottom: 1px solid #F1E8D8; display: flex; gap: 10px;">
+<div style="width: 36px; height: 36px; border-radius: 999px; background: {{r.avBg}}; color: {{r.avFg}}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex: none;">{{r.initial}}</div>
+<div style="flex-grow: 1; min-width: 0;">
+<div style="display: flex; justify-content: space-between; gap: 8px;"><span style="font-weight: 600; font-size: 14px;">{{r.name}}</span><span style="font-size: 11px; color: #6B6358; white-space: nowrap;">{{r.date}}</span></div>
+<div style="display: flex; gap: 6px; align-items: center; font-size: 12px;"><span style="font-weight: 700; padding: 0 8px; border-radius: 999px; background: {{r.badgeBg}}; color: {{r.badgeFg}};">{{r.status}}</span><span style="color: #5C5C5C;">{{r.people}}</span></div>
+<sc-if value="{{r.hasMsg}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #4A4A4A; margin-top: 2px;">“{{r.msg}}”</div></sc-if>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{false}}"><div style="padding: 24px; text-align: center; font-size: 14px; color: #6B6358;">{{t.noMatch}}</div></sc-if>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 24px; z-index: 20; background: #2B2B2B; color: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; align-items: center; gap: 8px; animation: toast 2.2s forwards;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC1AC" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>{{toast}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { lang: null, view: 'list', q: '', filter: 'all', copied: false, toast: '' };
+  toastMsg(m) {
+    clearTimeout(this._t);
+    this.setState({ toast: m });
+    this._t = setTimeout(() => this.setState({ toast: '' }), 2200);
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km ? {
+      myInv: 'ធៀបការរបស់ខ្ញុំ', hello: 'សួស្ដី ដារ៉ា! នេះជាធៀបការរបស់អ្នក។', live: 'ផ្សាយហើយ', paid: 'បានបង់', draft: 'ព្រាង', wedding: 'អាពាហ៍ពិពាហ៍', engagement: 'ភ្ជាប់ពាក្យ',
+      notPublished: 'មិនទាន់ផ្សព្វផ្សាយ', newInv: 'បង្កើតធៀបការថ្មី', shareLink: 'តំណចែករំលែក', copy: 'ចម្លង', copied: 'បានចម្លង', qr: 'ទាញយក QR', view: 'មើល',
+      opened: 'បានបើក', attending: 'ចូលរួម', notAttending: 'មិនចូលរួម', total: 'ភ្ញៀវសរុប', edit: 'កែសម្រួលធៀបការ (ឥតគិតថ្លៃ)', rsvps: 'ការឆ្លើយតប',
+      search: 'ស្វែងរកឈ្មោះ…', all: 'ទាំងអស់', yes: 'ចូលរួម', no: 'មិនចូលរួម', people: 'នាក់', noMatch: 'រកមិនឃើញឈ្មោះនេះទេ',
+      csvDone: 'បានទាញយក rsvp-dara-sophea.csv', qrDone: 'បានរក្សាទុករូប QR', going: 'នាក់ចូលរួម'
+    } : {
+      myInv: 'My invitations', hello: 'Hi Dara! Here are your invitations.', live: 'Live', paid: 'Paid', draft: 'Draft', wedding: 'Wedding', engagement: 'Engagement',
+      notPublished: 'Not published yet', newInv: 'New invitation', shareLink: 'Share link', copy: 'Copy', copied: 'Copied', qr: 'QR code', view: 'View',
+      opened: 'Opened', attending: 'Attending', notAttending: 'Not attending', total: 'Total guests', edit: 'Edit invitation (free)', rsvps: 'RSVPs',
+      search: 'Search names…', all: 'All', yes: 'Attending', no: 'Not attending', people: 'people', noMatch: 'No guests match that search',
+      csvDone: 'Downloaded rsvp-dara-sophea.csv', qrDone: 'QR image saved', going: 'going'
+    };
+    const data = [
+      ['ចាន់ ធីតា', true, 2, 'សូមជូនពរឲ្យមានសុភមង្គល!', '20 Nov'],
+      ['Sopheak Lim', true, 1, 'Congratulations, see you there!', '20 Nov'],
+      ['ហេង សុវណ្ណ', true, 4, '', '20 Nov'],
+      ['Ratha Keo', false, 1, 'Sorry, I will be in Siem Reap. Best wishes!', '19 Nov'],
+      ['សុខ ពិសី', true, 3, 'រីករាយណាស់!', '19 Nov'],
+      ['Vannak Chea', true, 2, '', '19 Nov'],
+      ['ម៉ៅ សុជាតា', true, 2, 'ជូនពរ​ឲ្យ​ស្រឡាញ់​គ្នា​រហូត', '18 Nov'],
+      ['Dalin Pov', true, 1, '', '18 Nov'],
+      ['គឹម សុខា', false, 1, 'សុំទោស មិនអាចចូលរួមបាន', '18 Nov'],
+      ['Bopha Nhem', true, 2, 'So happy for you both!', '17 Nov'],
+      ['អ៊ុំ វិសាល', true, 5, '', '17 Nov'],
+      ['Pisey Tan', true, 2, '', '17 Nov'],
+      ['ឡុង ចន្ទា', true, 2, 'សូមអបអរសាទរ', '16 Nov'],
+      ['Kosal Meas', true, 1, 'See you at the reception', '16 Nov'],
+      ['ប៉ិច សុភាព', true, 3, '', '16 Nov'],
+      ['Sreymom Ouk', false, 2, 'We are abroad, sending love', '15 Nov'],
+      ['ទេព ម៉ានិត', true, 2, '', '15 Nov'],
+      ['Chenda Sok', true, 1, '', '15 Nov'],
+      ['យឹម បូរ៉ា', true, 4, 'ជូនពរ​ឲ្យ​មាន​កូន​ឆាប់ៗ', '14 Nov'],
+      ['Visal Heng', true, 2, '', '14 Nov'],
+      ['ស៊ិន សុធា', true, 1, '', '13 Nov'],
+      ['Leakhena Chhay', true, 2, 'Can not wait!', '13 Nov'],
+      ['នួន សំណាង', false, 1, '', '12 Nov'],
+      ['Rithy Prak', true, 3, '', '12 Nov']
+    ];
+    const yesN = data.filter((d) => d[1]).length;
+    const noN = data.length - yesN;
+    const guests = data.filter((d) => d[1]).reduce((a, d) => a + d[2], 0);
+    const kn = (n) => (km ? String(n).replace(/[0-9]/g, (d) => '០១២៣៤៥៦៧៨៩'[d]) : String(n));
+    const q = (this.state.q || '').toLowerCase();
+    const rows = data
+      .filter((d) => (this.state.filter === 'all' || (this.state.filter === 'yes') === d[1]) && (!q || d[0].toLowerCase().includes(q)))
+      .map((d) => ({
+        name: d[0], initial: d[0].charAt(0), date: d[4], msg: d[3], hasMsg: !!d[3],
+        status: d[1] ? t.yes : t.no, people: d[1] ? kn(d[2]) + ' ' + t.people : '',
+        badgeBg: d[1] ? '#E4EFEA' : '#F6E3E0', badgeFg: d[1] ? '#2F5A4A' : '#7A1F2B',
+        avBg: d[1] ? '#F3E6C8' : '#ECE6DC', avFg: d[1] ? '#6E5418' : '#5C5C5C'
+      }));
+    const filters = [['all', t.all], ['yes', t.yes], ['no', t.no]].map((f) => ({
+      label: f[1], cls: this.state.filter === f[0] ? 'chip-on' : '', pick: () => this.setState({ filter: f[0] })
+    }));
+    return {
+      t, rows, filters, q: this.state.q, count: kn(rows.length), noRows: rows.length === 0,
+      isList: this.state.view === 'list', isDetail: this.state.view === 'detail',
+      attendSummary: kn(guests) + ' ' + t.going,
+      stats: [
+        { label: t.opened, value: kn(186), color: '#2B2B2B' },
+        { label: t.attending, value: kn(yesN), color: '#3E6B5A' },
+        { label: t.notAttending, value: kn(noN), color: '#7A1F2B' },
+        { label: t.total, value: kn(guests), color: '#6E5418' }
+      ],
+      openLive: () => this.setState({ view: 'detail' }), back: () => this.setState({ view: 'list' }),
+      onQ: (e) => this.setState({ q: e.target.value }),
+      copyLabel: this.state.copied ? t.copied : t.copy, copy: () => this.setState({ copied: true }),
+      exportCsv: () => this.toastMsg(t.csvDone), qrToast: () => this.toastMsg(t.qrDone),
+      hasToast: !!this.state.toast, toast: this.state.toast,
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

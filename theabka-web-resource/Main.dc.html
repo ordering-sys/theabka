@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>TheabKa website</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF6EE}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 24px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.btn-g{background:#C9A24B;color:#2B2B2B}.btn-g:hover{color:#2B2B2B;background:#B89140}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.nav a{text-decoration:none;color:#2B2B2B;font-size:14px;font-weight:500;padding:10px 4px}
+.nav a:hover{color:#7A1F2B}
+.faq{width:100%;text-align:left;background:#fff;border:0;border-radius:12px;padding:16px 20px;font:inherit;font-size:16px;font-weight:600;color:#2B2B2B;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;min-height:56px}
+.chip{min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid #D9CFC0;background:#fff;font:inherit;font-size:14px;font-weight:600;color:#2B2B2B;cursor:pointer}
+.chip-on{background:#2B2B2B;border-color:#2B2B2B;color:#fff}
+</style>
+</helmet>
+<div style="background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6;">
+
+<header style="position: sticky; top: 0; z-index: 10; background: rgba(251,246,238,0.95); border-bottom: 1px solid #EADFCB;">
+<div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px;">
+<a href="#top" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+<span style="width: 38px; height: 38px; border-radius: 10px; background: #7A1F2B; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.6" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path><path d="M6 17h12"></path><path d="M8 20h8"></path></svg></span>
+<span style="line-height: 1.1;"><span style="display: block; font-family: Moul, serif; font-size: 16px; color: #7A1F2B;">ធៀបការ</span><span style="display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: #5C5C5C;">THEABKA</span></span>
+</a>
+<nav class="nav" style="display: flex; gap: 24px; flex-wrap: wrap;">
+<a href="WebHowItWorks.dc.html">{{t.navHow}}</a>
+<a href="#templates">{{t.navTpl}}</a>
+<a href="#pricing">{{t.navPrice}}</a>
+<a href="#faq">{{t.navFaq}}</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px;">
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<a href="WebDashboard.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none; padding: 10px 4px;">{{t.signin}}</a>
+<a href="WebEditor.dc.html" class="btn btn-p" style="min-height: 44px; padding: 0 18px;">{{t.create}}</a>
+</div>
+</div>
+</header>
+
+<section id="top" class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 48px; padding-top: 72px; padding-bottom: 72px;">
+<div style="flex: 1 1 480px; min-width: 0;">
+<div style="display: inline-block; padding: 6px 14px; border-radius: 999px; background: #F3E6C8; color: #6E5418; font-size: 13px; font-weight: 600;">{{t.badge}}</div>
+<h1 style="margin: 18px 0 14px; font-family: Moul, 'Playfair Display', serif; font-weight: 400; font-size: 40px; line-height: 1.6; color: #7A1F2B;">{{t.heroTitle}}</h1>
+<p style="margin: 0 0 28px; font-size: 18px; color: #4A4A4A; max-width: 540px;">{{t.heroSub}}</p>
+<div style="display: flex; gap: 12px; flex-wrap: wrap;">
+<a href="WebEditor.dc.html" class="btn btn-p">{{t.create}}</a>
+<a href="WebHowItWorks.dc.html" class="btn btn-s"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5l11 7-11 7z"></path></svg>{{t.seeHow}}</a>
+</div>
+<div style="display: flex; gap: 24px; flex-wrap: wrap; margin-top: 32px; font-size: 14px; color: #4A4A4A;">
+<sc-for list="{{trust}}" as="tr" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3E6B5A" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>{{tr}}</div>
+</sc-for>
+</div>
+</div>
+<div style="flex: 1 1 400px; display: flex; justify-content: center; gap: 24px; align-items: flex-end;">
+<div style="width: 260px; height: 520px; border-radius: 40px; background: #2B2B2B; padding: 10px; box-shadow: 0 24px 60px rgba(122,31,43,0.28);">
+<div style="width: 100%; height: 100%; border-radius: 31px; background: #7A1F2B; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: #FBF6EE;">
+<div style="position: absolute; inset: 14px; border: 1px solid #C9A24B; border-radius: 20px;"></div>
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.3" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path></svg>
+<div style="font-family: Moul, serif; font-size: 14px; color: #C9A24B; margin-top: 10px; line-height: 1.9;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-size: 17px; font-weight: 600; margin-top: 12px;">សុខ ដារ៉ា &amp; ចាន់ សុភា</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 24px;">Dara &amp; Sophea</div>
+<div style="width: 70px; height: 1px; background: #C9A24B; margin: 14px 0;"></div>
+<div style="font-size: 13px; line-height: 1.9;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦</div>
+<div style="font-size: 11px; opacity: 0.85;">Sunday, 13 December 2026</div>
+<a href="https://claude.ai/artifact/Qsq4YTyH25D5RHNoYBLb7D#play-Invite" style="margin-top: 18px; padding: 8px 18px; border-radius: 999px; background: #C9A24B; color: #2B2B2B; font-size: 13px; font-weight: 700; text-decoration: none;">RSVP</a>
+</div>
+</div>
+<div style="width: 210px; background: #fff; border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(43,43,43,0.12); margin-bottom: 40px;">
+<div style="font-size: 12px; color: #5C5C5C; font-weight: 600;">{{t.liveRsvp}}</div>
+<div style="font-size: 32px; font-weight: 700; color: #3E6B5A; line-height: 1.2;">{{guestsNum}}</div>
+<div style="font-size: 13px; color: #4A4A4A;">{{t.guestsComing}}</div>
+<div style="height: 8px; border-radius: 99px; background: #F1E8D8; margin: 12px 0 6px; overflow: hidden;"><div style="width: 79%; height: 100%; background: #5E8C7A;"></div></div>
+<div style="font-size: 12px; color: #5C5C5C;">{{t.replied}}</div>
+</div>
+</div>
+</section>
+
+<section style="background: #fff; border-top: 1px solid #EADFCB; border-bottom: 1px solid #EADFCB;">
+<div class="wrap" style="padding-top: 72px; padding-bottom: 72px;">
+<div style="text-align: center; max-width: 640px; margin: 0 auto 40px;">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: #8A6A1F;">{{t.howKicker}}</div>
+<h2 style="margin: 6px 0 8px; font-size: 32px; font-weight: 700;">{{t.howTitle}}</h2>
+<p style="margin: 0; color: #5C5C5C; font-size: 16px;">{{t.howSub}}</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<div style="background: #FBF6EE; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<div style="width: 48px; height: 48px; border-radius: 14px; background: #7A1F2B; color: #E3C277; display: flex; align-items: center; justify-content: center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="{{s.icon}}"></path></svg></div>
+<div style="font-family: 'Playfair Display', serif; font-size: 36px; color: #D9C9A8; line-height: 1;">{{s.n}}</div>
+</div>
+<div style="font-size: 18px; font-weight: 700;">{{s.title}}</div>
+<div style="font-size: 14px; color: #4A4A4A;">{{s.sub}}</div>
+<div style="font-size: 12px; font-weight: 600; color: #6E5418; background: #F3E6C8; border-radius: 999px; padding: 2px 10px; align-self: flex-start;">{{s.time}}</div>
+</div>
+</sc-for>
+</div>
+<div style="text-align: center; margin-top: 32px;"><a href="WebHowItWorks.dc.html" class="btn btn-s">{{t.fullWalk}}</a></div>
+</div>
+</section>
+
+<section id="templates" class="wrap" style="padding-top: 72px; padding-bottom: 72px;">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+<div><h2 style="margin: 0; font-size: 32px; font-weight: 700;">{{t.tplTitle}}</h2><p style="margin: 4px 0 0; color: #5C5C5C;">{{t.tplSub}}</p></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><button class="chip {{f.cls}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+<sc-for list="{{templates}}" as="tp" hint-placeholder-count="8">
+<a href="WebEditor.dc.html" style="text-decoration: none; color: #2B2B2B; background: #fff; border-radius: 16px; padding: 10px; box-shadow: 0 2px 14px rgba(43,43,43,0.07); display: flex; flex-direction: column; gap: 8px;">
+<div style="height: 280px; border-radius: 10px; background: {{tp.bg}}; padding: 10px;">
+<div style="height: 100%; border: 1px solid {{tp.accent}}; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: {{tp.fg}}; gap: 4px; padding: 10px;">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="{{tp.accent}}" stroke-width="1.3" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path></svg>
+<div style="font-family: Moul, serif; font-size: 11px; color: {{tp.accent}}; line-height: 1.9;">{{tp.head}}</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px;">Dara &amp; Sophea</div>
+<div style="font-size: 11px;">13 · 12 · 2026</div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 4px;">
+<div><div style="font-weight: 600;">{{tp.name}}</div><div style="font-size: 12px; color: #5C5C5C;">{{tp.tier}}</div></div>
+<div style="font-weight: 700; color: #7A1F2B;">{{tp.price}}</div>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section style="background: #7A1F2B; color: #FBF6EE;">
+<div class="wrap" style="display: flex; flex-wrap: wrap; gap: 48px; align-items: center; padding-top: 72px; padding-bottom: 72px;">
+<div style="flex: 1 1 420px; min-width: 0;">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: #E3C277;">{{t.guestKicker}}</div>
+<h2 style="margin: 6px 0 12px; font-size: 32px; font-weight: 700;">{{t.guestTitle}}</h2>
+<p style="margin: 0 0 24px; font-size: 16px; opacity: 0.9;">{{t.guestSub}}</p>
+<a href="https://claude.ai/artifact/Qsq4YTyH25D5RHNoYBLb7D#play-Invite" class="btn btn-g">{{t.openSample}}</a>
+</div>
+<div style="flex: 1 1 480px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+<sc-for list="{{guestFeat}}" as="g" hint-placeholder-count="4">
+<div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(201,162,75,0.5); border-radius: 14px; padding: 18px;">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E3C277" stroke-width="1.8" aria-hidden="true"><path d="{{g.icon}}"></path></svg>
+<div style="font-weight: 700; margin-top: 8px;">{{g.title}}</div>
+<div style="font-size: 14px; opacity: 0.85;">{{g.sub}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="pricing" class="wrap" style="padding-top: 72px; padding-bottom: 72px;">
+<div style="text-align: center; margin-bottom: 32px;"><h2 style="margin: 0; font-size: 32px; font-weight: 700;">{{t.priceTitle}}</h2><p style="margin: 6px 0 0; color: #5C5C5C;">{{t.priceSub}}</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;">
+<div style="flex: 0 1 380px; background: #fff; border-radius: 16px; padding: 28px; border: 1px solid #EADFCB; box-shadow: 0 2px 14px rgba(43,43,43,0.06);">
+<div style="font-weight: 700; font-size: 18px;">{{t.basic}}</div>
+<div style="display: flex; align-items: baseline; gap: 10px; margin: 6px 0 16px;"><span style="font-size: 44px; font-weight: 700; color: #7A1F2B;">$5</span><span style="color: #5C5C5C;">២០,០០០ ៛ · {{t.once}}</span></div>
+<sc-for list="{{basicFeat}}" as="f" hint-placeholder-count="4"><div style="display: flex; gap: 10px; padding: 4px 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3E6B5A" stroke-width="2.2" aria-hidden="true" style="flex: none; margin-top: 2px;"><path d="M5 12l5 5 9-10"></path></svg>{{f}}</div></sc-for>
+<a href="WebEditor.dc.html" class="btn btn-s" style="width: 100%; margin-top: 18px;">{{t.startBasic}}</a>
+</div>
+<div style="flex: 0 1 380px; background: #7A1F2B; color: #FBF6EE; border-radius: 16px; padding: 28px; box-shadow: 0 10px 30px rgba(122,31,43,0.28); position: relative;">
+<div style="position: absolute; top: 20px; right: 20px; background: #C9A24B; color: #2B2B2B; font-size: 12px; font-weight: 700; padding: 3px 12px; border-radius: 999px;">{{t.popular}}</div>
+<div style="font-weight: 700; font-size: 18px;">{{t.premium}}</div>
+<div style="display: flex; align-items: baseline; gap: 10px; margin: 6px 0 16px;"><span style="font-size: 44px; font-weight: 700; color: #E3C277;">$15</span><span style="opacity: 0.85;">៦០,០០០ ៛ · {{t.once}}</span></div>
+<sc-for list="{{premFeat}}" as="f" hint-placeholder-count="5"><div style="display: flex; gap: 10px; padding: 4px 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E3C277" stroke-width="2.2" aria-hidden="true" style="flex: none; margin-top: 2px;"><path d="M5 12l5 5 9-10"></path></svg>{{f}}</div></sc-for>
+<a href="WebEditor.dc.html" class="btn btn-g" style="width: 100%; margin-top: 18px;">{{t.startPrem}}</a>
+</div>
+</div>
+</section>
+
+<section id="faq" class="wrap" style="padding-top: 24px; padding-bottom: 72px; max-width: 840px;">
+<h2 style="margin: 0 0 20px; font-size: 32px; font-weight: 700; text-align: center;">{{t.faqTitle}}</h2>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<sc-for list="{{faqs}}" as="q" hint-placeholder-count="4">
+<div>
+<button class="faq" onClick="{{q.toggle}}" aria-expanded="{{q.open}}"><span>{{q.q}}</span><span style="color: #7A1F2B; font-size: 22px;">{{q.sign}}</span></button>
+<sc-if value="{{q.open}}" hint-placeholder-val="{{false}}"><div style="padding: 10px 20px 4px; color: #4A4A4A;">{{q.a}}</div></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section class="wrap" style="padding-bottom: 72px;">
+<div style="background: #F3E6C8; border-radius: 20px; padding: 48px 32px; text-align: center; border: 1px solid #E3C277;">
+<h2 style="margin: 0 0 8px; font-family: Moul, serif; font-weight: 400; font-size: 26px; color: #7A1F2B; line-height: 1.7;">{{t.ctaTitle}}</h2>
+<p style="margin: 0 0 24px; color: #4A4A4A;">{{t.ctaSub}}</p>
+<a href="WebEditor.dc.html" class="btn btn-p">{{t.create}}</a>
+</div>
+</section>
+
+<footer style="background: #2B2B2B; color: #E8E2D8;">
+<div class="wrap" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; padding-top: 40px; padding-bottom: 40px; font-size: 14px;">
+<div><div style="font-family: Moul, serif; color: #C9A24B; font-size: 16px;">ធៀបការ TheabKa</div><div style="margin-top: 6px;">[COMPANY NAME] Co., Ltd. · Phnom Penh</div><div>[CONTACT EMAIL] · [PHONE]</div></div>
+<div style="display: flex; gap: 20px; align-items: flex-start;"><a href="https://t.me/" style="color: #E3C277;">Telegram</a><a href="https://facebook.com/" style="color: #E3C277;">Facebook</a><a href="#faq" style="color: #E3C277;">{{t.navFaq}}</a></div>
+<div style="color: #A8A29A;">© 2026 TheabKa</div>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  state = { lang: null, open: 0, filter: 'all' };
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km ? {
+      navHow: 'របៀបដំណើរការ', navTpl: 'គំរូ', navPrice: 'តម្លៃ', navFaq: 'សំណួរ', signin: 'ចូល', create: 'បង្កើតធៀបការ',
+      badge: 'ធៀបការឌីជីថល ជាភាសាខ្មែរ និងអង់គ្លេស', heroTitle: 'ធៀបការដ៏ស្រស់ស្អាត ចែករំលែកតែមួយតំណ',
+      heroSub: 'បង្កើតធៀបការអាពាហ៍ពិពាហ៍ ឬភ្ជាប់ពាក្យក្នុង ១០ នាទី ផ្ញើតាម Telegram និង Messenger ហើយមើលថាអ្នកណានឹងមក ភ្លាមៗ។',
+      seeHow: 'មើលរបៀបដំណើរការ', liveRsvp: 'ការឆ្លើយតបផ្ទាល់', guestsComing: 'ភ្ញៀវនឹងចូលរួម', replied: '២៤ នាក់បានឆ្លើយតប',
+      howKicker: 'របៀបដំណើរការ', howTitle: 'ពីគំរូ ដល់ភ្ញៀវ ក្នុង ៤ ជំហាន', howSub: 'មិនចាំបាច់មានជំនាញរចនា។ បង្កើត និងមើលជាមុន ឥតគិតថ្លៃ។ បង់តែពេលផ្សព្វផ្សាយ។',
+      fullWalk: 'មើលការណែនាំពេញលេញ', tplTitle: 'គំរូធៀបការ', tplSub: 'គំរូ ៨ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ', all: 'ទាំងអស់', wed: 'អាពាហ៍ពិពាហ៍', eng: 'ភ្ជាប់ពាក្យ',
+      guestKicker: 'សម្រាប់ភ្ញៀវ', guestTitle: 'ភ្ញៀវបើកភ្លាម មិនចាំបាច់ដំឡើងកម្មវិធី', guestSub: 'ធៀបការបើកក្នុងកម្មវិធីរុករកលើទូរស័ព្ទ ដោយផ្ទាល់ពី Telegram ឬ Messenger។ ឆ្លើយតបបានក្នុងពីរបីវិនាទី។', openSample: 'បើកធៀបការគំរូ',
+      priceTitle: 'តម្លៃសាមញ្ញ', priceSub: 'បង់តែម្ដងក្នុងមួយធៀបការ តាម KHQR', basic: 'មូលដ្ឋាន', premium: 'ពិសេស', once: 'បង់ម្ដង', popular: 'ពេញនិយម', startBasic: 'ចាប់ផ្ដើមជាមួយមូលដ្ឋាន', startPrem: 'ចាប់ផ្ដើមជាមួយពិសេស',
+      faqTitle: 'សំណួរញឹកញាប់', ctaTitle: 'ត្រៀមខ្លួនរួចហើយឬនៅ?', ctaSub: 'បង្កើតធៀបការដំបូងរបស់អ្នក ឥតគិតថ្លៃ រហូតដល់ពេលផ្សព្វផ្សាយ។'
+    } : {
+      navHow: 'How it works', navTpl: 'Templates', navPrice: 'Pricing', navFaq: 'FAQ', signin: 'Sign in', create: 'Create your invitation',
+      badge: 'Digital invitations in Khmer and English', heroTitle: 'Beautiful invitations, shared in one link',
+      heroSub: 'Make a wedding or engagement invitation in 10 minutes, send it on Telegram and Messenger, and see who is coming right away.',
+      seeHow: 'See how it works', liveRsvp: 'Live RSVPs', guestsComing: 'guests coming', replied: '24 people replied',
+      howKicker: 'HOW IT WORKS', howTitle: 'From template to guests in 4 steps', howSub: 'No design skills needed. Building and previewing are free. You only pay when you publish.',
+      fullWalk: 'See the full walkthrough', tplTitle: 'Templates', tplSub: '8 designs for weddings and engagements', all: 'All', wed: 'Wedding', eng: 'Engagement',
+      guestKicker: 'FOR GUESTS', guestTitle: 'Guests open it instantly, no app needed', guestSub: 'The invitation opens in the phone browser, straight from Telegram or Messenger. Replying takes a few seconds.', openSample: 'Open the sample invitation',
+      priceTitle: 'Simple pricing', priceSub: 'Pay once per invitation by KHQR', basic: 'Basic', premium: 'Premium', once: 'one time', popular: 'Popular', startBasic: 'Start with Basic', startPrem: 'Start with Premium',
+      faqTitle: 'Questions', ctaTitle: 'Ready to invite your guests?', ctaSub: 'Make your first invitation. It is free until you publish.'
+    };
+    const kn = (n) => (km ? String(n).replace(/[0-9]/g, (d) => '០១២៣៤៥៦៧៨៩'[d]) : String(n));
+    const icons = {
+      tpl: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+      edit: 'M4 20h4L19 9l-4-4L4 16v4z',
+      pay: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3',
+      share: 'M4 12l16-8-6 16-3-7z'
+    };
+    const steps = km ? [
+      { n: '01', icon: icons.tpl, title: 'ជ្រើសរើសគំរូ', sub: 'ជ្រើសពីគំរូ ៨ ប្រភេទ ហើយមើលជាមុនពេញអេក្រង់។', time: '១ នាទី' },
+      { n: '02', icon: icons.edit, title: 'បំពេញព័ត៌មាន', sub: 'ឈ្មោះ កាលបរិច្ឆេទ (បង្ហាញជាខ្មែរដោយស្វ័យប្រវត្តិ) ទីកន្លែង កម្មវិធី រូបថត តន្ត្រី និង KHQR ចំណងដៃ។', time: '៥–១០ នាទី' },
+      { n: '03', icon: icons.pay, title: 'បង់តាម KHQR', sub: 'ស្កេនដោយ ABA, ACLEDA ឬ Wing។ ធៀបការផ្សាយភ្លាមៗ។', time: '៣០ វិនាទី' },
+      { n: '04', icon: icons.share, title: 'ចែករំលែក និងតាមដាន', sub: 'ផ្ញើតំណតាម Telegram ឬ Messenger ហើយមើលការឆ្លើយតបលើផ្ទាំងគ្រប់គ្រង។', time: 'រហូតដល់ថ្ងៃការ' }
+    ] : [
+      { n: '01', icon: icons.tpl, title: 'Pick a template', sub: 'Choose from 8 designs and preview each one full screen.', time: '1 minute' },
+      { n: '02', icon: icons.edit, title: 'Add your details', sub: 'Names, date (shown in Khmer automatically), venue, schedule, photos, music and your KHQR gift code.', time: '5–10 minutes' },
+      { n: '03', icon: icons.pay, title: 'Pay by KHQR', sub: 'Scan with ABA, ACLEDA or Wing. Your invitation goes live right away.', time: '30 seconds' },
+      { n: '04', icon: icons.share, title: 'Share and track', sub: 'Send the link on Telegram or Messenger and watch RSVPs arrive in your dashboard.', time: 'Until the big day' }
+    ];
+    const raw = [
+      ['ក្រហមរាជ', 'Royal Maroon', 'wedding', 1, '#7A1F2B', '#FBF6EE', '#C9A24B'],
+      ['ផ្កាឈូកមាស', 'Golden Lotus', 'wedding', 1, '#FBF6EE', '#2B2B2B', '#8A6A1F'],
+      ['ផ្កាម្លិះ', 'Jasmine', 'wedding', 0, '#FFFFFF', '#2B2B2B', '#4C7564'],
+      ['ស្រីអង្គរ', 'Angkor Dusk', 'wedding', 1, '#3B2A4A', '#F6EEDD', '#D9B866'],
+      ['ភ្លុកបុរាណ', 'Classic Ivory', 'wedding', 0, '#F4ECDD', '#2B2B2B', '#7A1F2B'],
+      ['រំដួល', 'Rumduol', 'engagement', 0, '#F3E3C3', '#2B2B2B', '#7A4A12'],
+      ['សួនមរកត', 'Jade Garden', 'engagement', 1, '#3F6B5B', '#F6EEDD', '#E3C277'],
+      ['កុលាបសូត្រ', 'Silk Rose', 'engagement', 0, '#F2DCD7', '#2B2B2B', '#8E3B46']
+    ];
+    const templates = raw.filter((r) => this.state.filter === 'all' || r[2] === this.state.filter).map((r) => ({
+      name: km ? r[0] : r[1], bg: r[4], fg: r[5], accent: r[6],
+      head: r[2] === 'wedding' ? 'សិរីមង្គលអាពាហ៍ពិពាហ៍' : 'ពិធីភ្ជាប់ពាក្យ',
+      tier: r[3] ? t.premium : t.basic, price: r[3] ? '$15' : '$5'
+    }));
+    const filters = [['all', t.all], ['wedding', t.wed], ['engagement', t.eng]].map((f) => ({
+      label: f[1], cls: this.state.filter === f[0] ? 'chip-on' : '', pick: () => this.setState({ filter: f[0] })
+    }));
+    const guestFeat = km ? [
+      { icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2', title: 'ចលនាបើកធៀប', sub: 'ទ្វារបើក តន្ត្រីចាប់ផ្ដើម' },
+      { icon: 'M4 6h16v12H4zM4 7l8 6 8-6', title: 'ឆ្លើយតបមួយប៉ះ', sub: 'ចូលរួម ឬមិនចូលរួម និងចំនួនមនុស្ស' },
+      { icon: 'M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z', title: 'ផែនទី និងផ្លូវ', sub: 'បើក Google Maps ភ្លាមៗ' },
+      { icon: 'M3 9h18v12H3zM12 9v12M3 13h18', title: 'KHQR ចំណងដៃ', sub: 'ស្កេនផ្ញើដោយផ្ទាល់ទៅគូស្វាមីភរិយា' }
+    ] : [
+      { icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2', title: 'Opening animation', sub: 'Doors open and the music starts' },
+      { icon: 'M4 6h16v12H4zM4 7l8 6 8-6', title: 'One-tap RSVP', sub: 'Yes or no, and how many people' },
+      { icon: 'M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z', title: 'Map and directions', sub: 'Opens Google Maps in one tap' },
+      { icon: 'M3 9h18v12H3zM12 9v12M3 13h18', title: 'KHQR gift', sub: 'Guests scan and send straight to the couple' }
+    ];
+    const basicFeat = km ? ['រូបថត ៣ សន្លឹក', 'តន្ត្រីជ្រើសរើស ៥ បទ', 'បញ្ជី RSVP', 'KHQR ចំណងដៃ'] : ['3 photos', '5 built-in music tracks', 'RSVP list', 'KHQR gift'];
+    const premFeat = km ? ['រូបថត ៦ សន្លឹក', 'បង្ហោះតន្ត្រីផ្ទាល់ខ្លួន', 'គំរូពិសេស', 'ចលនាបើកធៀប', 'នាំចេញបញ្ជីភ្ញៀវ CSV'] : ['6 photos', 'Upload your own music', 'Premium designs', 'Opening animation', 'Export guest list as CSV'];
+    const faqRaw = km ? [
+      ['ភ្ញៀវត្រូវដំឡើងកម្មវិធីទេ?', 'ទេ។ ភ្ញៀវគ្រាន់តែចុចតំណពី Telegram ឬ Messenger ហើយបើកក្នុងកម្មវិធីរុករក។'],
+      ['ខ្ញុំអាចកែប្រែបន្ទាប់ពីបង់ប្រាក់បានទេ?', 'បាន។ ការកែសម្រួលក្រោយផ្សព្វផ្សាយ ឥតគិតថ្លៃ។'],
+      ['ចំណងដៃតាម KHQR ដំណើរការយ៉ាងដូចម្ដេច?', 'អ្នកបង្ហោះរូប KHQR ផ្ទាល់ខ្លួន។ ភ្ញៀវស្កេន ហើយប្រាក់ចូលគណនីអ្នកផ្ទាល់។ ធៀបការមិនកាន់ប្រាក់នេះទេ។'],
+      ['តំណនៅបានរយៈពេលប៉ុន្មាន?', 'យ៉ាងហោចណាស់ ១២ ខែបន្ទាប់ពីថ្ងៃកម្មវិធី។']
+    ] : [
+      ['Do guests need to install an app?', 'No. Guests tap the link in Telegram or Messenger and it opens in their browser.'],
+      ['Can I edit after I pay?', 'Yes. Editing after publishing is free.'],
+      ['How do KHQR gifts work?', 'You upload your own KHQR image. Guests scan it and the money goes straight to your account. TheabKa never handles it.'],
+      ['How long does the link stay up?', 'At least 12 months after the event date.']
+    ];
+    const faqs = faqRaw.map((f, i) => ({
+      q: f[0], a: f[1], open: this.state.open === i, sign: this.state.open === i ? '−' : '+',
+      toggle: () => this.setState({ open: this.state.open === i ? -1 : i })
+    }));
+    return {
+      t, steps, templates, filters, guestFeat, basicFeat, premFeat, faqs, guestsNum: kn(42),
+      trust: km ? ['ភ្ញៀវមិនចាំបាច់ដំឡើងកម្មវិធី', 'បង់តាម KHQR', 'ខ្មែរ និងអង់គ្លេស'] : ['No app for guests', 'Pay by KHQR', 'Khmer and English'],
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

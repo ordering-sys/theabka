@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Pick a template</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;width:100%}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.chip{min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid #D9CFC0;background:#fff;font:inherit;font-size:14px;font-weight:600;color:#2B2B2B;cursor:pointer;white-space:nowrap}
+.chip-on{background:#2B2B2B;border-color:#2B2B2B;color:#fff}
+.tcard{background:#fff;border:0;border-radius:12px;padding:8px;text-align:left;font:inherit;color:#2B2B2B;cursor:pointer;box-shadow:0 2px 12px rgba(43,43,43,.08);display:flex;flex-direction:column;gap:6px}
+.icon-btn{width:44px;height:44px;border-radius:999px;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6;">
+<div style="position: absolute; inset: 0; overflow-y: auto;">
+
+<header style="position: sticky; top: 0; z-index: 4; background: #FBF6EE; padding: 8px 12px 10px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<a href="Dashboard.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #2B2B2B;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<div style="font-size: 17px; font-weight: 700;">{{t.title}}</div>
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+</div>
+<div style="display: flex; gap: 8px; padding: 10px 4px 0; overflow-x: auto;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+<button class="chip {{f.cls}}" onClick="{{f.pick}}">{{f.label}}</button>
+</sc-for>
+</div>
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 6px 16px 24px;">
+<sc-for list="{{shown}}" as="tp" hint-placeholder-count="8">
+<button class="tcard" onClick="{{tp.open}}">
+<div style="height: 200px; border-radius: 8px; background: {{tp.bg}}; padding: 8px; position: relative;">
+<div style="height: 100%; border: 1px solid {{tp.accent}}; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: {{tp.fg}}; padding: 6px; gap: 2px;">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{tp.accent}}" stroke-width="1.4" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path></svg>
+<div style="font-family: Moul, serif; font-size: 9px; color: {{tp.accent}}; line-height: 1.9;">{{tp.headKm}}</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px;">Dara &amp; Sophea</div>
+<div style="font-size: 9px;">13 · 12 · 2026</div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 4px; padding: 0 2px;">
+<div style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{tp.name}}</div>
+<div style="font-size: 13px; font-weight: 700; color: #7A1F2B;">{{tp.price}}</div>
+</div>
+<div style="padding: 0 2px 2px;"><span style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: {{tp.badgeBg}}; color: {{tp.badgeFg}};">{{tp.tierLabel}}</span></div>
+</button>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; z-index: 10; background: {{sel.bg}}; color: {{sel.fg}}; display: flex; flex-direction: column; animation: up .3s ease-out;">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
+<button class="icon-btn" style="background: rgba(255,255,255,0.18); color: {{sel.fg}};" onClick="{{close}}" aria-label="Close preview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+<div style="font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.18);">{{t.live}}</div>
+<div style="width: 44px;"></div>
+</div>
+<div style="flex-grow: 1; margin: 0 20px; border: 1px solid {{sel.accent}}; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; position: relative;">
+<div style="position: absolute; inset: 8px; border: 1px solid {{sel.accent}}; border-radius: 12px; opacity: 0.5;"></div>
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="{{sel.accent}}" stroke-width="1.2" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path><path d="M6 17h12"></path></svg>
+<div style="font-family: Moul, serif; font-size: 18px; color: {{sel.accent}}; margin-top: 10px; line-height: 1.8;">{{sel.headKm}}</div>
+<div style="font-size: 13px; margin-top: 12px; opacity: 0.85;">សូមគោរពអញ្ជើញ · You are invited</div>
+<div style="font-family: 'Kantumruy Pro', sans-serif; font-size: 20px; font-weight: 600; margin-top: 10px;">សុខ ដារ៉ា &amp; ចាន់ សុភា</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 28px;">Dara &amp; Sophea</div>
+<div style="width: 80px; height: 1px; background: {{sel.accent}}; margin: 16px 0;"></div>
+<div style="font-size: 15px; line-height: 1.8;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦</div>
+<div style="font-size: 12px; opacity: 0.85;">Sunday, 13 December 2026 · 7:00 AM</div>
+<div style="font-size: 13px; margin-top: 14px;">សណ្ឋាគារ សុខា ភ្នំពេញ</div>
+<div style="font-size: 12px; opacity: 0.85;">Sokha Phnom Penh Hotel</div>
+</div>
+<div style="padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; justify-content: space-between; font-size: 14px;"><span style="font-weight: 600;">{{sel.name}} · {{sel.tierLabel}}</span><span style="font-weight: 700;">{{sel.price}} · {{sel.riel}}</span></div>
+<a href="Editor.dc.html" class="btn" style="background: {{sel.accent}}; color: {{sel.ctaFg}};">{{t.use}}</a>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { lang: null, filter: 'all', sel: null };
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km
+      ? { title: 'ជ្រើសរើសគំរូ', live: 'មើលផ្ទាល់', use: 'ប្រើគំរូនេះ', all: 'ទាំងអស់', wed: 'អាពាហ៍ពិពាហ៍', eng: 'ភ្ជាប់ពាក្យ' }
+      : { title: 'Pick a template', live: 'Live preview', use: 'Use this template', all: 'All', wed: 'Wedding', eng: 'Engagement' };
+    const W = 'សិរីមង្គលអាពាហ៍ពិពាហ៍', E = 'ពិធីភ្ជាប់ពាក្យ';
+    const raw = [
+      ['royal', 'ក្រហមរាជ', 'Royal Maroon', 'wedding', 'premium', '#7A1F2B', '#FBF6EE', '#C9A24B', '#2B2B2B'],
+      ['lotus', 'ផ្កាឈូកមាស', 'Golden Lotus', 'wedding', 'premium', '#FBF6EE', '#2B2B2B', '#8A6A1F', '#FFFFFF'],
+      ['jasmine', 'ផ្កាម្លិះ', 'Jasmine', 'wedding', 'basic', '#FFFFFF', '#2B2B2B', '#4C7564', '#FFFFFF'],
+      ['angkor', 'ស្រីអង្គរ', 'Angkor Dusk', 'wedding', 'premium', '#3B2A4A', '#F6EEDD', '#D9B866', '#2B2B2B'],
+      ['ivory', 'ភ្លុកបុរាណ', 'Classic Ivory', 'wedding', 'basic', '#F4ECDD', '#2B2B2B', '#7A1F2B', '#FFFFFF'],
+      ['rumduol', 'រំដួល', 'Rumduol', 'engagement', 'basic', '#F3E3C3', '#2B2B2B', '#7A4A12', '#FFFFFF'],
+      ['jade', 'សួនមរកត', 'Jade Garden', 'engagement', 'premium', '#3F6B5B', '#F6EEDD', '#E3C277', '#2B2B2B'],
+      ['rose', 'កុលាបសូត្រ', 'Silk Rose', 'engagement', 'basic', '#F2DCD7', '#2B2B2B', '#8E3B46', '#FFFFFF']
+    ];
+    const list = raw.map((r) => {
+      const prem = r[4] === 'premium';
+      return {
+        id: r[0], name: km ? r[1] : r[2], type: r[3], bg: r[5], fg: r[6], accent: r[7], ctaFg: r[8],
+        headKm: r[3] === 'wedding' ? W : E,
+        price: prem ? '$15' : '$5', riel: prem ? '៦០,០០០ ៛' : '២០,០០០ ៛',
+        tierLabel: prem ? (km ? 'ពិសេស' : 'Premium') : (km ? 'មូលដ្ឋាន' : 'Basic'),
+        badgeBg: prem ? '#7A1F2B' : '#E4EFEA', badgeFg: prem ? '#FFFFFF' : '#2F5A4A',
+        open: () => this.setState({ sel: r[0] })
+      };
+    });
+    const shown = list.filter((x) => this.state.filter === 'all' || x.type === this.state.filter);
+    const filters = [['all', t.all], ['wedding', t.wed], ['engagement', t.eng]].map((f) => ({
+      label: f[1], cls: this.state.filter === f[0] ? 'chip-on' : '', pick: () => this.setState({ filter: f[0] })
+    }));
+    const sel = list.find((x) => x.id === this.state.sel) || list[0];
+    return {
+      t, shown, filters, sel, hasSel: !!this.state.sel,
+      close: () => this.setState({ sel: null }),
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

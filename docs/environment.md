@@ -1,0 +1,114 @@
+# Environment variables
+
+TheabKa reads its settings from a `.env` file in the project root. Next.js loads it automatically when you run `npm run dev` or `npm run build`.
+
+The file is git-ignored (`.gitignore` has `.env*`), so your keys stay on your computer. Never commit it, and never paste its contents into a chat, issue or screenshot.
+
+## Quick start
+
+1. Create a file named `.env` in the project root (next to `package.json`).
+2. Paste the template below into it.
+3. Restart `npm run dev`. Next.js only reads `.env` at startup.
+
+With every Supabase value left blank, the app keeps running on the browser-storage prototype, and payments run in sandbox mode. Fill in the values as you set up each service.
+
+```bash
+# ── Site ──────────────────────────────────────────────────────────────
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# ── Supabase ──────────────────────────────────────────────────────────
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# ── KHQR payments ─────────────────────────────────────────────────────
+PAYMENT_PROVIDER=sandbox
+ALLOW_SANDBOX_PAYMENTS=false
+PAYMENT_WEBHOOK_SECRET=
+PAYMENT_WEBHOOK_SIGNATURE_HEADER=x-signature
+PAYMENT_CONFIRM_WEBHOOKS=false
+
+# ABA PayWay (when PAYMENT_PROVIDER=aba_payway)
+ABA_PAYWAY_MERCHANT_ID=
+ABA_PAYWAY_API_KEY=
+ABA_PAYWAY_API_URL=
+
+# Bakong KHQR (when PAYMENT_PROVIDER=bakong)
+BAKONG_ACCOUNT_ID=
+BAKONG_API_TOKEN=
+BAKONG_API_URL=
+BAKONG_MERCHANT_NAME=TheabKa
+BAKONG_MERCHANT_CITY=Phnom Penh
+```
+
+## What each variable does
+
+### Site
+
+| Variable | Needed | What it is |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Always | The public address of the site, without a trailing slash. Share links, QR codes, calendar files and link previews (Open Graph) use it. Locally: `http://localhost:3000`. In production: your real domain, such as `https://theabka.com`. If it's wrong, links shared on Telegram point to the wrong place. |
+
+### Supabase
+
+Find these in the Supabase dashboard under **Project Settings → API**.
+
+| Variable | Needed | Secret? | What it is |
+|---|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | For the real backend | No | Your project URL, such as `https://abcd1234.supabase.co`. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For the real backend | No | The public "anon" key. It's safe in the browser because row-level security limits what it can do. |
+| `SUPABASE_SERVICE_ROLE_KEY` | For payments | **Yes** | The "service_role" key. It bypasses row-level security; the payment webhook uses it to mark an invitation live. Server only. Never put it in a `NEXT_PUBLIC_` variable or client code. |
+
+The app switches from the browser-storage prototype to Supabase only when **both** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set.
+
+### KHQR payments
+
+| Variable | Needed | Secret? | What it is |
+|---|---|---|---|
+| `PAYMENT_PROVIDER` | Always | No | Who processes payments: `sandbox` (fake, pays itself; the default), `aba_payway` or `bakong`. |
+| `ALLOW_SANDBOX_PAYMENTS` | Rarely | No | The sandbox is refused in production for safety. Set `true` only on a staging site where you want fake payments. Leave `false` otherwise. |
+| `PAYMENT_WEBHOOK_SECRET` | With a real provider | **Yes** | Shared secret used to check that payment webhooks really come from your provider (HMAC signature). Use the value your provider gives you, or generate a long random string if you set the secret yourself. |
+| `PAYMENT_WEBHOOK_SIGNATURE_HEADER` | Optional | No | The HTTP header that carries the webhook signature. Defaults to `x-signature`; change it if your provider uses a different header. |
+| `PAYMENT_CONFIRM_WEBHOOKS` | Optional | No | `true` makes the server double-check every payment webhook with the provider's status API before publishing. Turn it on if your provider doesn't sign its webhooks with a shared secret (see `docs/supabase-setup.md`). |
+
+**ABA PayWay** (from your ABA PayWay merchant account):
+
+| Variable | Secret? | What it is |
+|---|---|---|
+| `ABA_PAYWAY_MERCHANT_ID` | No | Your merchant ID. |
+| `ABA_PAYWAY_API_KEY` | **Yes** | Your API key. |
+| `ABA_PAYWAY_API_URL` | No | The API base URL. Use the sandbox URL while testing and the production URL when live. |
+
+**Bakong KHQR** (from the National Bank of Cambodia's Bakong developer portal):
+
+| Variable | Secret? | What it is |
+|---|---|---|
+| `BAKONG_ACCOUNT_ID` | No | Your Bakong account ID, such as `theabka@aclb`. |
+| `BAKONG_API_TOKEN` | **Yes** | Your API token. |
+| `BAKONG_API_URL` | No | The Bakong API base URL. |
+| `BAKONG_MERCHANT_NAME` | No | Name shown on the customer's KHQR scan, such as `TheabKa`. |
+| `BAKONG_MERCHANT_CITY` | No | City shown on the KHQR, such as `Phnom Penh`. |
+
+You only need the variables for the provider you choose.
+
+### Set automatically (don't add these)
+
+| Variable | Set by |
+|---|---|
+| `NODE_ENV` | Next.js (`development` or `production`). |
+| `VERCEL_ENV` | Vercel (`development`, `preview` or `production`). |
+
+## Rules for keeping keys safe
+
+- Anything starting with `NEXT_PUBLIC_` is sent to every visitor's browser. Only public values go there.
+- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `PAYMENT_WEBHOOK_SECRET`, `ABA_PAYWAY_API_KEY` and `BAKONG_API_TOKEN`. Keep them server-side only.
+- If a secret leaks (committed, pasted, screenshotted), rotate it in the Supabase or provider dashboard right away.
+- **Each environment gets its own keys.** Use test keys locally and production keys only in Vercel's production environment.
+
+## On Vercel
+
+`.env` is not uploaded. In the Vercel dashboard, go to **Project → Settings → Environment Variables** and add each variable:
+
+- Set `NEXT_PUBLIC_SITE_URL` to your production domain.
+- Use production keys for **Production**, and test keys for **Preview**.
+- Redeploy after changing a variable.

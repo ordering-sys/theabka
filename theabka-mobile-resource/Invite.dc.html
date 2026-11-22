@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Guest invitation</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 18px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-g{background:#C9A24B;color:#2B2B2B}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.btn-off{background:#D9CFC0;color:#6B6358;cursor:not-allowed}
+.seg{min-width:36px;min-height:30px;border:0;border-radius:8px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#F6EEDD}
+.seg-on{background:#C9A24B;color:#2B2B2B}
+.field{width:100%;min-height:50px;border:1.5px solid #D9CFC0;border-radius:12px;background:#fff;font:inherit;font-size:15px;padding:0 12px;color:#2B2B2B;outline:none}
+.field:focus{border-color:#7A1F2B}
+textarea.field{padding:10px 12px;min-height:72px;resize:none}
+.yn{flex:1;min-height:64px;border-radius:12px;border:2px solid #E3D8C6;background:#fff;font:inherit;font-size:15px;font-weight:700;color:#2B2B2B;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.yn-yes{border-color:#5E8C7A;background:#E4EFEA;color:#2F5A4A}
+.yn-no{border-color:#7A1F2B;background:#F6E3E0;color:#7A1F2B}
+.step{width:48px;height:48px;border-radius:12px;border:1.5px solid #D9CFC0;background:#fff;font:inherit;font-size:22px;color:#7A1F2B;cursor:pointer}
+.door{position:absolute;top:0;bottom:0;width:50%;background:#7A1F2B;transition:transform 1s cubic-bezier(.7,0,.3,1)}
+.door-l{left:0;border-right:1px solid #C9A24B}
+.door-r{right:0;border-left:1px solid #C9A24B}
+.open .door-l{transform:translateX(-100%)}
+.open .door-r{transform:translateX(100%)}
+.open .seal{opacity:0;transform:scale(.6)}
+.seal{transition:opacity .4s,transform .4s}
+.fab{width:44px;height:44px;border-radius:999px;border:0;background:rgba(43,43,43,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fall{0%{transform:translateY(-40px) rotate(0);opacity:0}15%{opacity:1}100%{transform:translateY(520px) rotate(320deg);opacity:0}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+@keyframes bar{0%,100%{height:4px}50%{height:14px}}
+@keyframes toast{0%{opacity:0}10%,85%{opacity:1}100%{opacity:0}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FBF6EE; color: #2B2B2B; font-family: 'Kantumruy Pro', Inter, sans-serif; line-height: 1.6;">
+<div style="position: absolute; inset: 0; overflow-y: auto; padding-bottom: 96px;">
+
+<section style="height: 520px; position: relative; background: #5A2A2F; overflow: hidden; display: flex; align-items: flex-end;">
+<div style="position: absolute; inset: 0; background: #6E3A3C;"></div>
+<svg width="390" height="520" viewBox="0 0 390 520" aria-hidden="true" style="position: absolute; inset: 0; opacity: 0.35;"><circle cx="160" cy="210" r="46" fill="#C9A0A0"></circle><circle cx="236" cy="200" r="44" fill="#D8B5A8"></circle><path d="M80 520c10-150 60-230 80-230s70 80 80 230z" fill="#C9A0A0"></path><path d="M160 520c10-160 56-240 76-240s70 80 80 240z" fill="#D8B5A8"></path></svg>
+<div style="position: absolute; top: 14px; left: 14px; font-size: 11px; color: #F6EEDD; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 6px; font-family: Inter, sans-serif;">[COVER PHOTO]</div>
+<div style="position: relative; width: 100%; padding: 80px 20px 28px; background: linear-gradient(to top, rgba(40,10,14,0.85), rgba(40,10,14,0)); color: #FBF6EE; text-align: center;">
+<div style="font-family: Moul, serif; font-size: 15px; color: #E3C277; line-height: 1.9;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 34px; line-height: 1.2; margin-top: 4px;">Dara &amp; Sophea</div>
+<div style="font-size: 14px; margin-top: 6px;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦</div>
+</div>
+</section>
+
+<section style="margin: 20px 16px 0; position: relative; background: #fff; border-radius: 12px; padding: 34px 22px; text-align: center; box-shadow: 0 2px 14px rgba(43,43,43,0.06);">
+<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#C9A24B" stroke-width="1.3" aria-hidden="true" style="position: absolute; top: 8px; left: 8px;"><path d="M2 42V12Q2 2 12 2h30"></path><path d="M8 30V14q0-6 6-6h16"></path><path d="M14 20q0-6 6-6 4 0 4 4t-4 4q-3 0-3-3"></path></svg>
+<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#C9A24B" stroke-width="1.3" aria-hidden="true" style="position: absolute; top: 8px; right: 8px; transform: scaleX(-1);"><path d="M2 42V12Q2 2 12 2h30"></path><path d="M8 30V14q0-6 6-6h16"></path><path d="M14 20q0-6 6-6 4 0 4 4t-4 4q-3 0-3-3"></path></svg>
+<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#C9A24B" stroke-width="1.3" aria-hidden="true" style="position: absolute; bottom: 8px; left: 8px; transform: scaleY(-1);"><path d="M2 42V12Q2 2 12 2h30"></path><path d="M8 30V14q0-6 6-6h16"></path><path d="M14 20q0-6 6-6 4 0 4 4t-4 4q-3 0-3-3"></path></svg>
+<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#C9A24B" stroke-width="1.3" aria-hidden="true" style="position: absolute; bottom: 8px; right: 8px; transform: scale(-1,-1);"><path d="M2 42V12Q2 2 12 2h30"></path><path d="M8 30V14q0-6 6-6h16"></path><path d="M14 20q0-6 6-6 4 0 4 4t-4 4q-3 0-3-3"></path></svg>
+<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" stroke-width="1.2" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path><path d="M6 17h12"></path></svg>
+<p style="margin: 10px 0 0; font-size: 14px; color: #4A4A4A; line-height: 1.9;">យើងខ្ញុំមានកិត្តិយសសូមគោរពអញ្ជើញ ឯកឧត្តម លោកជំទាវ លោក លោកស្រី អ្នកនាង កញ្ញា អញ្ជើញចូលរួមពិធីអាពាហ៍ពិពាហ៍ របស់កូនប្រុស កូនស្រី របស់យើងខ្ញុំ</p>
+<p style="margin: 6px 0 0; font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; color: #5C5C5C;">Together with their families, we joyfully invite you to the wedding of</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px;">
+<div>
+<div style="font-size: 12px; color: #6B6358;">កូនកំលោះ · Groom</div>
+<div style="font-family: Moul, serif; font-size: 17px; color: #7A1F2B; line-height: 1.9;">សុខ ដារ៉ា</div>
+<div style="font-family: 'Playfair Display', serif; font-size: 16px;">Sok Dara</div>
+<div style="font-size: 12px; color: #5C5C5C; margin-top: 6px;">កូនប្រុសរបស់ · Son of<br>លោក សុខ វណ្ណៈ<br>លោកស្រី កែវ ស្រីមុំ</div>
+</div>
+<div>
+<div style="font-size: 12px; color: #6B6358;">កូនក្រមុំ · Bride</div>
+<div style="font-family: Moul, serif; font-size: 17px; color: #7A1F2B; line-height: 1.9;">ចាន់ សុភា</div>
+<div style="font-family: 'Playfair Display', serif; font-size: 16px;">Chan Sophea</div>
+<div style="font-size: 12px; color: #5C5C5C; margin-top: 6px;">កូនស្រីរបស់ · Daughter of<br>លោក ចាន់ រិទ្ធី<br>លោកស្រី ម៉ៅ សុខា</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; margin: 22px 0 14px;"><div style="flex-grow: 1; height: 1px; background: #C9A24B;"></div><svg width="16" height="16" viewBox="0 0 24 24" fill="#C9A24B" aria-hidden="true"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"></path></svg><div style="flex-grow: 1; height: 1px; background: #C9A24B;"></div></div>
+<div style="font-size: 18px; font-weight: 600; color: #7A1F2B; line-height: 1.9;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦</div>
+<div style="font-size: 13px; color: #5C5C5C; font-family: Inter, sans-serif;">Sunday, 13 December 2026 · 7:00 AM</div>
+<button class="btn btn-s" onClick="{{addCal}}" style="margin: 14px auto 0; min-height: 44px; font-size: 13px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"></path></svg>{{t.cal}}</button>
+</section>
+
+<section style="margin: 16px 16px 0; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 14px rgba(43,43,43,0.06);">
+<h2 style="margin: 0 0 14px; text-align: center; font-family: Moul, serif; font-weight: 400; font-size: 16px; color: #7A1F2B; line-height: 1.9;">កម្មវិធី <span style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: #5C5C5C;">· Schedule</span></h2>
+<sc-for list="{{schedule}}" as="ev" hint-placeholder-count="4">
+<div style="display: flex; gap: 14px;">
+<div style="display: flex; flex-direction: column; align-items: center; width: 14px;">
+<div style="width: 12px; height: 12px; border-radius: 999px; background: #C9A24B; border: 2px solid #F3E6C8; margin-top: 6px;"></div>
+<div style="flex-grow: 1; width: 2px; background: {{ev.line}};"></div>
+</div>
+<div style="padding-bottom: 16px;">
+<div style="font-size: 13px; font-weight: 700; color: #7A1F2B; font-family: Inter, sans-serif;">{{ev.time}}</div>
+<div style="font-size: 15px; font-weight: 600;">{{ev.km}}</div>
+<div style="font-size: 13px; color: #5C5C5C; font-family: Inter, sans-serif;">{{ev.en}}</div>
+</div>
+</div>
+</sc-for>
+</section>
+
+<section style="margin: 16px 0 0;">
+<h2 style="margin: 0 0 10px; text-align: center; font-family: Moul, serif; font-weight: 400; font-size: 16px; color: #7A1F2B; line-height: 1.9;">រូបភាពអនុស្សាវរីយ៍ <span style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: #5C5C5C;">· Gallery</span></h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 0 16px;">
+<sc-for list="{{gallery}}" as="g" hint-placeholder-count="6">
+<div style="aspect-ratio: 3 / 4; border-radius: 8px; background: {{g}}; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-8 8"></path></svg></div>
+</sc-for>
+</div>
+</section>
+
+<section style="margin: 16px 16px 0; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 14px rgba(43,43,43,0.06);">
+<div style="height: 150px; background: #E8E4D8; position: relative; overflow: hidden;">
+<div style="position: absolute; left: -20px; right: -20px; top: 60px; height: 34px; background: #B9D3DC; transform: rotate(-12deg);"></div>
+<div style="position: absolute; left: 60px; top: 0; bottom: 0; width: 10px; background: #fff;"></div>
+<div style="position: absolute; left: 0; right: 0; top: 118px; height: 8px; background: #fff;"></div>
+<div style="position: absolute; left: 176px; top: 38px;"><svg width="34" height="34" viewBox="0 0 24 24" fill="#7A1F2B" stroke="#fff" stroke-width="1.2" aria-hidden="true"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5" fill="#fff"></circle></svg></div>
+</div>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 2px;">
+<div style="font-size: 12px; color: #6B6358;">ទីកន្លែង · Venue</div>
+<div style="font-size: 16px; font-weight: 700;">សណ្ឋាគារ សុខា ភ្នំពេញ</div>
+<div style="font-size: 14px; font-family: Inter, sans-serif;">Sokha Phnom Penh Hotel</div>
+<div style="font-size: 13px; color: #5C5C5C;">ជ្រោយចង្វារ ភ្នំពេញ · Chroy Changvar, Phnom Penh</div>
+<a href="https://maps.google.com/?q=Sokha+Phnom+Penh+Hotel" class="btn btn-p" style="margin-top: 10px; min-height: 46px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"></path></svg>{{t.directions}}</a>
+</div>
+</section>
+
+<div style="text-align: center; padding: 22px 16px 8px; font-size: 12px; color: #6B6358; font-family: Inter, sans-serif;">Made with <a href="Main.dc.html" style="font-family: Moul, serif; text-decoration: none;">ធៀបការ</a> TheabKa</div>
+</div>
+
+<div style="position: absolute; top: 12px; right: 12px; z-index: 6; display: flex; gap: 8px; align-items: center;">
+<div style="display: flex; background: rgba(43,43,43,0.55); border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<button class="fab" onClick="{{toggleMusic}}" aria-label="{{musicLabel}}">
+<sc-if value="{{playing}}" hint-placeholder-val="{{false}}"><span style="display: flex; gap: 2px; align-items: flex-end; height: 14px;"><span style="width: 3px; background: #E3C277; animation: bar .8s infinite;"></span><span style="width: 3px; background: #E3C277; animation: bar .8s .2s infinite;"></span><span style="width: 3px; background: #E3C277; animation: bar .8s .4s infinite;"></span></span></sc-if>
+<sc-if value="{{muted}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"></path><path d="M16 9l5 6M21 9l-5 6"></path></svg></sc-if>
+</button>
+</div>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; padding: 12px 16px 18px; background: rgba(251,246,238,0.96); border-top: 1px solid #EADFCB; display: flex; gap: 10px; font-family: Inter, 'Kantumruy Pro', sans-serif;">
+<button class="btn btn-p" style="flex: 2;" onClick="{{openRsvp}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="M4 7l8 6 8-6"></path></svg>{{t.rsvp}}</button>
+<button class="btn btn-g" style="flex: 1;" onClick="{{openGift}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="9" width="18" height="12" rx="1"></rect><path d="M3 13h18M12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1zM12 9c2-4 6-4 6-1s-6 1-6 1z"></path></svg>{{t.gift}}</button>
+</div>
+
+<sc-if value="{{anySheet}}" hint-placeholder-val="{{false}}">
+<button onClick="{{closeSheet}}" aria-label="Close" style="position: absolute; inset: 0; z-index: 10; background: rgba(20,12,12,0.55); border: 0; cursor: pointer;"></button>
+</sc-if>
+
+<sc-if value="{{rsvpOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 11; background: #fff; border-radius: 22px 22px 0 0; padding: 10px 20px 22px; animation: up .3s ease-out; font-family: Inter, 'Kantumruy Pro', sans-serif; overflow: hidden;">
+<div style="width: 40px; height: 5px; border-radius: 99px; background: #DDD3C3; margin: 0 auto 8px;"></div>
+<sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<div><div style="font-size: 18px; font-weight: 700;">{{t.rsvpTitle}}</div><div style="font-size: 13px; color: #5C5C5C;">{{t.rsvpSub}}</div></div>
+<button onClick="{{closeSheet}}" aria-label="Close" style="width: 44px; height: 44px; border: 0; background: #F6EFE2; border-radius: 999px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #2B2B2B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div><label for="nm" style="font-size: 13px; font-weight: 600; color: #4A4A4A;">{{t.name}}</label><input id="nm" class="field" value="{{name}}" onChange="{{onName}}" placeholder="{{t.namePh}}"></div>
+<div style="display: flex; gap: 10px;">
+<button class="yn {{yesCls}}" onClick="{{pickYes}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>{{t.yes}}</button>
+<button class="yn {{noCls}}" onClick="{{pickNo}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>{{t.no}}</button>
+</div>
+<sc-if value="{{attending}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<div style="font-size: 14px; font-weight: 600;">{{t.people}}</div>
+<div style="display: flex; align-items: center; gap: 12px;">
+<button class="step" onClick="{{dec}}" aria-label="Fewer people">−</button>
+<div style="min-width: 28px; text-align: center; font-size: 20px; font-weight: 700;" aria-live="polite">{{party}}</div>
+<button class="step" onClick="{{inc}}" aria-label="More people">+</button>
+</div>
+</div>
+</sc-if>
+<div><label for="msg" style="font-size: 13px; font-weight: 600; color: #4A4A4A;">{{t.msg}}</label><textarea id="msg" class="field" value="{{msg}}" onChange="{{onMsg}}" placeholder="{{t.msgPh}}"></textarea></div>
+<sc-if value="{{canSend}}" hint-placeholder-val="{{false}}"><button class="btn btn-p" onClick="{{send}}">{{t.send}}</button></sc-if>
+<sc-if value="{{cantSend}}" hint-placeholder-val="{{true}}"><button class="btn btn-off" disabled="{{true}}">{{t.send}}</button></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+<div style="position: relative; min-height: 440px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px;">
+<sc-for list="{{petals}}" as="p" hint-placeholder-count="12">
+<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; top: 0; left: {{p.x}}; animation: fall {{p.d}} {{p.delay}} ease-in infinite;"><path d="M12 2c4 5 4 11 0 20-4-9-4-15 0-20z" fill="{{p.c}}"></path></svg>
+</sc-for>
+<div style="width: 84px; height: 84px; border-radius: 999px; background: #F3E6C8; display: flex; align-items: center; justify-content: center; animation: pop .5s ease-out;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7A1F2B" stroke-width="1.3" aria-hidden="true"><path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"></path><path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z"></path><path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z"></path><path d="M6 17h12"></path></svg></div>
+<div style="font-family: Moul, serif; font-size: 20px; color: #7A1F2B; line-height: 1.9;">សូមអរគុណ</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px;">Thank you, {{nameShown}}!</div>
+<div style="font-size: 14px; color: #5C5C5C; max-width: 280px;">{{thanksBody}}</div>
+<button class="btn btn-s" onClick="{{closeSheet}}" style="margin-top: 10px; min-width: 200px;">{{t.backInv}}</button>
+<button class="btn btn-g" onClick="{{openGift}}" style="min-width: 200px;">{{t.sendGift}}</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{giftOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 11; background: #fff; border-radius: 22px 22px 0 0; padding: 10px 20px 22px; animation: up .3s ease-out; font-family: Inter, 'Kantumruy Pro', sans-serif;">
+<div style="width: 40px; height: 5px; border-radius: 99px; background: #DDD3C3; margin: 0 auto 8px;"></div>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<div style="font-size: 18px; font-weight: 700;">{{t.giftTitle}}</div>
+<button onClick="{{closeSheet}}" aria-label="Close" style="width: 44px; height: 44px; border: 0; background: #F6EFE2; border-radius: 999px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #2B2B2B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 8px;">
+<div style="width: 250px; border-radius: 14px; overflow: hidden; border: 1px solid #EADFCB; box-shadow: 0 4px 16px rgba(43,43,43,0.08);">
+<div style="background: #E1232E; color: #fff; font-weight: 800; text-align: center; padding: 8px; letter-spacing: 0.08em;">KHQR</div>
+<div style="padding: 8px 14px 0; font-size: 13px; font-weight: 700;">SOK DARA</div>
+<div style="padding: 0 14px; font-size: 12px; color: #5C5C5C;">ABA Bank</div>
+<div style="border-top: 1px dashed #DDD3C3; margin: 8px 0;"></div>
+<div style="display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); padding: 4px 24px 18px;">
+<sc-for list="{{qr}}" as="c" hint-placeholder-count="441"><div style="aspect-ratio: 1; background: {{c}};"></div></sc-for>
+</div>
+</div>
+<div style="font-size: 13px; color: #5C5C5C; text-align: center;">{{t.scan}}</div>
+<div style="font-size: 14px; text-align: center; background: #FBF6EE; border-radius: 12px; padding: 10px 14px;">សូមអរគុណចំពោះក្ដីស្រឡាញ់ និងការគាំទ្រ<br><span style="font-size: 13px; color: #5C5C5C;">Thank you for your love and blessings</span></div>
+<button class="btn btn-p" onClick="{{saveImg}}" style="width: 100%;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"></path></svg>{{t.save}}</button>
+<div style="font-size: 11px; color: #6B6358; text-align: center;">{{t.never}}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 16px; right: 16px; top: 70px; z-index: 30; background: #2B2B2B; color: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; align-items: center; gap: 8px; animation: toast 2.2s forwards; font-family: Inter, 'Kantumruy Pro', sans-serif;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC1AC" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>{{toast}}</div>
+</sc-if>
+
+<sc-if value="{{showDoors}}" hint-placeholder-val="{{true}}">
+<button class="{{doorCls}}" onClick="{{openDoors}}" aria-label="Open the invitation" style="position: absolute; inset: 0; z-index: 40; border: 0; padding: 0; background: transparent; cursor: pointer; font: inherit;">
+<div class="door door-l"><div style="position: absolute; inset: 16px 8px 16px 16px; border: 1px solid #C9A24B; border-radius: 12px 0 0 12px;"></div></div>
+<div class="door door-r"><div style="position: absolute; inset: 16px 16px 16px 8px; border: 1px solid #C9A24B; border-radius: 0 12px 12px 0;"></div></div>
+<div class="seal" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #FBF6EE; text-align: center;">
+<div style="font-family: Moul, serif; font-size: 16px; color: #E3C277; line-height: 1.9;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="width: 96px; height: 96px; border-radius: 999px; background: #C9A24B; border: 4px solid #E3C277; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(0,0,0,0.3);"><span style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 30px; color: #7A1F2B;">D&amp;S</span></div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 24px;">Dara &amp; Sophea</div>
+<div style="margin-top: 18px; font-size: 14px; padding: 8px 18px; border: 1px solid #C9A24B; border-radius: 999px;">ចុចដើម្បីបើក · Tap to open</div>
+</div>
+</button>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"startOpen":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { lang: null, doors: 'closed', playing: false, sheet: null, name: '', yes: true, party: 2, msg: '', sent: false, toast: '' };
+  componentWillUnmount() { clearTimeout(this._d); clearTimeout(this._t); }
+  toastMsg(m) { clearTimeout(this._t); this.setState({ toast: m }); this._t = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km ? {
+      cal: 'បញ្ចូលក្នុងប្រតិទិន', directions: 'មើលផ្លូវ', rsvp: 'ឆ្លើយតបការអញ្ជើញ', gift: 'ចំណងដៃ',
+      rsvpTitle: 'តើអ្នកអាចចូលរួមបានទេ?', rsvpSub: 'សូមឆ្លើយតបមុនថ្ងៃទី ៦ ខែធ្នូ', name: 'ឈ្មោះរបស់អ្នក', namePh: 'ឧ. ចាន់ ធីតា',
+      yes: 'ចូលរួម', no: 'មិនអាចចូលរួម', people: 'ចំនួនមនុស្ស', msg: 'សារជូនពរ (ស្រេចចិត្ត)', msgPh: 'សរសេរពាក្យជូនពរ…', send: 'ផ្ញើការឆ្លើយតប',
+      thanksYes: 'យើងរង់ចាំជួបអ្នកនៅថ្ងៃមង្គល!', thanksNo: 'សូមអរគុណដែលបានប្រាប់យើង។ យើងនឹងនឹកអ្នក!', backInv: 'ត្រឡប់ទៅធៀបការ', sendGift: 'ផ្ញើចំណងដៃ',
+      giftTitle: 'ផ្ញើចំណងដៃ', scan: 'ស្កេនដោយ ABA, ACLEDA, Wing ឬកម្មវិធី KHQR ណាមួយ', save: 'រក្សាទុករូបភាព',
+      never: 'ប្រាក់ផ្ញើដោយផ្ទាល់ទៅគូស្វាមីភរិយា។ ធៀបការមិនកាន់ប្រាក់នេះទេ។', saved: 'បានរក្សាទុករូប KHQR', calDone: 'បានបញ្ចូលក្នុងប្រតិទិន', guest: 'ភ្ញៀវ',
+      musicOn: 'បិទតន្ត្រី', musicOff: 'បើកតន្ត្រី'
+    } : {
+      cal: 'Add to calendar', directions: 'Get directions', rsvp: 'RSVP', gift: 'Gift',
+      rsvpTitle: 'Can you come?', rsvpSub: 'Please reply by 6 December', name: 'Your name', namePh: 'e.g. Chan Thida',
+      yes: 'Attending', no: 'Can’t come', people: 'Number of people', msg: 'Message (optional)', msgPh: 'Write your wishes…', send: 'Send RSVP',
+      thanksYes: 'We can’t wait to see you on the big day!', thanksNo: 'Thanks for letting us know. We’ll miss you!', backInv: 'Back to invitation', sendGift: 'Send a gift',
+      giftTitle: 'Send a gift', scan: 'Scan with ABA, ACLEDA, Wing or any KHQR app', save: 'Save image',
+      never: 'Money goes straight to the couple. TheabKa never handles it.', saved: 'KHQR image saved', calDone: 'Added to your calendar', guest: 'friend',
+      musicOn: 'Mute music', musicOff: 'Play music'
+    };
+    const schedule = [
+      ['07:00', 'ពិធីកាត់សក់', 'Hair-cutting ceremony'],
+      ['09:00', 'ពិធីសូត្រមន្តចម្រើនព្រះបរិត្ត', 'Monk blessing'],
+      ['11:00', 'ពិធីសំពះផ្ទឹម និងចងដៃ', 'Tying of the knot'],
+      ['17:00', 'ពិធីជប់លៀងអាពាហ៍ពិពាហ៍', 'Wedding reception']
+    ].map((e, i, a) => ({ time: e[0], km: e[1], en: e[2], line: i === a.length - 1 ? 'transparent' : '#EADFCB' }));
+    let seed = 11;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const qr = [];
+    for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
+      const inF = (cx, cy) => x >= cx && x < cx + 7 && y >= cy && y < cy + 7;
+      const fin = (cx, cy) => { const dx = x - cx, dy = y - cy; return (dx === 0 || dx === 6 || dy === 0 || dy === 6) || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4); };
+      let v;
+      if (inF(0, 0)) v = fin(0, 0); else if (inF(14, 0)) v = fin(14, 0); else if (inF(0, 14)) v = fin(0, 14); else v = rnd() > 0.5;
+      qr.push(v ? '#1E1E1E' : '#FFFFFF');
+    }
+    const petals = Array.from({ length: 12 }, (_, i) => ({
+      x: (8 + i * 29) + 'px', d: (2.4 + (i % 4) * 0.5) + 's', delay: ((i * 0.37) % 2).toFixed(2) + 's',
+      c: ['#C9A24B', '#E8B4B8', '#F6EEDD', '#D9A0A6'][i % 4]
+    }));
+    const s = this.state;
+    const doorsGone = s.doors === 'gone' || this.props.startOpen;
+    return {
+      t, schedule, qr, petals,
+      gallery: ['#9C5B4E', '#7A6A4E', '#5E7A6E', '#8A4A5A', '#6E5A7A', '#A07A3E'],
+      showDoors: !doorsGone, doorCls: s.doors === 'opening' ? 'open' : '',
+      openDoors: () => {
+        if (s.doors !== 'closed') return;
+        this.setState({ doors: 'opening', playing: true });
+        this._d = setTimeout(() => this.setState({ doors: 'gone' }), 1100);
+      },
+      playing: s.playing, muted: !s.playing, musicLabel: s.playing ? t.musicOn : t.musicOff,
+      toggleMusic: () => this.setState({ playing: !s.playing }),
+      anySheet: !!s.sheet, rsvpOpen: s.sheet === 'rsvp', giftOpen: s.sheet === 'gift',
+      openRsvp: () => this.setState({ sheet: 'rsvp' }), openGift: () => this.setState({ sheet: 'gift' }),
+      closeSheet: () => this.setState({ sheet: null }),
+      name: s.name, msg: s.msg, party: km ? String(s.party).replace(/[0-9]/g, (d) => '០១២៣៤៥៦៧៨៩'[d]) : s.party,
+      onName: (e) => this.setState({ name: e.target.value }), onMsg: (e) => this.setState({ msg: e.target.value }),
+      yesCls: s.yes ? 'yn-yes' : '', noCls: s.yes ? '' : 'yn-no', attending: s.yes,
+      pickYes: () => this.setState({ yes: true }), pickNo: () => this.setState({ yes: false }),
+      inc: () => this.setState({ party: Math.min(10, s.party + 1) }), dec: () => this.setState({ party: Math.max(1, s.party - 1) }),
+      canSend: s.name.trim().length > 0, cantSend: s.name.trim().length === 0,
+      send: () => this.setState({ sent: true }), sent: s.sent, notSent: !s.sent,
+      nameShown: s.name.trim() || t.guest, thanksBody: s.yes ? t.thanksYes : t.thanksNo,
+      saveImg: () => this.toastMsg(t.saved), addCal: () => this.toastMsg(t.calDone),
+      hasToast: !!s.toast, toast: s.toast,
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Exported design prototypes (reference only, not app code).
+    "theabka-mobile-resource/**",
+    "theabka-web-resource/**",
   ]),
 ]);
 

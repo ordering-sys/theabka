@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>Host dashboard (desktop)</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF6EE}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:14px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.inv{width:100%;display:flex;gap:12px;align-items:center;border:0;border-radius:12px;padding:10px;background:transparent;font:inherit;color:#2B2B2B;text-align:left;cursor:pointer;text-decoration:none}
+.inv:hover{background:#F6EFE2}
+.inv-on{background:#fff;box-shadow:0 2px 12px rgba(43,43,43,.08)}
+.chip{min-height:38px;padding:0 14px;border-radius:999px;border:1.5px solid #D9CFC0;background:#fff;font:inherit;font-size:13px;font-weight:600;color:#2B2B2B;cursor:pointer}
+.chip-on{background:#2B2B2B;border-color:#2B2B2B;color:#fff}
+.field{width:100%;min-height:44px;border:1.5px solid #D9CFC0;border-radius:12px;background:#fff;font:inherit;font-size:14px;padding:0 12px 0 38px;color:#2B2B2B;outline:none}
+.field:focus{border-color:#7A1F2B}
+th{text-align:left;font-size:12px;font-weight:700;color:#5C5C5C;padding:10px 14px;border-bottom:1px solid #EADFCB;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid #F1E8D8;font-size:14px;vertical-align:top}
+@keyframes toast{0%{opacity:0}10%,85%{opacity:1}100%{opacity:0}}
+</style>
+</helmet>
+<div style="background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6; min-height: 1000px; position: relative;">
+<header style="background: #fff; border-bottom: 1px solid #EADFCB;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 24px;">
+<a href="Main.dc.html" style="font-family: Moul, serif; font-size: 18px; color: #7A1F2B; text-decoration: none; padding: 8px 0;">ធៀបការ <span style="font-family: Inter, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #5C5C5C;">THEABKA</span></a>
+<div style="display: flex; align-items: center; gap: 12px;">
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<a href="WebEditor.dc.html" class="btn btn-p">+ {{t.newInv}}</a>
+<span style="width: 38px; height: 38px; border-radius: 999px; background: #C9A24B; font-weight: 700; display: flex; align-items: center; justify-content: center;" aria-label="Account">ដ</span>
+</div>
+</div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 24px; max-width: 1440px; margin: 0 auto;">
+<aside style="flex: 1 1 260px; max-width: 300px; display: flex; flex-direction: column; gap: 6px;">
+<div style="font-size: 13px; font-weight: 700; color: #5C5C5C; padding: 0 10px 4px;">{{t.myInv}}</div>
+<button class="inv inv-on">
+<div style="width: 48px; height: 64px; border-radius: 6px; background: #7A1F2B; padding: 3px; flex: none;"><div style="height: 100%; border: 1px solid #C9A24B; border-radius: 4px; color: #FBF6EE; font-family: 'Playfair Display', serif; font-style: italic; font-size: 10px; display: flex; align-items: center; justify-content: center;">D&amp;S</div></div>
+<div><div style="font-weight: 700; font-size: 14px;">Dara &amp; Sophea</div><div style="font-size: 12px; color: #5C5C5C;">13.12.2026</div><span style="font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #E4EFEA; color: #2F5A4A;">{{t.live}}</span></div>
+</button>
+<a class="inv" href="WebEditor.dc.html">
+<div style="width: 48px; height: 64px; border-radius: 6px; background: #3F6B5B; padding: 3px; flex: none;"><div style="height: 100%; border: 1px solid #E3C277; border-radius: 4px; color: #F6EEDD; font-family: 'Playfair Display', serif; font-style: italic; font-size: 10px; display: flex; align-items: center; justify-content: center;">V&amp;L</div></div>
+<div><div style="font-weight: 700; font-size: 14px;">Vibol &amp; Sreyleak</div><div style="font-size: 12px; color: #5C5C5C;">{{t.engagement}}</div><span style="font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #ECE6DC; color: #5C5C5C;">{{t.draft}}</span></div>
+</a>
+</aside>
+
+<main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+<div>
+<h1 style="margin: 0; font-size: 26px; font-weight: 700;">ដារ៉ា &amp; សុភា · Dara &amp; Sophea</h1>
+<div style="font-size: 14px; color: #5C5C5C;">{{t.wedding}} · ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦ · Sokha Phnom Penh Hotel</div>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+<a href="WebEditor.dc.html" class="btn btn-s">{{t.edit}}</a>
+<a href="{{inviteUrl}}" class="btn btn-s">{{t.viewGuest}}</a>
+</div>
+</div>
+
+<div style="background: #fff; border-radius: 14px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(43,43,43,0.06); display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+<div style="flex: 1 1 280px; min-width: 0;"><div style="font-size: 12px; font-weight: 600; color: #5C5C5C;">{{t.shareLink}}</div><div style="font-weight: 600;">theabka.com/i/dara-sophea</div></div>
+<button class="btn btn-p" onClick="{{copy}}">{{copyLabel}}</button>
+<button class="btn" style="background: #229ED9; color: #fff;" onClick="{{tgToast}}">Telegram</button>
+<button class="btn" style="background: #0866FF; color: #fff;" onClick="{{msToast}}">Messenger</button>
+<button class="btn btn-s" onClick="{{qrToast}}">{{t.qr}}</button>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+<div style="background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 2px 12px rgba(43,43,43,0.06);"><div style="font-size: 13px; font-weight: 600; color: #5C5C5C;">{{s.label}}</div><div style="font-size: 34px; font-weight: 700; color: {{s.color}}; line-height: 1.3;">{{s.value}}</div><div style="font-size: 12px; color: #6B6358;">{{s.sub}}</div></div>
+</sc-for>
+</div>
+
+<div style="background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(43,43,43,0.06); overflow: hidden;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px 20px;">
+<h2 style="margin: 0; font-size: 18px; font-weight: 700;">{{t.rsvps}} ({{count}})</h2>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+<div style="position: relative; width: 240px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6358" stroke-width="2" aria-hidden="true" style="position: absolute; left: 12px; top: 13px;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input class="field" placeholder="{{t.search}}" value="{{q}}" onChange="{{onQ}}" aria-label="Search guests"></div>
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><button class="chip {{f.cls}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+<button class="btn btn-s" onClick="{{exportCsv}}">CSV</button>
+</div>
+</div>
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; min-width: 720px;">
+<thead><tr><th>{{t.colName}}</th><th>{{t.colStatus}}</th><th>{{t.colPeople}}</th><th>{{t.colMsg}}</th><th>{{t.colDate}}</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight: 600;">{{r.name}}</td><td><span style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: {{r.badgeBg}}; color: {{r.badgeFg}};">{{r.status}}</span></td><td>{{r.people}}</td><td style="color: #4A4A4A;">{{r.msg}}</td><td style="color: #6B6358; white-space: nowrap;">{{r.date}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{false}}"><div style="padding: 24px; text-align: center; color: #6B6358;">{{t.noMatch}}</div></sc-if>
+</div>
+</div>
+</main>
+</div>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; right: 24px; bottom: 24px; z-index: 20; background: #2B2B2B; color: #fff; border-radius: 12px; padding: 12px 16px; font-size: 14px; display: flex; align-items: center; gap: 8px; animation: toast 2.2s forwards;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC1AC" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>{{toast}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  state = { lang: null, q: '', filter: 'all', copied: false, toast: '' };
+  toastMsg(m) { clearTimeout(this._t); this.setState({ toast: m }); this._t = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  componentWillUnmount() { clearTimeout(this._t); }
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km ? {
+      newInv: 'ធៀបការថ្មី', myInv: 'ធៀបការរបស់ខ្ញុំ', live: 'ផ្សាយហើយ', draft: 'ព្រាង', engagement: 'ភ្ជាប់ពាក្យ', wedding: 'អាពាហ៍ពិពាហ៍', edit: 'កែសម្រួល (ឥតគិតថ្លៃ)', viewGuest: 'មើលជាភ្ញៀវ',
+      shareLink: 'តំណចែករំលែក', copy: 'ចម្លងតំណ', copied: 'បានចម្លង', qr: 'ទាញយក QR', rsvps: 'ការឆ្លើយតប', search: 'ស្វែងរកឈ្មោះ…', all: 'ទាំងអស់', yes: 'ចូលរួម', no: 'មិនចូលរួម',
+      colName: 'ឈ្មោះ', colStatus: 'ចម្លើយ', colPeople: 'ចំនួន', colMsg: 'សារ', colDate: 'ថ្ងៃ', noMatch: 'រកមិនឃើញឈ្មោះនេះទេ', csvDone: 'បានទាញយក rsvp-dara-sophea.csv', qrDone: 'បានរក្សាទុករូប QR',
+      opened: 'បានបើក', attending: 'ចូលរួម', notAttending: 'មិនចូលរួម', total: 'ភ្ញៀវសរុប', thisWeek: '+៣២ សប្ដាហ៍នេះ', replies: 'ការឆ្លើយតប', people: 'នាក់នឹងមក'
+    } : {
+      newInv: 'New invitation', myInv: 'My invitations', live: 'Live', draft: 'Draft', engagement: 'Engagement', wedding: 'Wedding', edit: 'Edit (free)', viewGuest: 'View as guest',
+      shareLink: 'Share link', copy: 'Copy link', copied: 'Copied', qr: 'Download QR', rsvps: 'RSVPs', search: 'Search names…', all: 'All', yes: 'Attending', no: 'Not attending',
+      colName: 'Name', colStatus: 'Reply', colPeople: 'People', colMsg: 'Message', colDate: 'Date', noMatch: 'No guests match that search', csvDone: 'Downloaded rsvp-dara-sophea.csv', qrDone: 'QR image saved',
+      opened: 'Opened', attending: 'Attending', notAttending: 'Not attending', total: 'Total guests', thisWeek: '+32 this week', replies: 'replies', people: 'people coming'
+    };
+    const data = [
+      ['ចាន់ ធីតា', true, 2, 'សូមជូនពរឲ្យមានសុភមង្គល!', '20 Nov'], ['Sopheak Lim', true, 1, 'Congratulations, see you there!', '20 Nov'], ['ហេង សុវណ្ណ', true, 4, '', '20 Nov'],
+      ['Ratha Keo', false, 1, 'Sorry, I will be in Siem Reap. Best wishes!', '19 Nov'], ['សុខ ពិសី', true, 3, 'រីករាយណាស់!', '19 Nov'], ['Vannak Chea', true, 2, '', '19 Nov'],
+      ['ម៉ៅ សុជាតា', true, 2, 'ជូនពរឲ្យស្រឡាញ់គ្នារហូត', '18 Nov'], ['Dalin Pov', true, 1, '', '18 Nov'], ['គឹម សុខា', false, 1, 'សុំទោស មិនអាចចូលរួមបាន', '18 Nov'],
+      ['Bopha Nhem', true, 2, 'So happy for you both!', '17 Nov'], ['អ៊ុំ វិសាល', true, 5, '', '17 Nov'], ['Pisey Tan', true, 2, '', '17 Nov'],
+      ['ឡុង ចន្ទា', true, 2, 'សូមអបអរសាទរ', '16 Nov'], ['Kosal Meas', true, 1, 'See you at the reception', '16 Nov'], ['ប៉ិច សុភាព', true, 3, '', '16 Nov'],
+      ['Sreymom Ouk', false, 2, 'We are abroad, sending love', '15 Nov'], ['ទេព ម៉ានិត', true, 2, '', '15 Nov'], ['Chenda Sok', true, 1, '', '15 Nov'],
+      ['យឹម បូរ៉ា', true, 4, 'ជូនពរឲ្យមានកូនឆាប់ៗ', '14 Nov'], ['Visal Heng', true, 2, '', '14 Nov'], ['ស៊ិន សុធា', true, 1, '', '13 Nov'],
+      ['Leakhena Chhay', true, 2, 'Can not wait!', '13 Nov'], ['នួន សំណាង', false, 1, '', '12 Nov'], ['Rithy Prak', true, 3, '', '12 Nov']
+    ];
+    const kn = (n) => (km ? String(n).replace(/[0-9]/g, (d) => '០១២៣៤៥៦៧៨៩'[d]) : String(n));
+    const yesN = data.filter((d) => d[1]).length, noN = data.length - yesN;
+    const guests = data.filter((d) => d[1]).reduce((a, d) => a + d[2], 0);
+    const q = (this.state.q || '').toLowerCase();
+    const rows = data.filter((d) => (this.state.filter === 'all' || (this.state.filter === 'yes') === d[1]) && (!q || d[0].toLowerCase().includes(q))).map((d) => ({
+      name: d[0], status: d[1] ? t.yes : t.no, people: d[1] ? kn(d[2]) : '—', msg: d[3] || '—', date: d[4],
+      badgeBg: d[1] ? '#E4EFEA' : '#F6E3E0', badgeFg: d[1] ? '#2F5A4A' : '#7A1F2B'
+    }));
+    const filters = [['all', t.all], ['yes', t.yes], ['no', t.no]].map((f) => ({ label: f[1], cls: this.state.filter === f[0] ? 'chip-on' : '', pick: () => this.setState({ filter: f[0] }) }));
+    return {
+      t, rows, filters, q: this.state.q, count: kn(rows.length), noRows: rows.length === 0,
+      inviteUrl: this.props.inviteUrl || 'https://claude.ai/artifact/Qsq4YTyH25D5RHNoYBLb7D#play-Invite',
+      stats: [
+        { label: t.opened, value: kn(186), color: '#2B2B2B', sub: t.thisWeek },
+        { label: t.attending, value: kn(yesN), color: '#3E6B5A', sub: kn(data.length) + ' ' + t.replies },
+        { label: t.notAttending, value: kn(noN), color: '#7A1F2B', sub: kn(data.length) + ' ' + t.replies },
+        { label: t.total, value: kn(guests), color: '#6E5418', sub: t.people }
+      ],
+      onQ: (e) => this.setState({ q: e.target.value }),
+      copyLabel: this.state.copied ? t.copied : t.copy, copy: () => this.setState({ copied: true }),
+      exportCsv: () => this.toastMsg(t.csvDone), tgToast: () => this.toastMsg(km ? 'នឹងបើក Telegram ដើម្បីចែករំលែក (គំរូ)' : 'Would open Telegram to share (prototype)'), msToast: () => this.toastMsg(km ? 'នឹងបើក Messenger ដើម្បីចែករំលែក (គំរូ)' : 'Would open Messenger to share (prototype)'), qrToast: () => this.toastMsg(t.qrDone),
+      hasToast: !!this.state.toast, toast: this.state.toast,
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

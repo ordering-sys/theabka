@@ -1,0 +1,71 @@
+/**
+ * Browser auth helpers (Supabase Auth): 6-digit email code and Google.
+ * Replace signInMock() calls in app/signin with these.
+ */
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { Session } from "@/lib/data/types";
+export type AuthResult = { ok: true } | { ok: false; error: "invalid_email" | "invalid_code" | "rate_limited" | "failed" };
+
+function mapAuthError(message: string, status?: number): AuthResult {
+  const m = message.toLowerCase();
+  if (status === 429 || m.includes("rate") || m.includes("security purposes")) return { ok: false, error: "rate_limited" };
+  if (m.includes("expired") || m.includes("invalid") || m.includes("token")) return { ok: false, error: "invalid_code" };
+  return { ok: false, error: "failed" };
+}
+
+/** Rough shape check; Supabase does the real validation. */
+export function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+}
+
+/**
+ * Email a 6-digit sign-in code. Creates the account on first use, so this is
+ * both "register" and "sign in". The Supabase email template must include
+ * {{ .Token }} for the code (see docs/supabase-setup.md).
+ */
+export async function sendEmailOtp(email: string): Promise<AuthResult> {
+  const address = email.trim().toLowerCase();
+  if (!isValidEmail(address)) return { ok: false, error: "invalid_email" };
+  const { error } = await getSupabaseBrowserClient().auth.signInWithOtp({
+    email: address,
+    options: { shouldCreateUser: true },
+  });
+  return error ? mapAuthError(error.message, error.status) : { ok: true };
+}
+
+/** Check the emailed code. On success the session cookie is set. */
+export async function verifyEmailOtp(email: string, code: string): Promise<AuthResult & { session?: Session }> {
+  const address = email.trim().toLowerCase();
+  if (!isValidEmail(address)) return { ok: false, error: "invalid_email" };
+  const token = code.replace(/\D/g, "");
+  if (token.length !== 6) return { ok: false, error: "invalid_code" };
+  const { data, error } = await getSupabaseBrowserClient().auth.verifyOtp({ email: address, token, type: "email" });
+  if (error || !data.user) return mapAuthError(error?.message ?? "invalid", error?.status);
+  return { ok: true, session: { userId: data.user.id, email: data.user.email ?? address, provider: "email" } };
+}
+
+/**
+ * Redirects to Google. After consent Google returns to /auth/callback, which
+ * sets the session cookie and redirects to `next` (default /app).
+ */
+export async function signInWithGoogle(next = "/app"): Promise<AuthResult> {
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/app";
+  const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
+  const { error } = await getSupabaseBrowserClient().auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo, queryParams: { prompt: "select_account" } },
+  });
+  return error ? mapAuthError(error.message, error.status) : { ok: true };
+}
+
+export async function signOut(): Promise<void> {
+  await getSupabaseBrowserClient().auth.signOut();
+}
+
+/** Subscribe to sign-in/sign-out. Returns an unsubscribe function. */
+export function onAuthChange(callback: (signedIn: boolean) => void): () => void {
+  const { data } = getSupabaseBrowserClient().auth.onAuthStateChange((_event, session) => callback(!!session));
+  return () => data.subscription.unsubscribe();
+}
+
+export { getSession } from "@/lib/data";

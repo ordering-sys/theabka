@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<title>How TheabKa works</title>
+<script src="./_runtime/react.js"></script>
+<script src="./_runtime/react-dom.js"></script>
+<script src="./_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Kantumruy+Pro:wght@400;500;600;700&amp;family=Moul&amp;family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF6EE}
+*{box-sizing:border-box}
+a{color:#7A1F2B}a:hover{color:#5A1520}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:12px;border:0;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer}
+.btn-p{background:#7A1F2B;color:#fff}.btn-p:hover{color:#fff;background:#5A1520}
+.btn-s{background:#fff;color:#7A1F2B;border:1.5px solid #7A1F2B}
+.btn-off{background:#ECE6DC;color:#8A8278;cursor:not-allowed}
+.seg{min-width:40px;min-height:32px;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#5C5C5C}
+.seg-on{background:#7A1F2B;color:#fff}
+.stepbtn{width:100%;display:flex;gap:16px;align-items:flex-start;text-align:left;border:0;border-radius:14px;padding:16px;background:transparent;font:inherit;color:#2B2B2B;cursor:pointer}
+.stepbtn:hover{background:#F6EFE2}
+.step-on{background:#fff;box-shadow:0 4px 18px rgba(43,43,43,.08)}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="background: #FBF6EE; color: #2B2B2B; font-family: Inter, 'Kantumruy Pro', sans-serif; line-height: 1.6; min-height: 900px;">
+<header style="border-bottom: 1px solid #EADFCB;">
+<div class="wrap" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px;">
+<a href="Main.dc.html" style="font-family: Moul, serif; font-size: 18px; color: #7A1F2B; text-decoration: none; padding: 8px 0;">ធៀបការ <span style="font-family: Inter, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #5C5C5C;">THEABKA</span></a>
+<div style="display: flex; align-items: center; gap: 12px;">
+<div style="display: flex; background: #F1E8D8; border-radius: 10px; padding: 3px;">
+<button class="seg {{kmCls}}" onClick="{{setKm}}">KH</button>
+<button class="seg {{enCls}}" onClick="{{setEn}}">EN</button>
+</div>
+<a href="WebEditor.dc.html" class="btn btn-p" style="min-height: 44px;">{{t.create}}</a>
+</div>
+</div>
+</header>
+
+<div class="wrap" style="padding-top: 40px; padding-bottom: 48px;">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: #8A6A1F;">{{t.kicker}}</div>
+<h1 style="margin: 4px 0 28px; font-size: 34px; font-weight: 700;">{{t.title}}</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: stretch;">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<button class="stepbtn {{s.cls}}" onClick="{{s.go}}" aria-current="{{s.on}}">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 999px; background: {{s.dotBg}}; color: {{s.dotFg}}; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{s.n}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 17px; font-weight: 700;">{{s.title}}</span><span style="font-size: 14px; color: #5C5C5C;">{{s.sub}}</span><span style="font-size: 12px; font-weight: 600; color: #6E5418;">{{s.time}}</span></span>
+</button>
+</sc-for>
+<div style="display: flex; gap: 10px; margin-top: 14px;">
+<sc-if value="{{hasPrev}}" hint-placeholder-val="{{false}}"><button class="btn btn-s" onClick="{{prev}}">{{t.prev}}</button></sc-if>
+<sc-if value="{{hasNext}}" hint-placeholder-val="{{true}}"><button class="btn btn-p" onClick="{{next}}">{{t.next}}</button></sc-if>
+<sc-if value="{{isLast}}" hint-placeholder-val="{{false}}"><a href="WebEditor.dc.html" class="btn btn-p">{{t.start}}</a></sc-if>
+</div>
+</div>
+
+<div style="flex: 2 1 560px; min-width: 0; background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(43,43,43,0.08); padding: 32px; display: flex; flex-direction: column; gap: 18px; min-height: 560px;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+<div style="font-size: 20px; font-weight: 700;">{{cur.title}}</div>
+<div style="display: flex; gap: 6px;"><sc-for list="{{steps}}" as="s" hint-placeholder-count="4"><span style="width: {{s.barW}}; height: 8px; border-radius: 99px; background: {{s.barBg}};"></span></sc-for></div>
+</div>
+
+<sc-if value="{{s0}}" hint-placeholder-val="{{true}}">
+<div style="animation: fadein .3s; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{tpls}}" as="tp" hint-placeholder-count="8">
+<div style="border-radius: 10px; background: {{tp.bg}}; padding: 6px; height: 170px; outline: {{tp.ring}}; outline-offset: 3px;">
+<div style="height: 100%; border: 1px solid {{tp.accent}}; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: {{tp.fg}}; text-align: center;">
+<div style="font-family: Moul, serif; font-size: 8px; color: {{tp.accent}}; line-height: 1.9;">សិរីមង្គល</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px;">Dara &amp; Sophea</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{false}}">
+<div style="animation: fadein .3s; display: flex; gap: 24px; flex-wrap: wrap;">
+<div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 10px;">
+<sc-for list="{{formRows}}" as="r" hint-placeholder-count="5">
+<div><div style="font-size: 12px; font-weight: 600; color: #5C5C5C;">{{r.label}}</div><div style="min-height: 42px; border: 1.5px solid #E3D8C6; border-radius: 10px; padding: 8px 12px; font-size: 14px;">{{r.value}}</div></div>
+</sc-for>
+</div>
+<div style="flex: 0 0 200px; height: 360px; border-radius: 28px; background: #2B2B2B; padding: 7px; align-self: center;">
+<div style="height: 100%; border-radius: 22px; background: #7A1F2B; color: #FBF6EE; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; position: relative;">
+<div style="position: absolute; inset: 9px; border: 1px solid #C9A24B; border-radius: 14px;"></div>
+<div style="font-family: Moul, serif; font-size: 10px; color: #C9A24B; line-height: 1.9;">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
+<div style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px; margin-top: 6px;">Dara &amp; Sophea</div>
+<div style="font-size: 10px; margin-top: 8px; line-height: 1.8;">ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦</div>
+<div style="font-size: 9px; opacity: 0.85;">Sokha Phnom Penh Hotel</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{false}}">
+<div style="animation: fadein .3s; display: flex; gap: 32px; align-items: center; flex-wrap: wrap; justify-content: center;">
+<div style="width: 220px; border-radius: 14px; overflow: hidden; border: 1px solid #EADFCB;">
+<div style="background: #E1232E; color: #fff; font-weight: 800; text-align: center; padding: 8px; letter-spacing: 0.08em;">KHQR</div>
+<div style="padding: 8px 14px 0; font-size: 22px; font-weight: 700;">$15.00</div>
+<div style="display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); padding: 10px 20px 16px;">
+<sc-for list="{{qr}}" as="c" hint-placeholder-count="441"><div style="aspect-ratio: 1; background: {{c}};"></div></sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 300px;">
+<sc-for list="{{payPoints}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; gap: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3E6B5A" stroke-width="2.4" aria-hidden="true" style="flex: none; margin-top: 3px;"><path d="M5 12l5 5 9-10"></path></svg><span>{{p}}</span></div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{false}}">
+<div style="animation: fadein .3s; display: flex; gap: 24px; flex-wrap: wrap;">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 12px;">
+<div style="background: #F6EFE2; border-radius: 12px; padding: 12px 14px; font-weight: 600;">theabka.com/i/dara-sophea</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+<span style="padding: 8px 14px; border-radius: 999px; background: #229ED9; color: #fff; font-size: 13px; font-weight: 600;">Telegram</span>
+<span style="padding: 8px 14px; border-radius: 999px; background: #0866FF; color: #fff; font-size: 13px; font-weight: 600;">Messenger</span>
+<span style="padding: 8px 14px; border-radius: 999px; background: #2B2B2B; color: #fff; font-size: 13px; font-weight: 600;">QR</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<sc-for list="{{stats}}" as="st" hint-placeholder-count="4"><div style="border: 1px solid #EADFCB; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 12px; color: #5C5C5C;">{{st.label}}</div><div style="font-size: 24px; font-weight: 700; color: {{st.color}};">{{st.value}}</div></div></sc-for>
+</div>
+</div>
+<div style="flex: 1 1 280px; border: 1px solid #EADFCB; border-radius: 12px; overflow: hidden;">
+<sc-for list="{{rsvps}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid #F1E8D8; font-size: 14px;"><span style="font-weight: 600;">{{r.name}}</span><span style="font-weight: 700; color: {{r.color}};">{{r.status}}</span></div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<div style="margin-top: auto; font-size: 14px; color: #4A4A4A; background: #FBF6EE; border-radius: 12px; padding: 12px 16px;">{{cur.note}}</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["km","en"],"default":"km"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  state = { lang: null, step: 0 };
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'km';
+    const km = lang === 'km';
+    const t = km
+      ? { create: 'បង្កើតធៀបការ', kicker: 'របៀបដំណើរការ', title: 'ពីគំរូ ដល់ភ្ញៀវ ក្នុង ៤ ជំហាន', prev: 'ថយក្រោយ', next: 'ជំហានបន្ទាប់', start: 'ចាប់ផ្ដើមឥឡូវ' }
+      : { create: 'Create your invitation', kicker: 'HOW IT WORKS', title: 'From template to guests in 4 steps', prev: 'Back', next: 'Next step', start: 'Start now' };
+    const raw = km ? [
+      ['ជ្រើសរើសគំរូ', 'គំរូ ៨ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ', '១ នាទី', 'ចុចលើគំរូណាមួយ ដើម្បីមើលជាមុនពេញអេក្រង់ មុនពេលជ្រើសរើស។'],
+      ['បំពេញព័ត៌មាន', 'ឈ្មោះ កាលបរិច្ឆេទ ទីកន្លែង កម្មវិធី រូបថត តន្ត្រី និងចំណងដៃ', '៥–១០ នាទី', 'ធៀបការផ្លាស់ប្ដូរភ្លាមៗពេលអ្នកវាយ។ កាលបរិច្ឆេទបង្ហាញជាលេខខ្មែរដោយស្វ័យប្រវត្តិ។'],
+      ['បង់តាម KHQR', '$5 ឬ $15 បង់តែម្ដង', '៣០ វិនាទី', 'ការបង្កើត និងមើលជាមុន ឥតគិតថ្លៃ។ អ្នកបង់តែពេលចង់ផ្សព្វផ្សាយ។'],
+      ['ចែករំលែក និងតាមដាន', 'ផ្ញើតំណ ហើយមើលការឆ្លើយតបចូលមក', 'រហូតដល់ថ្ងៃការ', 'ការកែសម្រួលក្រោយផ្សព្វផ្សាយ ឥតគិតថ្លៃ ហើយភ្ញៀវឃើញការផ្លាស់ប្ដូរភ្លាមៗ។']
+    ] : [
+      ['Pick a template', '8 designs for weddings and engagements', '1 minute', 'Tap any template to preview it full screen before you choose.'],
+      ['Add your details', 'Names, date, venue, schedule, photos, music and gift', '5–10 minutes', 'The invitation updates as you type. The date is shown in Khmer numerals automatically.'],
+      ['Pay by KHQR', '$5 or $15, paid once', '30 seconds', 'Building and previewing are free. You only pay when you want to publish.'],
+      ['Share and track', 'Send the link and watch RSVPs arrive', 'Until the big day', 'Editing after publishing is free, and guests see changes right away.']
+    ];
+    const step = this.state.step;
+    const steps = raw.map((r, i) => ({
+      n: km ? '០១២៣៤'[i + 1] : String(i + 1), title: r[0], sub: r[1], time: r[2],
+      on: i === step, cls: i === step ? 'step-on' : '',
+      dotBg: i < step ? '#5E8C7A' : (i === step ? '#7A1F2B' : '#F1E8D8'), dotFg: i <= step ? '#fff' : '#7A1F2B',
+      barW: i === step ? '32px' : '8px', barBg: i <= step ? '#7A1F2B' : '#E3D8C6',
+      go: () => this.setState({ step: i })
+    }));
+    const tplRaw = [['#7A1F2B', '#FBF6EE', '#C9A24B'], ['#FBF6EE', '#2B2B2B', '#8A6A1F'], ['#FFFFFF', '#2B2B2B', '#4C7564'], ['#3B2A4A', '#F6EEDD', '#D9B866'], ['#F4ECDD', '#2B2B2B', '#7A1F2B'], ['#F3E3C3', '#2B2B2B', '#7A4A12'], ['#3F6B5B', '#F6EEDD', '#E3C277'], ['#F2DCD7', '#2B2B2B', '#8E3B46']];
+    const tpls = tplRaw.map((c, i) => ({ bg: c[0], fg: c[1], accent: c[2], ring: i === 0 ? '3px solid #C9A24B' : 'none' }));
+    const formRows = km
+      ? [{ label: 'កូនកំលោះ', value: 'សុខ ដារ៉ា · Sok Dara' }, { label: 'កូនក្រមុំ', value: 'ចាន់ សុភា · Chan Sophea' }, { label: 'កាលបរិច្ឆេទ', value: '13/12/2026 → ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦' }, { label: 'ទីកន្លែង', value: 'សណ្ឋាគារ សុខា ភ្នំពេញ' }, { label: 'រូបថត', value: '៤ / ៦ សន្លឹក' }]
+      : [{ label: 'Groom', value: 'សុខ ដារ៉ា · Sok Dara' }, { label: 'Bride', value: 'ចាន់ សុភា · Chan Sophea' }, { label: 'Date', value: '13/12/2026 → ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦' }, { label: 'Venue', value: 'Sokha Phnom Penh Hotel' }, { label: 'Photos', value: '4 of 6' }];
+    let seed = 5;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const qr = [];
+    for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
+      const inF = (cx, cy) => x >= cx && x < cx + 7 && y >= cy && y < cy + 7;
+      const fin = (cx, cy) => { const dx = x - cx, dy = y - cy; return (dx === 0 || dx === 6 || dy === 0 || dy === 6) || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4); };
+      let v;
+      if (inF(0, 0)) v = fin(0, 0); else if (inF(14, 0)) v = fin(14, 0); else if (inF(0, 14)) v = fin(0, 14); else v = rnd() > 0.5;
+      qr.push(v ? '#1E1E1E' : '#FFFFFF');
+    }
+    const payPoints = km ? ['ស្កេនដោយ ABA, ACLEDA, Wing ឬកម្មវិធី KHQR ណាមួយ', 'ធៀបការផ្សាយភ្លាមៗពេលបង់រួច', 'បង់តែម្ដង មិនមានការជាវប្រចាំខែ'] : ['Scan with ABA, ACLEDA, Wing or any KHQR app', 'Your invitation goes live as soon as you pay', 'One payment, no subscription'];
+    const kn = (n) => (km ? String(n).replace(/[0-9]/g, (d) => '០១២៣៤៥៦៧៨៩'[d]) : String(n));
+    const stats = [
+      { label: km ? 'បានបើក' : 'Opened', value: kn(186), color: '#2B2B2B' },
+      { label: km ? 'ចូលរួម' : 'Attending', value: kn(19), color: '#3E6B5A' },
+      { label: km ? 'មិនចូលរួម' : 'Not attending', value: kn(5), color: '#7A1F2B' },
+      { label: km ? 'ភ្ញៀវសរុប' : 'Total guests', value: kn(42), color: '#6E5418' }
+    ];
+    const yes = km ? 'ចូលរួម' : 'Attending', no = km ? 'មិនចូលរួម' : 'Not attending';
+    const rsvps = [['ចាន់ ធីតា', 1], ['Sopheak Lim', 1], ['ហេង សុវណ្ណ', 1], ['Ratha Keo', 0], ['សុខ ពិសី', 1]].map((r) => ({ name: r[0], status: r[1] ? yes : no, color: r[1] ? '#3E6B5A' : '#7A1F2B' }));
+    return {
+      t, steps, tpls, formRows, qr, payPoints, stats, rsvps,
+      cur: { title: steps[step].title, note: raw[step][3] },
+      s0: step === 0, s1: step === 1, s2: step === 2, s3: step === 3,
+      hasPrev: step > 0, hasNext: step < 3, isLast: step === 3,
+      prev: () => this.setState({ step: Math.max(0, step - 1) }), next: () => this.setState({ step: Math.min(3, step + 1) }),
+      kmCls: km ? 'seg-on' : '', enCls: km ? '' : 'seg-on',
+      setKm: () => this.setState({ lang: 'km' }), setEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

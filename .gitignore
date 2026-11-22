@@ -23,6 +23,17 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.p12
+
+# Windows / editors
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 
 # debug
 npm-debug.log*
@@ -30,8 +41,21 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files: real keys never go to git.
 .env*
+# The template (variable names only, no values) is safe to share.
+!.env.example
+
+# Supabase CLI local state (project link, cached credentials, local stack)
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+supabase/.env.*
+supabase/**/*.local.*
+
+# Claude Code: personal settings stay local; shared settings and agents are committed
+.claude/settings.local.json
+.claude/**/*.local.*
 
 # vercel
 .vercel
