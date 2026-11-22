@@ -102,7 +102,7 @@ export function SignIn() {
   const address = email.trim().toLowerCase();
   const emailOk = auth.isValidEmail(address);
   const showEmailError = touched && address.length > 0 && !emailOk;
-  const otpOk = otp.length === 6;
+  const otpOk = otp.length >= 6; // 6 expected; up to 8 accepted (see lib/auth/client.ts)
 
   useEffect(() => {
     if (step !== "otp" || seconds <= 0) return;
@@ -245,12 +245,12 @@ export function SignIn() {
               id="otp"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={6}
+              maxLength={8}
               placeholder="••••••"
               value={otp}
               autoFocus
               aria-describedby="otp-hint"
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 8))}
               className="min-h-[52px] w-full rounded-card border-[1.5px] border-line-strong bg-white px-3.5 text-center text-2xl font-bold tracking-[0.6em] outline-none focus:border-maroon"
             />
             <p id="otp-hint" className="text-center text-[13px] text-muted">{USE_SUPABASE ? c.codeHint : c.hint}</p>

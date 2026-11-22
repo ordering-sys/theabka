@@ -72,18 +72,15 @@ Hosts sign in (and register, on first use) with their email: the app sends a 6-d
 
 1. **Authentication > Sign In / Providers > Email**: make sure it's enabled (it is by default).
    - **Confirm email**: can stay on. A verified code counts as confirmation.
-2. **Send a code, not a link.** Supabase's default email is a magic link. Go to **Authentication > Emails > Templates**. In both **Magic Link** and **Confirm signup**, replace the body so it shows the code with `{{ .Token }}`. For example:
+2. **Send a code, not a link.** Supabase decides from the template: if it contains `{{ .ConfirmationURL }}` it sends a link (the default); if it contains `{{ .Token }}` it sends a code. Two templates are involved: **Magic Link** (returning users) and **Confirm signup** (first sign-in). Both must use the code. The template is in the repo: [supabase/templates/otp-code.html](../supabase/templates/otp-code.html). Apply it one of two ways:
+   - **Script (recommended).** Updates only the two templates, the code length (6) and expiry (600 s); nothing else in your Auth settings changes.
+     1. Create a personal access token at <https://supabase.com/dashboard/account/tokens>.
+     2. Add it to `.env` as `SUPABASE_ACCESS_TOKEN=...` (it's an account-level secret; remove it when done).
+     3. Run `node --env-file=.env scripts/push-email-templates.mjs --dry-run` to check, then without `--dry-run` to apply.
+   - **Dashboard.** Go to **Authentication > Emails > Templates**. In **Magic Link** and in **Confirm signup**, set the subject to `លេខកូដ TheabKa · Your TheabKa code` and paste the HTML from `otp-code.html` (without the comment at the top) as the body. Make sure `{{ .ConfirmationURL }}` no longer appears anywhere.
 
-   ```html
-   <h2>ធៀបការ TheabKa</h2>
-   <p>លេខកូដចូលគណនីរបស់អ្នក · Your sign-in code:</p>
-   <p style="font-size:28px;font-weight:700;letter-spacing:6px">{{ .Token }}</p>
-   <p>លេខកូដនេះផុតកំណត់ក្នុងពីរបីនាទី។ ប្រសិនបើអ្នកមិនបានស្នើ សូមមិនអើពើ។<br>
-   The code expires in a few minutes. If you didn't ask for it, ignore this email.</p>
-   ```
-
-   Subject: `លេខកូដ TheabKa · Your TheabKa code`.
-3. **Code length must be 6.** Under **Authentication > Providers > Email**, set **Email OTP Length** to `6` (the app's code box takes 6 digits). Keep **Email OTP Expiration** at 3600 s or less.
+   Don't use `supabase config push` for this: it pushes the whole Auth config and would overwrite dashboard settings such as Google sign-in and SMTP.
+3. **Code length 6.** The script sets it. If you used the dashboard, set **Email OTP Length** to `6` under **Authentication > Providers > Email** (the app accepts 6 to 8 digits as a safety net, but the screen says 6). Keep **Email OTP Expiration** at 600 to 3600 s.
 4. **Use your own SMTP before launch.** Supabase's built-in email sender is for testing only: it sends very few emails per hour and only to team members' addresses on some plans. Connect Resend (below) or another provider (Postmark, Amazon SES, Brevo).
 
 ### Sending sign-in emails with Resend

@@ -38,7 +38,8 @@ export async function verifyEmailOtp(email: string, code: string): Promise<AuthR
   const address = email.trim().toLowerCase();
   if (!isValidEmail(address)) return { ok: false, error: "invalid_email" };
   const token = code.replace(/\D/g, "");
-  if (token.length !== 6) return { ok: false, error: "invalid_code" };
+  // Supabase sends 6 digits when configured as in docs/supabase-setup.md; accept up to 8 in case the project default is longer.
+  if (token.length < 6 || token.length > 8) return { ok: false, error: "invalid_code" };
   const { data, error } = await getSupabaseBrowserClient().auth.verifyOtp({ email: address, token, type: "email" });
   if (error || !data.user) return mapAuthError(error?.message ?? "invalid", error?.status);
   return { ok: true, session: { userId: data.user.id, email: data.user.email ?? address, provider: "email" } };

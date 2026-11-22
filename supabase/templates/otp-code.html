@@ -1,0 +1,38 @@
+<!--
+  TheabKa sign-in email: sends a 6-digit CODE, not a link.
+  Used for both Supabase templates "Magic Link" (returning users) and
+  "Confirm signup" (first sign-in). It must contain {{ .Token }} and must NOT
+  contain {{ .ConfirmationURL }}, or Supabase sends a link instead of a code.
+  Push it with: node --env-file=.env scripts/push-email-templates.mjs
+-->
+<!doctype html>
+<html lang="km">
+  <body style="margin:0;padding:0;background:#FBF6EE;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FBF6EE;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:460px;background:#FFFFFF;border-radius:12px;border:1px solid #EADFCB;">
+            <tr>
+              <td style="padding:28px 24px 8px;text-align:center;font-family:'Kantumruy Pro','Khmer OS Battambang','Noto Sans Khmer',Arial,sans-serif;color:#2B2B2B;line-height:1.7;">
+                <div style="font-size:20px;font-weight:700;color:#7A1F2B;">ធៀបការ <span lang="en" style="font-family:Arial,sans-serif;font-size:13px;letter-spacing:2px;color:#5C5C5C;">THEABKA</span></div>
+                <p style="margin:18px 0 4px;font-size:15px;">លេខកូដចូលគណនីរបស់អ្នក</p>
+                <p lang="en" style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#5C5C5C;">Your sign-in code</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:12px 24px;">
+                <div lang="en" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#F3E6C8;font-family:'Courier New',monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#2B2B2B;">{{ .Token }}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 24px 28px;text-align:center;font-family:'Kantumruy Pro','Khmer OS Battambang','Noto Sans Khmer',Arial,sans-serif;font-size:13px;color:#5C5C5C;line-height:1.7;">
+                <p style="margin:0;">វាយលេខកូដនេះនៅលើទំព័រចូលគណនី។ លេខកូដផុតកំណត់ក្នុងពីរបីនាទី។<br>ប្រសិនបើអ្នកមិនបានស្នើសុំ សូមមិនអើពើអ៊ីមែលនេះ។</p>
+                <p lang="en" style="margin:10px 0 0;font-family:Arial,sans-serif;">Type this code on the sign-in page. It expires in a few minutes.<br>If you didn't ask for it, you can ignore this email.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

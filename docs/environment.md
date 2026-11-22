@@ -61,6 +61,10 @@ Find these in the Supabase dashboard under **Project Settings → API**.
 
 The app switches from the browser-storage prototype to Supabase only when **both** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set.
 
+| Variable | Needed | Secret? | What it is |
+|---|---|---|---|
+| `SUPABASE_ACCESS_TOKEN` | Only to run `scripts/push-email-templates.mjs` | **Yes** | A personal access token for your Supabase account (not just this project), from **Account → Access Tokens**. The app never reads it. Add it for the one-off script, then remove it from `.env` and revoke it in the dashboard. Never put it in Vercel. |
+
 ### KHQR payments
 
 | Variable | Needed | Secret? | What it is |
