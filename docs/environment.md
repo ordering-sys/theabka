@@ -21,6 +21,10 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
+# ── Google sign-in on your own domain (optional) ──────────────────────
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
 # ── KHQR payments ─────────────────────────────────────────────────────
 PAYMENT_PROVIDER=sandbox
 ALLOW_SANDBOX_PAYMENTS=false
@@ -65,6 +69,15 @@ The app switches from the browser-storage prototype to Supabase only when **both
 |---|---|---|---|
 | `SUPABASE_ACCESS_TOKEN` | Only to run `scripts/push-email-templates.mjs` | **Yes** | A personal access token for your Supabase account (not just this project), from **Account → Access Tokens**. The app never reads it. Add it for the one-off script, then remove it from `.env` and revoke it in the dashboard. Never put it in Vercel. |
 
+### Google sign-in
+
+From Google Cloud Console → **APIs & Services → Credentials →** your OAuth client (see `docs/supabase-setup.md`, "Auth: Google").
+
+| Variable | Needed | Secret? | What it is |
+|---|---|---|---|
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Optional | No | The OAuth Client ID (ends in `.apps.googleusercontent.com`). When set together with the secret, Google sign-in runs on your own domain (`/auth/google`), so Google's screen shows your domain instead of `<ref>.supabase.co`. Leave both blank to use Supabase's hosted Google flow. |
+| `GOOGLE_CLIENT_SECRET` | With the Client ID | **Yes** | The OAuth client secret. Server only: the callback route uses it to exchange Google's code for an ID token. Never put it in a `NEXT_PUBLIC_` variable. |
+
 ### KHQR payments
 
 | Variable | Needed | Secret? | What it is |
@@ -105,7 +118,7 @@ You only need the variables for the provider you choose.
 ## Rules for keeping keys safe
 
 - Anything starting with `NEXT_PUBLIC_` is sent to every visitor's browser. Only public values go there.
-- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `PAYMENT_WEBHOOK_SECRET`, `ABA_PAYWAY_API_KEY` and `BAKONG_API_TOKEN`. Keep them server-side only.
+- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `PAYMENT_WEBHOOK_SECRET`, `ABA_PAYWAY_API_KEY` and `BAKONG_API_TOKEN`. Keep them server-side only.
 - If a secret leaks (committed, pasted, screenshotted), rotate it in the Supabase or provider dashboard right away.
 - **Each environment gets its own keys.** Use test keys locally and production keys only in Vercel's production environment.
 

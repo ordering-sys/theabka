@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -33,7 +34,7 @@ const content = {
     or: "or",
     google: "Continue with Google",
     demo: "Fill the sample email",
-    terms: "By continuing you agree to the Terms and Privacy Policy",
+    terms: { before: "By continuing you agree to the ", terms: "Terms of Service", and: " and ", privacy: "Privacy Policy", after: "" },
     emailError: "Enter a valid email address, like name@example.com",
     wait: "Please wait…",
     errors: {
@@ -41,6 +42,8 @@ const content = {
       invalid_code: "That code is wrong or has expired. Check your email or send a new code.",
       rate_limited: "Too many tries. Please wait a minute and try again.",
       failed: "Something went wrong. Please try again.",
+      oauth_denied: "Google sign-in was cancelled. Try again, or use your email instead.",
+      oauth_failed: "We couldn't sign you in with Google. Try again, or use your email instead.",
     },
   },
   km: {
@@ -61,7 +64,7 @@ const content = {
     or: "ឬ",
     google: "បន្តជាមួយ Google",
     demo: "បំពេញអ៊ីមែលគំរូ",
-    terms: "ដោយបន្ត អ្នកយល់ព្រមលក្ខខណ្ឌប្រើប្រាស់ និងគោលការណ៍ឯកជនភាព",
+    terms: { before: "ដោយបន្ត អ្នកយល់ព្រម", terms: "លក្ខខណ្ឌប្រើប្រាស់", and: " និង", privacy: "គោលការណ៍ឯកជនភាព", after: "" },
     emailError: "សូមបញ្ចូលអាសយដ្ឋានអ៊ីមែលត្រឹមត្រូវ ឧ. name@example.com",
     wait: "សូមរង់ចាំ…",
     errors: {
@@ -69,6 +72,8 @@ const content = {
       invalid_code: "លេខកូដមិនត្រឹមត្រូវ ឬផុតកំណត់។ សូមពិនិត្យអ៊ីមែល ឬផ្ញើលេខកូដថ្មី។",
       rate_limited: "ព្យាយាមច្រើនដងពេក។ សូមរង់ចាំមួយនាទី ហើយព្យាយាមម្ដងទៀត។",
       failed: "មានបញ្ហាមួយ។ សូមព្យាយាមម្ដងទៀត។",
+      oauth_denied: "ការចូលគណនីតាម Google ត្រូវបានបោះបង់។ សូមព្យាយាមម្ដងទៀត ឬប្រើអ៊ីមែលរបស់អ្នកជំនួសវិញ។",
+      oauth_failed: "យើងមិនអាចចូលគណនីរបស់អ្នកតាម Google បានទេ។ សូមព្យាយាមម្ដងទៀត ឬប្រើអ៊ីមែលរបស់អ្នកជំនួសវិញ។",
     },
   },
 };
@@ -98,6 +103,15 @@ export function SignIn() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // Set when Google sign-in bounces back with /signin?error=… (see app/auth/google/callback).
+  const [oauthError, setOauthError] = useState<"oauth_denied" | "oauth_failed" | null>(null);
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("error");
+    // Read after hydration; useSearchParams would need a Suspense boundary.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (code === "oauth_denied" || code === "oauth_failed") setOauthError(code);
+  }, []);
+  const shownError = error || (oauthError ? c.errors[oauthError] : "");
 
   const address = email.trim().toLowerCase();
   const emailOk = auth.isValidEmail(address);
@@ -121,6 +135,7 @@ export function SignIn() {
     setTouched(true);
     if (!emailOk || busy) return;
     setError("");
+    setOauthError(null);
     if (USE_SUPABASE) {
       setBusy(true);
       const r = await auth.sendEmailOtp(address);
@@ -158,6 +173,7 @@ export function SignIn() {
 
   async function google() {
     signingIn.current = true;
+    setOauthError(null);
     if (USE_SUPABASE) {
       setBusy(true);
       const r = await auth.signInWithGoogle("/app"); // leaves the page on success
@@ -279,7 +295,7 @@ export function SignIn() {
           </form>
         )}
 
-        {error && <p role="alert" className="rounded-card bg-rose-soft px-3 py-2 text-[13px] text-maroon">{error}</p>}
+        {shownError && <p role="alert" className="rounded-card bg-rose-soft px-3 py-2 text-[13px] text-maroon">{shownError}</p>}
 
         <div className="my-1.5 flex items-center gap-3 text-[13px] text-muted">
           <div className="h-px grow bg-line-strong" />
@@ -299,7 +315,13 @@ export function SignIn() {
         </Button>
       </div>
 
-      <p className="mt-auto p-6 text-center text-xs text-muted">{c.terms}</p>
+      <p className="mt-auto p-6 text-center text-xs text-muted">
+        {c.terms.before}
+        <Link href="/terms" className="underline hover:text-maroon">{c.terms.terms}</Link>
+        {c.terms.and}
+        <Link href="/privacy" className="underline hover:text-maroon">{c.terms.privacy}</Link>
+        {c.terms.after}
+      </p>
     </main>
   );
 }

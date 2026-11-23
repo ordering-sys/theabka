@@ -8,6 +8,7 @@ import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { CheckIcon, ClockIcon, GiftIcon, MailIcon, PinIcon, PlayIcon } from "@/components/ui/Icons";
 import { PhoneMock, TemplateThumb } from "@/components/invitation/TemplateArt";
 import { cn } from "@/lib/cn";
+import { COMPANY } from "@/lib/company";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatNumber, formatPrice } from "@/lib/khmer";
 import { PLANS, getRsvpStats, rsvps, templates, type EventType } from "@/lib/mock-data";
@@ -331,15 +332,19 @@ function Footer() {
           <div className="text-[15px] leading-[1.7] text-gold lg:text-base">
             <span lang="km" className="font-moul">ធៀបការ</span> <span lang="en" className="font-serif font-bold">TheabKa</span>
           </div>
-          {/* TODO: replace placeholders with the real company details. */}
-          <div lang="en" className="mt-1.5">[COMPANY NAME] Co., Ltd. · Phnom Penh</div>
-          <div lang="en">[CONTACT EMAIL] · [PHONE]</div>
+          {/* Company details live in lib/company.ts. */}
+          <div lang="en" className="mt-1.5">{COMPANY.name} · {COMPANY.cityEn}</div>
+          <div lang="en">{COMPANY.email} · {COMPANY.phone}</div>
         </div>
         <div className="flex gap-4 lg:gap-5">
           <a href="https://t.me/" className="flex min-h-11 items-center text-gold-light">Telegram</a>
           <a href="https://facebook.com/" className="flex min-h-11 items-center text-gold-light">Facebook</a>
           <a href="#faq" className="hidden min-h-11 items-center text-gold-light lg:flex">{c.nav.faq}</a>
         </div>
+        <nav aria-label={c.legal.label} className="flex flex-wrap gap-x-4 lg:gap-x-5">
+          <Link href="/privacy" className="flex min-h-11 items-center text-gold-light">{c.legal.privacy}</Link>
+          <Link href="/terms" className="flex min-h-11 items-center text-gold-light">{c.legal.terms}</Link>
+        </nav>
         <div lang="en" className="mt-1 text-xs text-footer-muted lg:mt-0 lg:text-sm">© 2026 TheabKa</div>
       </div>
     </footer>

@@ -68,6 +68,7 @@ const en = {
     ],
   },
   cta: { title: "Ready to invite your guests?", sub: "Make your first invitation. It is free until you publish." },
+  legal: { label: "Legal", privacy: "Privacy Policy", terms: "Terms of Service" },
 };
 
 const km: typeof en = {
@@ -140,6 +141,7 @@ const km: typeof en = {
     ],
   },
   cta: { title: "ត្រៀមអញ្ជើញភ្ញៀវរបស់អ្នកហើយឬនៅ?", sub: "បង្កើតធៀបការដំបូងរបស់អ្នក ឥតគិតថ្លៃ រហូតដល់ពេលផ្សព្វផ្សាយ។" },
+  legal: { label: "ច្បាប់", privacy: "គោលការណ៍ឯកជនភាព", terms: "លក្ខខណ្ឌប្រើប្រាស់" },
 };
 
 export const landingContent = { km, en };

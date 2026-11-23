@@ -46,11 +46,22 @@ export async function verifyEmailOtp(email: string, code: string): Promise<AuthR
 }
 
 /**
- * Redirects to Google. After consent Google returns to /auth/callback, which
- * sets the session cookie and redirects to `next` (default /app).
+ * Redirects to Google.
+ *
+ * With NEXT_PUBLIC_GOOGLE_CLIENT_ID set, the flow runs on our own domain
+ * (/auth/google → Google → /auth/google/callback), so Google's screen shows our
+ * domain instead of <ref>.supabase.co. Without it, Supabase's hosted flow is
+ * used and Google returns via /auth/callback. Both end with a Supabase session
+ * and a redirect to `next` (default /app).
  */
 export async function signInWithGoogle(next = "/app"): Promise<AuthResult> {
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/app";
+  if (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
+    // A full page load on purpose: /auth/google is a Route Handler that redirects to Google, not a page.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`/auth/google?next=${encodeURIComponent(safeNext)}`);
+    return { ok: true };
+  }
   const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
   const { error } = await getSupabaseBrowserClient().auth.signInWithOAuth({
     provider: "google",

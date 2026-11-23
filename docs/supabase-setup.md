@@ -114,16 +114,21 @@ Treat the Resend API key as a secret: it lives only in Supabase's SMTP settings,
 
 ## 4. Auth: Google
 
+Google sign-in runs on the app's own domain, so Google's account picker says "to continue to YOUR-DOMAIN" (or "TheabKa" once the consent screen is verified) instead of `YOUR-PROJECT-REF.supabase.co`:
+
+`/auth/google` → Google → `/auth/google/callback` → the server swaps Google's code for an ID token → `supabase.auth.signInWithIdToken()` sets the normal Supabase session → redirect to `?next=` (same-site paths only, default `/app`).
+
 1. In Google Cloud Console > **APIs & Services > Credentials**, create an **OAuth client ID** (type: Web application).
    - Authorized JavaScript origins: `http://localhost:3000`, `https://YOUR-DOMAIN`
-   - Authorized redirect URI: `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback`
-2. Configure the OAuth consent screen (app name TheabKa, support email, scopes `email`, `profile`, `openid`).
-3. In Supabase **Authentication > Sign In / Providers > Google**: enable it and paste the Client ID and Client Secret.
-4. **Authentication > URL Configuration**:
-   - Site URL: `https://YOUR-DOMAIN`
-   - Redirect URLs: `http://localhost:3000/auth/callback`, `https://YOUR-DOMAIN/auth/callback`, and for Vercel previews `https://*-YOUR-TEAM.vercel.app/auth/callback`.
+   - Authorized redirect URIs: `http://localhost:3000/auth/google/callback`, `https://YOUR-DOMAIN/auth/google/callback`
+   - Google doesn't accept wildcards, so Vercel preview URLs can't use Google sign-in (use the email code there), unless you add each preview URL by hand.
+2. Configure the OAuth consent screen (app name TheabKa, support email, scopes `email`, `profile`, `openid`). For verification, the authorized domain is YOUR-DOMAIN only; `supabase.co` is no longer needed.
+3. In Supabase **Authentication > Sign In / Providers > Google**: enable it and put the Client ID in **Client IDs**. Supabase checks that the ID token was issued for one of these IDs. Leave **Skip nonce checks** off.
+4. Set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env` and in Vercel (see `docs/environment.md`).
 
-The app's callback is `app/auth/callback/route.ts`. It exchanges the code for a session cookie and redirects to `?next=` (same-site paths only).
+Code: `lib/auth/google-oauth.ts`, `app/auth/google/route.ts`, `app/auth/google/callback/route.ts`. The flow uses a short-lived httpOnly cookie for the CSRF `state` and the nonce.
+
+**Fallback:** with the two env vars blank, `signInWithGoogle()` uses Supabase's hosted flow instead. That needs the Client Secret in Supabase, the redirect URI `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback` in Google Cloud, and `http://localhost:3000/auth/callback` / `https://YOUR-DOMAIN/auth/callback` in Supabase **Authentication > URL Configuration**. Its callback is `app/auth/callback/route.ts`.
 
 ## 5. Storage
 
