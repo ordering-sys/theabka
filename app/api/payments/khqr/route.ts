@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { KhqrCharge } from "@/lib/data/types";
+import { missingDetails } from "@/lib/invitation-checks";
 import { getPaymentAdapter, KHQR_TTL_MS, newPaymentReference, ProviderNotConfiguredError } from "@/lib/payments";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -24,11 +25,23 @@ export async function POST(request: NextRequest) {
   // RLS: only the owner can see the invitation.
   const { data: inv } = await supabase
     .from("invitations")
-    .select("id, user_id, status, template_id, music_url")
+    .select("id, user_id, status, template_id, music_url, groom_km, groom_en, bride_km, bride_en, event_date, venue_name_km, venue_name_en")
     .eq("id", invitationId)
     .maybeSingle();
   if (!inv || inv.user_id !== auth.user.id) return error(404, "not_found");
   if (inv.status === "live") return error(409, "already_live");
+
+  // Don't charge for an invitation guests couldn't use yet.
+  const missing = missingDetails({
+    groomKm: inv.groom_km,
+    groomEn: inv.groom_en,
+    brideKm: inv.bride_km,
+    brideEn: inv.bride_en,
+    eventDate: inv.event_date,
+    venueNameKm: inv.venue_name_km,
+    venueNameEn: inv.venue_name_en,
+  });
+  if (missing.length) return error(422, "incomplete", { missing });
 
   const admin = getSupabaseAdminClient();
   const { data: template } = await admin.from("templates").select("tier").eq("id", inv.template_id).single();
@@ -104,6 +117,7 @@ export async function POST(request: NextRequest) {
     amountKhr: plan.price_khr,
     expiresAt: charge.expiresAt.toISOString(),
     sandbox: adapter.id === "sandbox",
+    merchantName: charge.merchantName ?? "TheabKa",
   };
   return NextResponse.json(result, { status: 201, headers: { "cache-control": "no-store" } });
 }

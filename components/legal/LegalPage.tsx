@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Reveal } from "@/components/motion/Motion";
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { cn } from "@/lib/cn";
@@ -63,6 +64,7 @@ export function LegalPage({ kind, content }: { kind: Kind; content: Record<Lang,
     <>
       <Header />
       <main lang={lang} className="mx-auto w-full max-w-2xl px-5 pt-8 pb-14 text-[15px] leading-[1.75] lg:pt-12">
+        <Reveal onMount>
         <h1 className={cn("text-maroon", lang === "km" ? "font-moul text-[22px] leading-[1.8] font-normal" : "font-serif text-[30px] leading-[1.3] font-bold")}>
           {doc.title}
         </h1>
@@ -72,18 +74,20 @@ export function LegalPage({ kind, content }: { kind: Kind; content: Record<Lang,
         </p>
 
         <p className="mt-6">{doc.intro}</p>
+        </Reveal>
 
         {doc.sections.map((section, i) => (
-          <section key={section.heading} className="mt-8">
+          <Reveal as="section" key={section.heading} className="mt-8">
             <h2 className="mb-2 text-[17px] font-bold text-charcoal">
               {lang === "km" ? toKhmerNumerals(i + 1) : i + 1}. {section.heading}
             </h2>
             <div className="space-y-3">
               {section.body.map((block, j) => <Block key={j} block={block} />)}
             </div>
-          </section>
+          </Reveal>
         ))}
 
+        <Reveal>
         <Card className="mt-10">
           <h2 className="mb-1 text-[17px] font-bold">{ui.contactTitle}</h2>
           <p className="text-muted">{ui.contactBody[kind]}</p>
@@ -96,6 +100,7 @@ export function LegalPage({ kind, content }: { kind: Kind; content: Record<Lang,
             {COMPANY.name} · {lang === "km" ? COMPANY.cityKm : COMPANY.cityEn}
           </p>
         </Card>
+        </Reveal>
 
         <nav className="mt-8 flex flex-wrap gap-x-6 text-sm font-semibold">
           <Link href={other.href} className="flex min-h-11 items-center text-maroon underline">

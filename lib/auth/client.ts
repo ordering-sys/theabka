@@ -1,6 +1,6 @@
 /**
  * Browser auth helpers (Supabase Auth): 6-digit email code and Google.
- * Replace signInMock() calls in app/signin with these.
+ * Used by app/signin; the session itself is read through lib/store.ts.
  */
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Session } from "@/lib/data/types";

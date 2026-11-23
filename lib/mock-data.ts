@@ -1,6 +1,8 @@
 /**
- * Sample data for the prototype phase. Shapes follow the data model in
- * docs/design-prompt.md section 5 so Supabase can replace this later.
+ * Static catalogue (plans, templates, built-in songs; the database seeds the
+ * same ids) and the shared invitation types. The sample couple and RSVPs are
+ * demo content for the landing page and placeholder hints only: real hosts'
+ * data always comes from Supabase through lib/store.ts.
  *
  * Note: the spec says "Sunday 15 December 2026", but 15 Dec 2026 is a Tuesday.
  * The prototypes use Sunday 13 December 2026, so we do too.
@@ -96,16 +98,10 @@ export const musicTracks: MusicTrack[] = [
   { id: "golden", nameKm: "ថ្ងៃមាស", nameEn: "Golden Day", styleKm: "ភ្លេងខ្សែ", styleEn: "Strings", duration: "3:05", url: "/music/golden.mp3" },
 ];
 
-export const sampleUser = {
-  id: "user_dara",
-  email: "dara@example.com",
-  name: "Sok Dara",
-  language: "km" as const,
-};
-
+/** Demo invitation for the landing page, template art and editor placeholders. */
 export const sampleInvitation: Invitation = {
   id: "inv_dara_sophea",
-  userId: sampleUser.id,
+  userId: "user_dara",
   templateId: "royal",
   slug: "dara-sophea",
   status: "live",
@@ -142,30 +138,37 @@ export const sampleInvitation: Invitation = {
   updatedAt: "2026-11-10T09:00:00+07:00",
 };
 
-export const draftInvitation: Invitation = {
-  ...sampleInvitation,
-  id: "inv_engagement_draft",
-  templateId: "rumduol",
-  slug: "dara-sophea-engagement",
-  status: "draft",
-  eventDate: "2027-02-14",
+/**
+ * What a brand-new invitation starts with: the host's own details are empty
+ * (the editor shows the sample couple as placeholder hints). The map pin starts
+ * in Phnom Penh, the first built-in song is selected, and the gift note is the
+ * generic thank-you, since those are fine for most hosts as they are.
+ */
+export const blankInvitationContent = {
+  groomKm: "",
+  groomEn: "",
+  brideKm: "",
+  brideEn: "",
+  parents: {
+    groom: { fatherKm: "", motherKm: "", fatherEn: "", motherEn: "" },
+    bride: { fatherKm: "", motherKm: "", fatherEn: "", motherEn: "" },
+  },
+  eventDate: "",
+  startTime: "",
+  venueNameKm: "",
+  venueNameEn: "",
+  venueAddressKm: "",
+  venueAddressEn: "",
+  lat: sampleInvitation.lat,
+  lng: sampleInvitation.lng,
   schedule: [],
-  publishedAt: null,
-};
-
-export const invitations: Invitation[] = [sampleInvitation, draftInvitation];
-
-/** Placeholder gallery for the sample invitation (public/sample/*.svg). */
-export const samplePhotos: Photo[] = Array.from({ length: 6 }, (_, i) => ({
-  id: `photo_s${i + 1}`,
-  invitationId: sampleInvitation.id,
-  url: `/sample/photo-${i + 1}.svg`,
-  position: i,
-}));
-
-export function getPhotos(invitationId: string): Photo[] {
-  return samplePhotos.filter((p) => p.invitationId === invitationId);
-}
+  coverPhotoId: null,
+  musicUrl: sampleInvitation.musicUrl,
+  musicMutedDefault: false,
+  giftQrUrl: null,
+  giftNoteKm: sampleInvitation.giftNoteKm,
+  giftNoteEn: sampleInvitation.giftNoteEn,
+} satisfies Partial<Invitation>;
 
 export type Rsvp = {
   id: string;
@@ -214,13 +217,12 @@ export const rsvps: Rsvp[] = rsvpRows.map(([guestName, attending, partySize, mes
   createdAt,
 }));
 
-/** "Opened" count shown on the dashboard. */
+/** "Opened" count for the landing page demo. */
 export const sampleViewCount = 186;
 
-export function getRsvpStats(list: Rsvp[] = rsvps) {
+export function getRsvpStats(list: Rsvp[]) {
   const attending = list.filter((r) => r.attending);
   return {
-    opened: sampleViewCount,
     attending: attending.length,
     notAttending: list.length - attending.length,
     totalGuests: attending.reduce((sum, r) => sum + r.partySize, 0),
@@ -229,8 +231,4 @@ export function getRsvpStats(list: Rsvp[] = rsvps) {
 
 export function getTemplate(id: string) {
   return templates.find((tpl) => tpl.id === id);
-}
-
-export function getInvitationBySlug(slug: string) {
-  return invitations.find((inv) => inv.slug === slug);
 }

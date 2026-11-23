@@ -20,8 +20,10 @@ export const sandboxAdapter: PaymentAdapter = {
   async createCharge(input: CreateChargeInput): Promise<CreateChargeResult> {
     return {
       providerRef: input.reference,
+      // Deliberately not a valid KHQR, so no banking app can send real money to it.
       qrPayload: `SANDBOX-KHQR|${input.reference}|${input.amount}|${input.currency}`,
       expiresAt: input.expiresAt,
+      merchantName: "TheabKa (test)",
     };
   },
 

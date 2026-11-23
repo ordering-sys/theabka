@@ -26,9 +26,11 @@ export async function getSession(): Promise<Session | null> {
   const { data, error } = await supabase.auth.getUser();
   const user = data.user;
   if (error || !user) return null;
+  const name = String(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "").trim();
   return {
     userId: user.id,
     ...(user.email ? { email: user.email } : {}),
+    ...(name ? { name } : {}),
     provider: user.app_metadata?.provider === "google" ? "google" : "email",
   };
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { CountUp, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion/Motion";
 import { ShareBar } from "@/components/share/ShareBar";
 import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -80,7 +82,7 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
       </header>
 
       <main className="mx-auto flex max-w-[1200px] flex-col gap-3.5 px-4 pt-3.5 pb-10 lg:gap-5 lg:px-6 lg:pt-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <Reveal onMount className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-lg font-bold lg:text-[26px]">
               <span lang="km">{short(inv.groomKm)} &amp; {short(inv.brideKm)}</span> · <span lang="en">{names}</span>
@@ -94,29 +96,35 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
             </div>
           </div>
           <ButtonLink href={`/app/${inv.id}/edit`} variant="secondary" size="sm" className="hidden lg:inline-flex">{c.edit}</ButtonLink>
-        </div>
+        </Reveal>
 
-        {live ? (
-          <ShareBar slug={inv.slug} title={names} />
-        ) : (
-          <div className="flex flex-col gap-2 rounded-card bg-white p-4 shadow-card">
-            <p className="text-sm text-muted">{c.draftNote}</p>
-            <ButtonLink href={`/app/${inv.id}/pay`}>{c.publishCta}</ButtonLink>
-          </div>
-        )}
+        <Reveal onMount delay={0.08}>
+          {live ? (
+            <ShareBar slug={inv.slug} title={names} />
+          ) : (
+            <div className="flex flex-col gap-2 rounded-card bg-white p-4 shadow-card">
+              <p className="text-sm text-muted">{c.draftNote}</p>
+              <ButtonLink href={`/app/${inv.id}/pay`}>{c.publishCta}</ButtonLink>
+            </div>
+          )}
+        </Reveal>
 
-        <ul className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-4">
+        <Stagger as="ul" onMount delay={0.15} stagger={0.07} className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-4">
           {tiles.map((s) => (
-            <li key={s.label} className="rounded-card bg-white p-3 shadow-card lg:p-[18px]">
+            <StaggerItem as="li" key={s.label} whileHover={{ y: -3 }} className="rounded-card bg-white p-3 shadow-card lg:p-[18px]">
               <div className="text-xs font-semibold text-muted lg:text-[13px]">{s.label}</div>
-              <div className={cn("text-[26px] leading-[1.3] font-bold lg:text-[34px]", s.cls)}>{formatNumber(s.value, lang)}</div>
-            </li>
+              <CountUp
+                value={s.value}
+                format={(n) => formatNumber(n, lang)}
+                className={cn("block text-[26px] leading-[1.3] font-bold lg:text-[34px]", s.cls)}
+              />
+            </StaggerItem>
           ))}
-        </ul>
+        </Stagger>
 
         <ButtonLink href={`/app/${inv.id}/edit`} variant="secondary" fullWidth className="lg:hidden">{c.edit}</ButtonLink>
 
-        <section aria-labelledby="rsvp-title" className="rounded-card bg-white shadow-card">
+        <Reveal as="section" onMount delay={0.25} aria-labelledby="rsvp-title" className="rounded-card bg-white shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 lg:px-5 lg:py-4">
             <h2 id="rsvp-title" className="text-base font-bold lg:text-lg">
               {c.rsvps} ({formatNumber(rows.length, lang)})
@@ -175,8 +183,16 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
             <>
               {/* Mobile: cards */}
               <ul className="flex flex-col lg:hidden">
-                {rows.map((r) => (
-                  <li key={r.id} className="flex gap-3 border-t border-sand px-3.5 py-3">
+                <AnimatePresence initial={false} mode="popLayout">
+                {rows.map((r, i) => (
+                  <motion.li
+                    key={r.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE, delay: Math.min(i, 8) * 0.03 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                    className="flex gap-3 border-t border-sand px-3.5 py-3"
+                  >
                     <span aria-hidden className={cn("flex size-9 shrink-0 items-center justify-center rounded-full font-bold", r.attending ? "bg-gold-soft text-gold-ink" : "bg-sand text-muted")}>
                       {r.guestName.charAt(0)}
                     </span>
@@ -191,8 +207,9 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
                       </div>
                       {r.message && <p className="mt-1 text-[13px] text-ink-soft">{r.message}</p>}
                     </div>
-                  </li>
+                  </motion.li>
                 ))}
+                </AnimatePresence>
               </ul>
 
               {/* Desktop: table */}
@@ -208,8 +225,14 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((r) => (
-                      <tr key={r.id} className="border-t border-sand">
+                    {rows.map((r, i) => (
+                      <motion.tr
+                        key={r.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.25, delay: Math.min(i, 10) * 0.025 }}
+                        className="border-t border-sand transition-colors hover:bg-ivory"
+                      >
                         <td className="px-5 py-3 font-semibold">{r.guestName}</td>
                         <td className="px-3 py-3">
                           <Badge tone={r.attending ? "jade" : "rose"}>{r.attending ? t.rsvp.attending : t.rsvp.notAttending}</Badge>
@@ -217,14 +240,14 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
                         <td className="px-3 py-3">{r.attending ? formatNumber(r.partySize, lang) : "—"}</td>
                         <td className="px-3 py-3 text-ink-soft">{r.message ?? ""}</td>
                         <td className="px-5 py-3 whitespace-nowrap text-muted">{formatShortDate(r.createdAt, lang)}</td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             </>
           )}
-        </section>
+        </Reveal>
       </main>
     </div>
   );

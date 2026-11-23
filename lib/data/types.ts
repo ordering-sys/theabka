@@ -1,6 +1,6 @@
 /**
- * Shapes the UI already uses (from lib/mock-data and lib/mock-store), re-declared
- * here so the real data layer doesn't depend on the mock store module.
+ * Shapes the UI uses (base types from lib/mock-data), re-exported
+ * here so components and the data layer share one definition.
  */
 import type {
   Invitation,
@@ -14,11 +14,11 @@ import type {
 
 export type { Invitation, MusicTrack, Photo, Rsvp, ScheduleItem, Template, Tier };
 
-/** Same as mock-store's Draft: the invitation row plus its photos and the uploaded song's name. */
+/** The invitation row plus its photos and the uploaded song's name. */
 export type Draft = Invitation & { photos: Photo[]; customMusicName: string | null };
 
-/** Same shape as mock-store's MockSession. */
-export type Session = { userId: string; email?: string; provider: "email" | "google" };
+/** `name` comes from the Google profile; email sign-ins have none. */
+export type Session = { userId: string; email?: string; name?: string; provider: "email" | "google" };
 
 export type UploadError = "type" | "size" | "read" | "limit" | "premium" | "auth" | "network";
 export type UploadResult<T> = ({ ok: true } & T) | { ok: false; error: UploadError };
@@ -35,6 +35,8 @@ export type KhqrCharge = {
   amountKhr: number;
   expiresAt: string; // ISO
   sandbox: boolean;
+  /** Who receives the money, as the payer's banking app will show it. */
+  merchantName: string;
 };
 
 /** Returned by GET /api/payments/status and getPaymentStatus(). */

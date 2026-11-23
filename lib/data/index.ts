@@ -1,13 +1,13 @@
 /**
- * Browser data-access layer backed by Supabase. Mirrors lib/mock-store.ts
- * (same names minus "Mock", async, same Draft/Rsvp shapes) so call sites can
- * swap imports. Everything here runs with the anon key under RLS; nothing
+ * Browser data-access layer backed by Supabase. Same names as lib/store.ts
+ * (async, same Draft/Rsvp shapes); components go through lib/store.ts, not this file.
+ * Everything here runs with the anon key under RLS; nothing
  * here can publish an invitation (only the payment webhook can).
  *
  * Server-side counterparts (getSession, getPublishedBySlug, publish) live in
  * lib/data/server.ts.
  */
-import { sampleInvitation } from "@/lib/mock-data";
+import { blankInvitationContent } from "@/lib/mock-data";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { InvitationRow, PhotoRow } from "@/lib/supabase/database.types";
 import {
@@ -66,9 +66,11 @@ export async function getSession(): Promise<Session | null> {
   const { data } = await db().auth.getSession();
   const user = data.session?.user;
   if (!user) return null;
+  const name = String(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "").trim();
   return {
     userId: user.id,
     ...(user.email ? { email: user.email } : {}),
+    ...(name ? { name } : {}),
     provider: user.app_metadata?.provider === "google" ? "google" : "email",
   };
 }
@@ -119,14 +121,14 @@ export async function saveDraft(draft: Draft): Promise<boolean> {
 }
 
 /**
- * New draft from a template, pre-filled with the sample couple (like
- * createDraftMock) so the editor has content. No photos, no gift QR.
+ * New, empty draft from a template (like createDraftMock): the host fills in
+ * their own names, date and venue. No photos, no gift QR.
  * Throws if not signed in.
  */
 export async function createDraft(templateId: string): Promise<Draft> {
   const userId = await currentUserId();
   if (!userId) throw new Error("not_signed_in");
-  const s = sampleInvitation;
+  const s = blankInvitationContent;
   const { data, error } = await db()
     .from("invitations")
     .insert({
@@ -137,8 +139,8 @@ export async function createDraft(templateId: string): Promise<Draft> {
       groom_km: s.groomKm,
       groom_en: s.groomEn,
       parents: s.parents,
-      event_date: s.eventDate,
-      start_time: s.startTime,
+      event_date: s.eventDate || null,
+      start_time: s.startTime || null,
       venue_name_km: s.venueNameKm,
       venue_name_en: s.venueNameEn,
       venue_address_km: s.venueAddressKm,
@@ -153,7 +155,11 @@ export async function createDraft(templateId: string): Promise<Draft> {
     })
     .select("*")
     .single();
-  if (error || !data) throw new Error(error?.message ?? "create_failed");
+  if (error || !data) {
+    // Keep the Postgres/PostgREST code (e.g. 42501 permission denied) so the cause is visible.
+    console.error("createDraft failed", error);
+    throw new Error(error ? `${error.code ?? "db"}: ${error.message}` : "create_failed");
+  }
   return rowToDraft(data, [], new Map());
 }
 
@@ -428,7 +434,7 @@ async function json<T>(res: Response): Promise<T> {
 
 /**
  * Create a KHQR charge for publishing. Errors (thrown as Error.message):
- * not_signed_in, not_found, already_live, too_many_photos,
+ * not_signed_in, not_found, already_live, incomplete, too_many_photos,
  * custom_music_requires_premium, provider_error.
  */
 export async function startKhqrPayment(invitationId: string, currency: PaymentCurrency = "USD"): Promise<KhqrCharge> {

@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "bakong:check": "node scripts/check-bakong.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.2",
+    "motion": "^14.14.0",
     "next": "16.4.6",
     "qrcode": "^1.5.4",
     "react": "19.3.0",

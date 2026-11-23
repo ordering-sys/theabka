@@ -11,7 +11,7 @@ import { MAX_UPLOAD_BYTES } from "@/lib/image";
 import { uploadGiftQr, uploadMusic, uploadPhoto, type UploadError } from "@/lib/store";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatEnglishDate, formatKhmerDate, formatNumber, formatTime } from "@/lib/khmer";
-import { PLANS, musicTracks, type Tier } from "@/lib/mock-data";
+import { PLANS, musicTracks, sampleInvitation, type Tier } from "@/lib/mock-data";
 import type { Draft } from "@/lib/store";
 import { editorContent } from "./content";
 import { Alert, EditorCard, TextArea, TextField, fieldClass } from "./fields";
@@ -28,6 +28,7 @@ export function CoupleSection({ draft, update }: SectionProps) {
   const c = useContent(editorContent).couple;
   const side = (who: "groom" | "bride") => {
     const p = draft.parents[who];
+    const sample = sampleInvitation.parents[who];
     const setParent = (key: keyof typeof p, value: string) =>
       update((d) => ({ parents: { ...d.parents, [who]: { ...d.parents[who], [key]: value } } }));
     const nameKm = who === "groom" ? "groomKm" : "brideKm";
@@ -35,13 +36,13 @@ export function CoupleSection({ draft, update }: SectionProps) {
     return (
       <EditorCard>
         <h3 className="font-bold text-maroon">{c[who]}</h3>
-        <TextField id={`${who}-km`} label={c.nameKm} lang="km" value={draft[nameKm]} onChange={(e) => update({ [nameKm]: e.target.value })} />
-        <TextField id={`${who}-en`} label={c.nameEn} lang="en" autoCapitalize="words" value={draft[nameEn]} onChange={(e) => update({ [nameEn]: e.target.value })} />
+        <TextField id={`${who}-km`} label={c.nameKm} lang="km" placeholder={sampleInvitation[nameKm]} value={draft[nameKm]} onChange={(e) => update({ [nameKm]: e.target.value })} />
+        <TextField id={`${who}-en`} label={c.nameEn} lang="en" autoCapitalize="words" placeholder={sampleInvitation[nameEn]} value={draft[nameEn]} onChange={(e) => update({ [nameEn]: e.target.value })} />
         <div className="grid gap-2.5 sm:grid-cols-2">
-          <TextField id={`${who}-f-km`} label={c.fatherKm} lang="km" value={p.fatherKm} onChange={(e) => setParent("fatherKm", e.target.value)} />
-          <TextField id={`${who}-m-km`} label={c.motherKm} lang="km" value={p.motherKm} onChange={(e) => setParent("motherKm", e.target.value)} />
-          <TextField id={`${who}-f-en`} label={c.fatherEn} lang="en" value={p.fatherEn} onChange={(e) => setParent("fatherEn", e.target.value)} />
-          <TextField id={`${who}-m-en`} label={c.motherEn} lang="en" value={p.motherEn} onChange={(e) => setParent("motherEn", e.target.value)} />
+          <TextField id={`${who}-f-km`} label={c.fatherKm} lang="km" placeholder={sample.fatherKm} value={p.fatherKm} onChange={(e) => setParent("fatherKm", e.target.value)} />
+          <TextField id={`${who}-m-km`} label={c.motherKm} lang="km" placeholder={sample.motherKm} value={p.motherKm} onChange={(e) => setParent("motherKm", e.target.value)} />
+          <TextField id={`${who}-f-en`} label={c.fatherEn} lang="en" placeholder={sample.fatherEn} value={p.fatherEn} onChange={(e) => setParent("fatherEn", e.target.value)} />
+          <TextField id={`${who}-m-en`} label={c.motherEn} lang="en" placeholder={sample.motherEn} value={p.motherEn} onChange={(e) => setParent("motherEn", e.target.value)} />
         </div>
       </EditorCard>
     );
@@ -117,10 +118,10 @@ export function VenueSection({ draft, update }: SectionProps) {
     <div className="flex flex-col gap-3.5">
       <EditorCard>
         <div className="grid gap-2.5 lg:grid-cols-2">
-          <TextField id="venue-km" lang="km" label={c.nameKm} value={draft.venueNameKm} onChange={(e) => update({ venueNameKm: e.target.value })} />
-          <TextField id="venue-en" lang="en" label={c.nameEn} value={draft.venueNameEn} onChange={(e) => update({ venueNameEn: e.target.value })} />
-          <TextField id="addr-km" lang="km" label={c.addressKm} value={draft.venueAddressKm} onChange={(e) => update({ venueAddressKm: e.target.value })} />
-          <TextField id="addr-en" lang="en" label={c.addressEn} value={draft.venueAddressEn} onChange={(e) => update({ venueAddressEn: e.target.value })} />
+          <TextField id="venue-km" lang="km" label={c.nameKm} placeholder={sampleInvitation.venueNameKm} value={draft.venueNameKm} onChange={(e) => update({ venueNameKm: e.target.value })} />
+          <TextField id="venue-en" lang="en" label={c.nameEn} placeholder={sampleInvitation.venueNameEn} value={draft.venueNameEn} onChange={(e) => update({ venueNameEn: e.target.value })} />
+          <TextField id="addr-km" lang="km" label={c.addressKm} placeholder={sampleInvitation.venueAddressKm} value={draft.venueAddressKm} onChange={(e) => update({ venueAddressKm: e.target.value })} />
+          <TextField id="addr-en" lang="en" label={c.addressEn} placeholder={sampleInvitation.venueAddressEn} value={draft.venueAddressEn} onChange={(e) => update({ venueAddressEn: e.target.value })} />
         </div>
       </EditorCard>
       <EditorCard className="gap-0 overflow-hidden p-0 lg:p-0">

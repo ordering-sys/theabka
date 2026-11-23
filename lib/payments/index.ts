@@ -1,13 +1,15 @@
 /** Server only: payment provider registry. Never import from client code. */
-import { abaPaywayAdapter } from "./aba-payway";
 import { bakongAdapter } from "./bakong";
 import { sandboxAdapter } from "./sandbox";
 import type { PaymentAdapter, ProviderId } from "./types";
 
 export * from "./types";
 
+/**
+ * Bakong KHQR is the only real provider for now. The sandbox (fake payments)
+ * exists for local development and is never used in production.
+ */
 const adapters: Record<ProviderId, PaymentAdapter> = {
-  aba_payway: abaPaywayAdapter,
   bakong: bakongAdapter,
   sandbox: sandboxAdapter,
 };
@@ -17,17 +19,17 @@ function isProduction() {
 }
 
 /**
- * The provider for new charges, from PAYMENT_PROVIDER (default "sandbox"), or
- * a specific one (e.g. the provider stored on an existing payment).
- * The sandbox is refused in production unless ALLOW_SANDBOX_PAYMENTS=true, so
- * a misconfigured deploy can't publish invitations for free.
+ * The provider for new charges, or a specific one (e.g. the provider stored on
+ * an existing payment). New charges use Bakong unless PAYMENT_PROVIDER=sandbox
+ * outside production. The sandbox is always refused in production, so a
+ * misconfigured deploy can't publish invitations for free.
  */
-export function getPaymentAdapter(id?: ProviderId): PaymentAdapter {
-  const chosen = id ?? ((process.env.PAYMENT_PROVIDER as ProviderId | undefined) || "sandbox");
-  const adapter = adapters[chosen];
-  if (!adapter) throw new Error(`Unknown PAYMENT_PROVIDER "${chosen}"`);
-  if (adapter.id === "sandbox" && isProduction() && process.env.ALLOW_SANDBOX_PAYMENTS !== "true") {
-    throw new Error("Sandbox payments are disabled in production. Set PAYMENT_PROVIDER to aba_payway or bakong.");
+export function getPaymentAdapter(id?: string): PaymentAdapter {
+  const chosen = id ?? (process.env.PAYMENT_PROVIDER?.trim() || "bakong");
+  const adapter = adapters[chosen as ProviderId];
+  if (!adapter) throw new Error(`Unsupported payment provider "${chosen}" (use bakong, or sandbox in development)`);
+  if (adapter.id === "sandbox" && isProduction()) {
+    throw new Error("Sandbox payments are disabled in production. Set PAYMENT_PROVIDER=bakong.");
   }
   return adapter;
 }

@@ -63,3 +63,6 @@ supabase/**/*.local.*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Bakong test QR written by npm run bakong:check
+bakong-test-qr.png

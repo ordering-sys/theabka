@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { PayScreen } from "@/components/pay/PayScreen";
@@ -14,7 +14,7 @@ import { InvitationList } from "./InvitationList";
 import { TemplatePicker } from "@/app/app/new/TemplatePicker";
 import { DashboardSkeleton, RequireSession } from "./RequireSession";
 
-/** Host data lives in localStorage for now, so these screens render only in the browser. */
+/** Host screens read the signed-in user's Supabase session, so they render only in the browser. */
 
 export function DashboardPage() {
   const isClient = useIsClient();
@@ -72,7 +72,9 @@ function HostNotFound() {
 }
 
 export function EditorPage() {
-  return <WithInvitation variant="form" render={(inv) => <Editor initial={inv} />} />;
+  // ?step=N opens a section directly (the pay screen links to what's missing).
+  const step = Number(useSearchParams().get("step")) || 0;
+  return <WithInvitation variant="form" render={(inv) => <Editor initial={inv} initialStep={step} />} />;
 }
 
 /** /app/new needs a session too, so new drafts belong to the signed-in host. */

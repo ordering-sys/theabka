@@ -35,12 +35,14 @@ function parts(date: string | Date) {
 
 /** "ថ្ងៃអាទិត្យ ទី១៣ ខែធ្នូ ឆ្នាំ២០២៦" */
 export function formatKhmerDate(date: string | Date): string {
+  if (!date) return "";
   const { y, m, d, weekday } = parts(date);
   return `ថ្ងៃ${KHMER_WEEKDAYS[weekday]} ទី${toKhmerNumerals(d)} ខែ${KHMER_MONTHS[m]} ឆ្នាំ${toKhmerNumerals(y)}`;
 }
 
 /** "Sunday, 13 December 2026" */
 export function formatEnglishDate(date: string | Date): string {
+  if (!date) return "";
   const { y, m, d } = parts(date);
   return new Date(Date.UTC(y, m, d)).toLocaleDateString("en-GB", {
     weekday: "long",
@@ -53,6 +55,7 @@ export function formatEnglishDate(date: string | Date): string {
 
 /** Day and month only: km "ថ្ងៃទី៦ ខែធ្នូ" / en "6 December". */
 export function formatDayMonth(date: string | Date, lang: Lang): string {
+  if (!date) return "";
   const { m, d } = parts(date);
   if (lang === "km") return `ថ្ងៃទី${toKhmerNumerals(d)} ខែ${KHMER_MONTHS[m]}`;
   return `${d} ${new Date(Date.UTC(2000, m, 1)).toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" })}`;
@@ -60,6 +63,7 @@ export function formatDayMonth(date: string | Date, lang: Lang): string {
 
 /** Compact date for tables: km "២០ វិច្ឆិកា" / en "20 Nov". */
 export function formatShortDate(date: string | Date, lang: Lang): string {
+  if (!date) return "";
   const { m, d } = parts(date);
   if (lang === "km") return `${toKhmerNumerals(d)} ${KHMER_MONTHS[m]}`;
   return `${d} ${new Date(Date.UTC(2000, m, 1)).toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}`;
@@ -67,6 +71,7 @@ export function formatShortDate(date: string | Date, lang: Lang): string {
 
 /** "13.12.2026" (Khmer numerals in km), as on the dashboard cards. */
 export function formatNumericDate(date: string, lang: Lang): string {
+  if (!date) return "";
   const [y, m, d] = date.split("-");
   const s = `${d}.${m}.${y}`;
   return lang === "km" ? toKhmerNumerals(s) : s;
@@ -74,6 +79,7 @@ export function formatNumericDate(date: string, lang: Lang): string {
 
 /** Shift a YYYY-MM-DD date by whole days. */
 export function addDays(date: string, days: number): string {
+  if (!date) return "";
   const { y, m, d } = parts(date);
   return new Date(Date.UTC(y, m, d + days)).toISOString().slice(0, 10);
 }

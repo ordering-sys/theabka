@@ -2,6 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { EASE, SPRING, Stagger, fadeUp } from "@/components/motion/Motion";
 import { TierBadge } from "@/components/ui/Badge";
 import { CloseIcon } from "@/components/ui/Icons";
 import { TopBar } from "@/components/ui/TopBar";
@@ -43,26 +45,37 @@ export function TemplatePicker() {
               aria-pressed={filter === value}
               onClick={() => setFilter(value)}
               className={cn(
-                "min-h-11 cursor-pointer rounded-full border-[1.5px] px-4 text-sm font-semibold whitespace-nowrap",
-                filter === value ? "border-charcoal bg-charcoal text-white" : "border-line-strong bg-white text-charcoal",
+                "relative min-h-11 cursor-pointer rounded-full border-[1.5px] px-4 text-sm font-semibold whitespace-nowrap transition-colors",
+                filter === value ? "border-charcoal text-white" : "border-line-strong bg-white text-charcoal",
               )}
             >
-              {label}
+              {filter === value && (
+                <motion.span layoutId="picker-filter" transition={SPRING} aria-hidden className="absolute -inset-[1.5px] rounded-full bg-charcoal" />
+              )}
+              <span className="relative">{label}</span>
             </button>
           ))}
         </div>
       </header>
 
-      <ul className="grid grid-cols-2 gap-3 px-4 pt-1.5 pb-6 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+      <Stagger as="ul" onMount stagger={0.06} delay={0.05} className="grid grid-cols-2 gap-3 px-4 pt-1.5 pb-6 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+        <AnimatePresence mode="popLayout" initial={false}>
         {shown.map((tpl) => {
           const name = lang === "km" ? tpl.nameKm : tpl.nameEn;
           return (
-            <li key={tpl.id}>
-              <button
+            <motion.li
+              key={tpl.id}
+              layout
+              variants={fadeUp}
+              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.18 } }}
+            >
+              <motion.button
                 type="button"
                 onClick={() => setSelected(tpl)}
                 aria-label={`${name} · ${t.tier[tpl.tier]} · ${formatPrice(tpl.priceUsd, lang).both}`}
-                className="flex w-full cursor-pointer flex-col gap-1.5 rounded-card bg-white p-2 text-left shadow-card transition-transform hover:-translate-y-0.5"
+                whileHover={{ y: -4, boxShadow: "0 12px 28px rgba(43,43,43,0.12)" }}
+                whileTap={{ scale: 0.97 }}
+                className="flex w-full cursor-pointer flex-col gap-1.5 rounded-card bg-white p-2 text-left shadow-card"
               >
                 <TemplateThumb template={tpl} size="md" className="h-[200px] lg:h-[240px]" />
                 <div className="flex items-center justify-between gap-1 px-0.5">
@@ -73,11 +86,12 @@ export function TemplatePicker() {
                   <TierBadge tier={tpl.tier} className="text-[11px]" />
                   <span className="text-[11px] text-muted">{formatPrice(tpl.priceUsd, lang).riel}</span>
                 </div>
-              </button>
-            </li>
+              </motion.button>
+            </motion.li>
           );
         })}
-      </ul>
+        </AnimatePresence>
+      </Stagger>
 
       <TemplatePreview template={selected} onClose={() => setSelected(null)} />
     </main>
@@ -92,6 +106,7 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
   const ref = useRef<HTMLDialogElement>(null);
   const [creating, setCreating] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [failedDetail, setFailedDetail] = useState("");
 
   useEffect(() => {
     const dialog = ref.current;
@@ -106,6 +121,7 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
   async function chooseTemplate() {
     if (!template) return;
     setCreating(true);
+    setFailed(false);
     try {
       if (from && (await changeTemplate(from, template.id))) {
         router.push(`/app/${from}/pay`);
@@ -113,9 +129,17 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
       }
       const draft = await createDraft(template.id);
       router.push(`/app/${draft.id}/edit`);
-    } catch {
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      // Session expired or missing: signing in again fixes it, so go there instead of showing an error.
+      if (detail === "not_signed_in") {
+        router.push("/signin");
+        return;
+      }
+      console.error("Couldn't create invitation:", err);
       setCreating(false);
       setFailed(true);
+      setFailedDetail(detail);
     }
   }
 
@@ -130,8 +154,12 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
       className="m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-scrim"
     >
       {template && theme && price && (
-        <div
-          className="mx-auto flex h-full max-w-[480px] animate-sheet-up flex-col"
+        <motion.div
+          key={template.id}
+          initial={{ y: "100%" }}
+          animate={{ y: "0%" }}
+          transition={{ type: "spring", stiffness: 320, damping: 34 }}
+          className="mx-auto flex h-full max-w-[480px] flex-col"
           style={{ background: theme.bg, color: theme.fg }}
         >
           <div className="flex items-center justify-between p-3">
@@ -152,7 +180,13 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
             style={{ borderColor: theme.accent }}
           >
             <div aria-hidden className="absolute inset-2 rounded-card border opacity-50" style={{ borderColor: theme.accent }} />
-            <Lotus size={44} color={theme.accent} strokeWidth={1.2} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 0.7, ease: EASE, delay: 0.25 }}
+            >
+              <Lotus size={44} color={theme.accent} strokeWidth={1.2} />
+            </motion.div>
             <div lang="km" className="mt-2.5 font-moul text-lg leading-[1.8]" style={{ color: theme.accent }}>
               {headingKm(template)}
             </div>
@@ -178,18 +212,24 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
               </span>
               <span className="font-bold whitespace-nowrap">{price.both}</span>
             </div>
-            <button
+            <motion.button
               type="button"
               onClick={chooseTemplate}
               disabled={creating}
+              whileTap={{ scale: 0.97 }}
               className="flex min-h-[52px] w-full cursor-pointer items-center justify-center rounded-card px-5 text-[15px] font-semibold disabled:opacity-70"
               style={{ background: theme.accent, color: theme.ctaFg }}
             >
               {creating ? c.creating : c.use}
-            </button>
-            {failed && <p role="alert" className="text-center text-[13px]">{c.failed}</p>}
+            </motion.button>
+            {failed && (
+              <p role="alert" className="text-center text-[13px]">
+                {c.failed}
+                {failedDetail && <span lang="en" className="mt-1 block text-[11px] opacity-75">{failedDetail}</span>}
+              </p>
+            )}
           </div>
-        </div>
+        </motion.div>
       )}
     </dialog>
   );

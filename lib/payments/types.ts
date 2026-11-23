@@ -1,5 +1,6 @@
 export type PaymentCurrency = "USD" | "KHR";
-export type ProviderId = "aba_payway" | "bakong" | "sandbox";
+/** Providers the app can use. The database enum also has "aba_payway", reserved for later. */
+export type ProviderId = "bakong" | "sandbox";
 
 /**
  * Amounts are integers in the smallest unit we store: USD cents, whole riel.
@@ -22,6 +23,8 @@ export type CreateChargeResult = {
   /** The KHQR (EMVCo) string to render as a QR code. */
   qrPayload: string;
   expiresAt: Date;
+  /** Name encoded in the QR, which the payer's banking app shows; the pay sheet shows the same. */
+  merchantName?: string;
 };
 
 export type ProviderPaymentState = "paid" | "pending" | "failed";

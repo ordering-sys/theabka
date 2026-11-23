@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
 export const fieldClass =
-  "min-h-12 w-full min-w-0 rounded-card border-[1.5px] border-line-strong bg-white px-3 text-[15px] text-charcoal outline-none focus:border-maroon";
+  "min-h-12 w-full min-w-0 rounded-card border-[1.5px] border-line-strong bg-white px-3 text-[15px] text-charcoal outline-none placeholder:text-muted/60 focus:border-maroon";
 
 /** Label + input. `lang` on the input tells the browser which keyboard/spellcheck to use. */
 export function TextField({

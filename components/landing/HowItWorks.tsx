@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { EASE, Reveal, SPRING, Stagger, StaggerItem } from "@/components/motion/Motion";
 import { ButtonLink, Button } from "@/components/ui/Button";
 import { CheckIcon } from "@/components/ui/Icons";
 import { TemplateThumb } from "@/components/invitation/TemplateArt";
@@ -8,7 +10,7 @@ import { MockQr } from "@/components/invitation/MockQr";
 import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatKhmerDate, formatNumber, formatPrice } from "@/lib/khmer";
-import { getRsvpStats, rsvps, sampleInvitation as inv, templates } from "@/lib/mock-data";
+import { getRsvpStats, rsvps, sampleInvitation as inv, sampleViewCount, templates } from "@/lib/mock-data";
 import { landingContent } from "./content";
 
 /**
@@ -24,16 +26,16 @@ export function HowItWorks() {
   return (
     <section id="how" className="scroll-mt-20 lg:border-y lg:border-line lg:bg-white">
       <div className="mx-auto max-w-[1200px] px-5 py-7 lg:px-6 lg:py-[72px]">
-        <div className="mx-auto mb-4 max-w-[640px] text-center lg:mb-10">
+        <Reveal className="mx-auto mb-4 max-w-[640px] text-center lg:mb-10">
           <div className={cn("hidden text-[13px] font-bold text-gold-deep lg:block", lang === "en" && "tracking-[0.1em]")}>{c.kicker}</div>
           <h2 className="mt-1.5 mb-2 text-lg font-bold lg:text-[32px] lg:leading-[1.6]">{c.title}</h2>
           <p className="hidden text-base text-muted lg:block">{c.sub}</p>
-        </div>
+        </Reveal>
 
         {/* Mobile: numbered list */}
-        <ol className="flex flex-col gap-2.5 lg:hidden">
+        <Stagger as="ol" stagger={0.09} className="flex flex-col gap-2.5 lg:hidden">
           {c.steps.map((s, i) => (
-            <li key={s.title} className="flex items-center gap-3.5 rounded-card bg-white p-3.5 shadow-card">
+            <StaggerItem as="li" key={s.title} className="flex items-center gap-3.5 rounded-card bg-white p-3.5 shadow-card">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-soft font-bold text-maroon">
                 {formatNumber(i + 1, lang)}
               </span>
@@ -41,12 +43,12 @@ export function HowItWorks() {
                 <span className="block text-[15px] font-semibold">{s.title}</span>
                 <span className="block text-[13px] text-muted">{s.sub}</span>
               </span>
-            </li>
+            </StaggerItem>
           ))}
-        </ol>
+        </Stagger>
 
         {/* Desktop: stepper with live panel */}
-        <div className="hidden items-stretch gap-8 lg:flex">
+        <Reveal className="hidden items-stretch gap-8 lg:flex">
           <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-1.5">
             {c.steps.map((s, i) => {
               const on = i === step;
@@ -57,19 +59,28 @@ export function HowItWorks() {
                   onClick={() => setStep(i)}
                   aria-current={on ? "step" : undefined}
                   className={cn(
-                    "flex cursor-pointer items-start gap-3.5 rounded-card border-[1.5px] p-4 text-left transition-colors",
-                    on ? "border-maroon bg-ivory" : "border-transparent hover:bg-ivory",
+                    "relative flex cursor-pointer items-start gap-3.5 rounded-card border-[1.5px] border-transparent p-4 text-left transition-colors",
+                    !on && "hover:bg-ivory",
                   )}
                 >
+                  {/* Active highlight glides between steps. */}
+                  {on && (
+                    <motion.span
+                      layoutId="how-active-step"
+                      transition={SPRING}
+                      aria-hidden
+                      className="absolute -inset-[1.5px] rounded-card border-[1.5px] border-maroon bg-ivory"
+                    />
+                  )}
                   <span
                     className={cn(
-                      "flex size-10 shrink-0 items-center justify-center rounded-full font-bold",
+                      "relative flex size-10 shrink-0 items-center justify-center rounded-full font-bold transition-colors",
                       i < step ? "bg-jade text-white" : on ? "bg-maroon text-white" : "bg-sand text-maroon",
                     )}
                   >
                     {i < step ? <CheckIcon size={18} /> : formatNumber(i + 1, lang)}
                   </span>
-                  <span className="flex flex-col gap-0.5">
+                  <span className="relative flex flex-col gap-0.5">
                     <span className="text-[17px] font-bold">{s.title}</span>
                     <span className="text-sm text-muted">{s.sub}</span>
                     <span className="text-xs font-semibold text-gold-ink">{s.time}</span>
@@ -89,27 +100,60 @@ export function HowItWorks() {
 
           <div className="flex min-h-[560px] min-w-0 flex-[2_1_560px] flex-col gap-[18px] rounded-[20px] bg-white p-8 shadow-[0_10px_40px_rgba(43,43,43,0.08)] ring-1 ring-line">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-xl font-bold">{c.steps[step].title}</div>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-xl font-bold"
+                >
+                  {c.steps[step].title}
+                </motion.div>
+              </AnimatePresence>
               <div className="flex gap-1.5" aria-hidden>
                 {c.steps.map((s, i) => (
-                  <span
+                  <motion.span
                     key={s.title}
-                    className={cn("h-2 rounded-full transition-all", i === step ? "w-8" : "w-2", i <= step ? "bg-maroon" : "bg-line-strong")}
+                    initial={false}
+                    animate={{ width: i === step ? 32 : 8 }}
+                    transition={SPRING}
+                    className={cn("h-2 rounded-full transition-colors", i <= step ? "bg-maroon" : "bg-line-strong")}
                   />
                 ))}
               </div>
             </div>
 
-            <div key={step} className="animate-fade-in">
-              {step === 0 && <PanelTemplates />}
-              {step === 1 && <PanelDetails />}
-              {step === 2 && <PanelPay />}
-              {step === 3 && <PanelShare />}
-            </div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.3, ease: EASE }}
+              >
+                {step === 0 && <PanelTemplates />}
+                {step === 1 && <PanelDetails />}
+                {step === 2 && <PanelPay />}
+                {step === 3 && <PanelShare />}
+              </motion.div>
+            </AnimatePresence>
 
-            <div className="mt-auto rounded-card bg-ivory px-4 py-3 text-sm text-ink-soft">{c.steps[step].note}</div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={step}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="mt-auto rounded-card bg-ivory px-4 py-3 text-sm text-ink-soft"
+              >
+                {c.steps[step].note}
+              </motion.div>
+            </AnimatePresence>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -180,7 +224,7 @@ function PanelPay() {
 function PanelShare() {
   const c = useContent(landingContent).how;
   const { lang, t } = useLanguage();
-  const s = getRsvpStats();
+  const s = { ...getRsvpStats(rsvps), opened: sampleViewCount };
   const stats = [
     { label: c.stats.opened, value: s.opened, cls: "text-charcoal" },
     { label: c.stats.attending, value: s.attending, cls: "text-jade-ink" },

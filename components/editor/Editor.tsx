@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { EASE, SPRING } from "@/components/motion/Motion";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { BackIcon, CheckIcon } from "@/components/ui/Icons";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
@@ -28,11 +30,13 @@ const BACK = "/app";
 const payHref = (id: string) => `/app/${id}/pay`;
 const dashHref = (id: string) => `/app/${id}/dashboard`;
 
-export function Editor({ initial }: { initial: Draft }) {
+export function Editor({ initial, initialStep = 0 }: { initial: Draft; initialStep?: number }) {
   const c = useContent(editorContent);
   const { lang } = useLanguage();
   const { draft, update, status, flush } = useDraft(initial);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => Math.min(Math.max(0, Math.trunc(initialStep)), SECTIONS.length - 1));
+  // 1 = moving forward, -1 = back: sets which way the section slides.
+  const [direction, setDirection] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
@@ -66,6 +70,7 @@ export function Editor({ initial }: { initial: Draft }) {
   }
 
   const goTo = (i: number) => {
+    setDirection(i >= step ? 1 : -1);
     setStep(i);
     window.scrollTo({ top: 0 });
   };
@@ -116,12 +121,15 @@ export function Editor({ initial }: { initial: Draft }) {
               data-tab={i}
               aria-current={i === step ? "step" : undefined}
               className={cn(
-                "flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold",
-                i === step ? "bg-maroon text-white" : i < step ? "bg-jade-soft text-jade-ink" : "bg-sand text-ink-soft",
+                "relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold transition-colors",
+                i === step ? "text-white" : i < step ? "bg-jade-soft text-jade-ink" : "bg-sand text-ink-soft",
               )}
             >
-              {i < step && <CheckIcon size={14} />}
-              {label}
+              {i === step && (
+                <motion.span layoutId="editor-tab-mobile" transition={SPRING} aria-hidden className="absolute inset-0 rounded-full bg-maroon" />
+              )}
+              {i < step && <CheckIcon size={14} className="relative" />}
+              <span className="relative">{label}</span>
             </button>
           ))}
         </nav>
@@ -137,19 +145,22 @@ export function Editor({ initial }: { initial: Draft }) {
               onClick={() => goTo(i)}
               aria-current={i === step ? "step" : undefined}
               className={cn(
-                "flex min-h-11 cursor-pointer items-center gap-2.5 rounded-card px-3 text-left text-sm font-semibold",
-                i === step ? "bg-white text-maroon ring-1 ring-line" : "text-ink-soft hover:bg-white/60",
+                "relative flex min-h-11 cursor-pointer items-center gap-2.5 rounded-card px-3 text-left text-sm font-semibold transition-colors",
+                i === step ? "text-maroon" : "text-ink-soft hover:bg-white/60",
               )}
             >
+              {i === step && (
+                <motion.span layoutId="editor-tab-desktop" transition={SPRING} aria-hidden className="absolute inset-0 rounded-card bg-white ring-1 ring-line" />
+              )}
               <span
                 className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-full text-xs",
+                  "relative flex size-6 shrink-0 items-center justify-center rounded-full text-xs transition-colors",
                   i === step ? "bg-maroon text-white" : i < step ? "bg-jade text-white" : "bg-sand text-maroon",
                 )}
               >
                 {i < step ? <CheckIcon size={12} /> : formatNumber(i + 1, lang)}
               </span>
-              {label}
+              <span className="relative">{label}</span>
             </button>
           ))}
         </nav>
@@ -159,9 +170,23 @@ export function Editor({ initial }: { initial: Draft }) {
           <h1 ref={headingRef} tabIndex={-1} className="mb-3.5 text-xl font-bold outline-none lg:text-2xl">
             {c.sections[step]}
           </h1>
-          <div key={step} className="animate-fade-in">
-            <Section draft={draft} update={update} tier={template.tier} />
-          </div>
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
+            <motion.div
+              key={step}
+              custom={direction}
+              variants={{
+                enter: (d: number) => ({ opacity: 0, x: d * 28 }),
+                center: { opacity: 1, x: 0 },
+                exit: (d: number) => ({ opacity: 0, x: d * -28 }),
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.25, ease: EASE }}
+            >
+              <Section draft={draft} update={update} tier={template.tier} />
+            </motion.div>
+          </AnimatePresence>
           {status === "error" && <p role="alert" className="mt-3 text-[13px] text-maroon">{c.saveFailed}</p>}
 
           {/* Step navigation: sticky bar on mobile, inline on desktop */}

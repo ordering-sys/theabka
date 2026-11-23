@@ -1,6 +1,6 @@
 # Supabase and payment setup
 
-Step-by-step setup for TheabKa's backend: Supabase (Postgres, Auth, Storage) and KHQR payments (ABA PayWay or Bakong). Run the steps in order. The schema lives in `supabase/migrations/`; never edit an applied migration, add a new one.
+Step-by-step setup for TheabKa's backend: Supabase (Postgres, Auth, Storage) and KHQR payments through Bakong. Run the steps in order. The schema lives in `supabase/migrations/`; never edit an applied migration, add a new one.
 
 ## Environment variables
 
@@ -12,14 +12,10 @@ Put these in `.env.local` (development) and in Vercel. `NEXT_PUBLIC_*` values ar
 | `NEXT_PUBLIC_SUPABASE_URL` | public | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | anon / publishable key (RLS applies) |
 | `SUPABASE_SERVICE_ROLE_KEY` | **secret**, server | service_role key, bypasses RLS; only `lib/supabase/admin.ts` reads it |
-| `PAYMENT_PROVIDER` | server | `sandbox` (default) \| `aba_payway` \| `bakong` |
-| `ALLOW_SANDBOX_PAYMENTS` | server | `true` allows sandbox when `VERCEL_ENV=production`; leave unset in production |
+| `PAYMENT_PROVIDER` | server | `bakong` (default) \| `sandbox` (local development only; refused in production) |
 | `PAYMENT_WEBHOOK_SECRET` | **secret**, server | HMAC key for webhook bodies (`openssl rand -hex 32`) |
 | `PAYMENT_WEBHOOK_SIGNATURE_HEADER` | server | signature header name, default `x-signature` |
 | `PAYMENT_CONFIRM_WEBHOOKS` | server | `true` re-confirms each webhook with the provider's status API |
-| `ABA_PAYWAY_MERCHANT_ID` | server | PayWay merchant ID |
-| `ABA_PAYWAY_API_KEY` | **secret**, server | PayWay API key (hash key) |
-| `ABA_PAYWAY_API_URL` | server | PayWay sandbox or production API base URL |
 | `BAKONG_ACCOUNT_ID` | server | receiving Bakong account, e.g. `name@bank` |
 | `BAKONG_MERCHANT_NAME` | server | name shown in the KHQR (default TheabKa) |
 | `BAKONG_MERCHANT_CITY` | server | city in the KHQR (default Phnom Penh) |
@@ -149,9 +145,9 @@ Flow:
 2. The sheet polls `getPaymentStatus(paymentId)` (GET `/api/payments/status?id=`) every 2-3 s.
 3. The payment is confirmed either by the provider's webhook (POST `/api/payments/webhook`) or by the status endpoint asking the provider's API. Both call `mark_payment_paid()`, which marks the payment paid and sets the invitation live in one transaction, idempotent on `provider_ref`.
 
-### Sandbox (default)
+### Sandbox (local development)
 
-`PAYMENT_PROVIDER=sandbox`: the status endpoint reports paid 3 seconds after the charge is created. It's refused when `VERCEL_ENV=production` unless `ALLOW_SANDBOX_PAYMENTS=true`.
+`PAYMENT_PROVIDER=sandbox`: the status endpoint reports paid 3 seconds after the charge is created, and the QR is deliberately not payable. It's always refused in production.
 
 To test the webhook locally:
 
@@ -164,27 +160,19 @@ curl -X POST http://localhost:3000/api/payments/webhook \
 
 Sending it twice returns `{"ok":true,"alreadyPaid":true}` the second time.
 
-### ABA PayWay
-
-1. Apply for a PayWay merchant account with ABA (business registration needed), and ask for KHQR / QR payments and sandbox access.
-2. Set `PAYMENT_PROVIDER=aba_payway`, `ABA_PAYWAY_MERCHANT_ID`, `ABA_PAYWAY_API_KEY`, `ABA_PAYWAY_API_URL`.
-3. Implement the `TODO(ABA)` parts in `lib/payments/aba-payway.ts` from the PayWay docs: the create-QR call, the callback fields and status codes, and the check-transaction call.
-4. Register the callback (pushback) URL with ABA: `https://YOUR-DOMAIN/api/payments/webhook`. Ask ABA to whitelist your domain.
-5. Confirm how PayWay authenticates callbacks. If they're not HMAC-signed with a shared secret, set `PAYMENT_CONFIRM_WEBHOOKS=true` and implement `checkStatus()` so every callback is re-confirmed with PayWay before the invitation goes live.
-
-### Bakong KHQR
+### Bakong KHQR (the only payment provider for now)
 
 1. Register for the Bakong Open API (NBC) and get an API token. You need a Bakong account to receive money.
-2. Set `PAYMENT_PROVIDER=bakong`, `BAKONG_ACCOUNT_ID`, `BAKONG_MERCHANT_NAME`, `BAKONG_MERCHANT_CITY`, `BAKONG_API_TOKEN`, `BAKONG_API_URL`.
-3. Implement the `TODO(Bakong)` part of `createCharge()` in `lib/payments/bakong.ts` (generate the KHQR with NBC's `bakong-khqr` SDK and use its md5 as `provider_ref`).
+2. Set `BAKONG_ACCOUNT_ID`, `BAKONG_API_TOKEN`, `BAKONG_API_URL` (`https://api-bakong.nbc.gov.kh`), and optionally `BAKONG_MERCHANT_NAME`, `BAKONG_MERCHANT_CITY` (and `BAKONG_MERCHANT_ID`, `BAKONG_ACQUIRING_BANK` for a merchant account). `PAYMENT_PROVIDER` defaults to `bakong`.
+3. The app builds the KHQR itself (`lib/payments/khqr.ts`) and uses its md5 as `provider_ref`.
 4. Bakong has no merchant webhook: confirmation comes from the status endpoint polling `check_transaction_by_md5`. If you add a background worker, have it POST signed events to `/api/payments/webhook`.
 
 ## 7. Vercel
 
 1. Import the repository in Vercel.
 2. In **Project Settings > Environment Variables**, add every key from the table at the top of this doc:
-   - Production: real provider (`PAYMENT_PROVIDER=aba_payway` or `bakong`), `ALLOW_SANDBOX_PAYMENTS` unset, `NEXT_PUBLIC_SITE_URL=https://YOUR-DOMAIN`.
-   - Preview / Development: `PAYMENT_PROVIDER=sandbox` is fine.
+   - Production: the Bakong variables, `PAYMENT_PROVIDER` unset or `bakong`, `NEXT_PUBLIC_SITE_URL=https://YOUR-DOMAIN`.
+   - Preview: the Bakong variables, or `PAYMENT_PROVIDER=sandbox` for fake payments (only the Production environment refuses the sandbox).
    - `SUPABASE_SERVICE_ROLE_KEY`, `PAYMENT_WEBHOOK_SECRET` and provider keys are secrets. Never prefix them with `NEXT_PUBLIC_`.
 3. Add the production domain to Supabase **URL Configuration** and to the Google OAuth client (step 4).
 4. Redeploy after changing env vars (NEXT_PUBLIC_* values are fixed at build time).
@@ -194,6 +182,6 @@ Sending it twice returns `{"ok":true,"alreadyPaid":true}` the second time.
 - [ ] Migrations applied; RLS enabled on all tables.
 - [ ] Sign-in code emails arrive (inbox, not spam) at Gmail, Yahoo and Outlook addresses through your own SMTP.
 - [ ] Google sign-in works on the production domain.
-- [ ] A test payment in the provider's sandbox flips an invitation to live; a replayed webhook is a no-op.
-- [ ] `PAYMENT_PROVIDER` is not `sandbox` in production.
+- [ ] A small real Bakong payment flips an invitation to live, and the status check isn't refused (HTTP 401/403 in the server log means an expired token or a server outside Cambodia).
+- [ ] `PAYMENT_PROVIDER` is unset or `bakong` in production.
 - [ ] If you add a `.env.example`, un-ignore it (the default `.gitignore` pattern `.env*` hides it; add `!.env.example`).

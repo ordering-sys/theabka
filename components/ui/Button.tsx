@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion, type HTMLMotionProps } from "motion/react";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
@@ -28,14 +31,27 @@ function classes({ variant = "primary", size = "md", fullWidth }: StyleProps, cl
   return cn(base, variants[variant], sizes[size], fullWidth && "w-full", className);
 }
 
+/** Small press feedback shared by every button. */
+const press = { whileTap: { scale: 0.97 }, transition: { type: "spring", stiffness: 500, damping: 30 } } as const;
+
 export function Button({
-  variant, size, fullWidth, className, type = "button", ...props
-}: ComponentProps<"button"> & StyleProps) {
-  return <button type={type} className={classes({ variant, size, fullWidth }, className)} {...props} />;
+  variant, size, fullWidth, className, type = "button", disabled, ...props
+}: HTMLMotionProps<"button"> & StyleProps) {
+  return (
+    <motion.button
+      type={type}
+      disabled={disabled}
+      className={classes({ variant, size, fullWidth }, className)}
+      {...(disabled ? {} : press)}
+      {...props}
+    />
+  );
 }
+
+const MotionLink = motion.create(Link);
 
 export function ButtonLink({
   variant, size, fullWidth, className, ...props
-}: ComponentProps<typeof Link> & StyleProps) {
-  return <Link className={classes({ variant, size, fullWidth }, className)} {...props} />;
+}: ComponentProps<typeof MotionLink> & StyleProps) {
+  return <MotionLink className={classes({ variant, size, fullWidth }, className)} {...press} {...props} />;
 }

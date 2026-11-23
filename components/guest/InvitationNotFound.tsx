@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { Lotus } from "@/components/invitation/TemplateArt";
+import { Reveal } from "@/components/motion/Motion";
 
 /** 404 for guest links (States.dc.html). Both languages: guests may read only one. */
 export function InvitationNotFound() {
   return (
     <main className="relative flex min-h-dvh items-center justify-center bg-maroon p-6 text-center text-ivory">
       <div aria-hidden className="pointer-events-none absolute inset-4 rounded-[20px] border border-gold" />
-      <div className="relative flex max-w-[360px] flex-col items-center gap-3">
-        <Lotus size={44} color="var(--color-gold)" />
+      <Reveal onMount className="relative flex max-w-[360px] flex-col items-center gap-3">
+        <Reveal onMount variant="popIn" delay={0.2}>
+          <Lotus size={44} color="var(--color-gold)" />
+        </Reveal>
         <div aria-hidden className="font-serif text-6xl text-gold-light italic">404</div>
         <h1>
           <span lang="km" className="block font-moul text-xl leading-[1.9] font-normal text-gold-light">រកមិនឃើញធៀបការនេះទេ</span>
@@ -20,7 +23,7 @@ export function InvitationNotFound() {
         <Link href="/" className="mt-2 flex min-h-12 items-center rounded-card bg-gold px-5 font-semibold text-charcoal no-underline hover:bg-gold-light">
           <span lang="km">ទៅទំព័រដើម</span>&nbsp;·&nbsp;<span lang="en">Go to TheabKa</span>
         </Link>
-      </div>
+      </Reveal>
     </main>
   );
 }

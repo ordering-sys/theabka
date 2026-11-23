@@ -2,6 +2,8 @@
 /* eslint-disable @next/next/no-img-element -- host-uploaded KHQR image */
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { EASE, popIn } from "@/components/motion/Motion";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button } from "@/components/ui/Button";
 import { CheckIcon, CloseIcon, GiftIcon, MailIcon } from "@/components/ui/Icons";
@@ -12,6 +14,7 @@ import { addDays, formatDayMonth, formatNumber } from "@/lib/khmer";
 import type { Invitation, Template } from "@/lib/mock-data";
 import { addRsvp, addView } from "@/lib/store";
 import { guestContent } from "./content";
+import { DoorsOpenContext } from "./reveal";
 
 type Props = { invitation: Invitation; template: Template; children: React.ReactNode };
 
@@ -60,18 +63,28 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
     } else play();
   }
 
+  const opened = doors !== "closed";
+
   return (
+    <DoorsOpenContext.Provider value={opened}>
     <div className="relative mx-auto min-h-dvh max-w-[480px] bg-ivory ring-1 ring-line">
       <main id="invitation" tabIndex={-1} className="outline-none" inert={doors !== "gone"}>{children}</main>
 
       {/* Top-right controls */}
-      <div className="fixed top-3 right-[max(0.75rem,calc(50vw-240px+0.75rem))] z-20 flex items-center gap-2" inert={doors !== "gone"}>
+      <motion.div
+        className="fixed top-3 right-[max(0.75rem,calc(50vw-240px+0.75rem))] z-20 flex items-center gap-2"
+        inert={doors !== "gone"}
+        initial={false}
+        animate={opened ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
+        transition={{ duration: 0.4, ease: EASE, delay: opened ? 0.8 : 0 }}
+      >
         <LanguageToggle variant="dark" />
         {hasMusic && (
-          <button
+          <motion.button
             type="button"
             onClick={toggleMusic}
             aria-label={playing ? c.musicOff : c.musicOn}
+            whileTap={{ scale: 0.9 }}
             className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-charcoal/55 text-white backdrop-blur-sm"
           >
             {playing ? (
@@ -85,15 +98,18 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
                 <path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6" />
               </svg>
             )}
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
       {hasMusic && <audio ref={audio} src={inv.musicUrl!} loop preload="none" onEnded={() => setPlaying(false)} />}
 
-      {/* Sticky action bar */}
-      <div
+      {/* Sticky action bar: slides up once the doors open. */}
+      <motion.div
         className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-[480px] gap-2.5 border-t border-line bg-ivory/95 px-4 pt-3 pb-[max(1.125rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
         inert={doors !== "gone"}
+        initial={false}
+        animate={{ y: opened ? "0%" : "110%" }}
+        transition={{ type: "spring", stiffness: 260, damping: 30, delay: opened ? 0.9 : 0 }}
       >
         <Button className={cn("min-h-[52px]", hasGift ? "flex-[2]" : "flex-1")} onClick={() => setSheet("rsvp")}>
           <MailIcon size={18} />
@@ -105,13 +121,14 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
             {c.gift}
           </Button>
         )}
-      </div>
+      </motion.div>
 
       <RsvpSheet open={sheet === "rsvp"} onClose={() => setSheet((s) => (s === "rsvp" ? null : s))} invitation={inv} onGift={hasGift ? () => setSheet("gift") : undefined} />
       {hasGift && <GiftSheet open={sheet === "gift"} onClose={() => setSheet((s) => (s === "gift" ? null : s))} invitation={inv} />}
 
       {doors !== "gone" && <Doors invitation={inv} template={template} opening={doors === "opening"} onOpen={openDoors} />}
     </div>
+    </DoorsOpenContext.Provider>
   );
 }
 
@@ -119,7 +136,8 @@ function Doors({ invitation: inv, template, opening, onOpen }: { invitation: Inv
   const c = useContent(guestContent);
   const { bg, fg, accent } = template.theme;
   const initial = (s: string) => (s.split(" ").at(-1) || s).charAt(0).toUpperCase();
-  const door = "absolute inset-y-0 w-1/2 transition-transform duration-1000 ease-[cubic-bezier(.7,0,.3,1)]";
+  const door = "absolute inset-y-0 w-1/2";
+  const doorTransition = { duration: 1, ease: [0.7, 0, 0.3, 1] } as const;
 
   return (
     <button
@@ -129,34 +147,58 @@ function Doors({ invitation: inv, template, opening, onOpen }: { invitation: Inv
       aria-label={c.open}
       className="fixed inset-0 z-40 mx-auto block max-w-[480px] cursor-pointer overflow-hidden"
     >
-      <span className={cn(door, "left-0 border-r", opening && "-translate-x-full")} style={{ background: bg, borderColor: accent }}>
+      <motion.span
+        className={cn(door, "left-0 border-r")}
+        style={{ background: bg, borderColor: accent }}
+        initial={false}
+        animate={{ x: opening ? "-100%" : "0%" }}
+        transition={doorTransition}
+      >
         <span className="absolute inset-y-4 right-2 left-4 rounded-l-card border" style={{ borderColor: accent }} />
-      </span>
-      <span className={cn(door, "right-0 border-l", opening && "translate-x-full")} style={{ background: bg, borderColor: accent }}>
+      </motion.span>
+      <motion.span
+        className={cn(door, "right-0 border-l")}
+        style={{ background: bg, borderColor: accent }}
+        initial={false}
+        animate={{ x: opening ? "100%" : "0%" }}
+        transition={doorTransition}
+      >
         <span className="absolute inset-y-4 right-4 left-2 rounded-r-card border" style={{ borderColor: accent }} />
-      </span>
-      <span
-        className={cn("absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-center transition-[opacity,transform] duration-400", opening && "scale-60 opacity-0")}
+      </motion.span>
+      <motion.span
+        className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-center"
         style={{ color: fg }}
+        // No entrance: the server-rendered doors must be readable before JavaScript loads.
+        initial={false}
+        animate={opening ? { opacity: 0, scale: 0.6 } : { opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: EASE }}
       >
         <span lang="km" className="font-moul text-base leading-[1.9]" style={{ color: accent }}>
           {template.eventType === "wedding" ? "សិរីមង្គលអាពាហ៍ពិពាហ៍" : "ពិធីភ្ជាប់ពាក្យ"}
         </span>
-        <span
+        {/* Monogram breathes gently to invite a tap. */}
+        <motion.span
           className="flex size-24 items-center justify-center rounded-full border-4"
           style={{ background: accent, borderColor: "var(--color-gold-light)" }}
+          animate={{ scale: [1, 1.06, 1] }}
+          transition={{ duration: 2.4, ease: "easeInOut", repeat: Infinity }}
         >
           <span lang="en" className="font-serif text-[30px] italic" style={{ color: bg }}>
             {initial(inv.groomEn)}&amp;{initial(inv.brideEn)}
           </span>
-        </span>
+        </motion.span>
         <span lang="en" className="font-serif text-2xl italic">
           {inv.groomEn.split(" ").at(-1)} &amp; {inv.brideEn.split(" ").at(-1)}
         </span>
-        <span className="mt-[18px] rounded-full border px-[18px] py-2 text-sm" style={{ borderColor: accent }}>
+        <motion.span
+          className="mt-[18px] rounded-full border px-[18px] py-2 text-sm"
+          style={{ borderColor: accent }}
+          animate={{ opacity: [0.65, 1, 0.65] }}
+          transition={{ duration: 2.4, ease: "easeInOut", repeat: Infinity }}
+        >
           <span lang="km">ចុចដើម្បីបើក</span> · <span lang="en">Tap to open</span>
-        </span>
-      </span>
+        </motion.span>
+      </motion.span>
     </button>
   );
 }
@@ -237,15 +279,15 @@ function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; 
               <path d="M12 2c3 4 3 8 0 12-3-4-3-8 0-12z" fill={p.color} />
             </svg>
           ))}
-          <div className="flex size-[84px] animate-pop items-center justify-center rounded-full bg-gold-soft text-maroon">
+          <motion.div variants={popIn} initial="hidden" animate="show" className="flex size-[84px] items-center justify-center rounded-full bg-gold-soft text-maroon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
               <path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z" />
               <path d="M12 12c3-2 6-2 8 0-3 2-6 2-8 0z" />
               <path d="M12 12c-3-2-6-2-8 0 3 2 6 2 8 0z" />
             </svg>
-          </div>
-          <div lang="km" className="font-moul text-xl leading-[1.9] text-maroon">សូមអរគុណ</div>
-          <div lang="en" className="font-serif text-xl italic">Thank you, {sentName || "friend"}!</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4, ease: EASE }} lang="km" className="font-moul text-xl leading-[1.9] text-maroon">សូមអរគុណ</motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4, ease: EASE }} lang="en" className="font-serif text-xl italic">Thank you, {sentName || "friend"}!</motion.div>
           <p className="max-w-[280px] text-sm text-muted">{attending ? c.thanksYes : c.thanksNo}</p>
           <Button variant="secondary" className="mt-2.5 min-w-[200px]" onClick={close}>{c.backInv}</Button>
           {onGift && <Button variant="gold" className="min-w-[200px]" onClick={onGift}>{c.sendGift}</Button>}
@@ -275,33 +317,51 @@ function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; 
             {([true, false] as const).map((yes) => {
               const on = attending === yes;
               return (
-                <button
+                <motion.button
                   key={String(yes)}
                   type="button"
                   aria-pressed={on}
                   onClick={() => setAttending(yes)}
+                  whileTap={{ scale: 0.96 }}
                   className={cn(
-                    "flex min-h-16 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-card border-2 text-[15px] font-bold",
+                    "flex min-h-16 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-card border-2 text-[15px] font-bold transition-colors",
                     on ? (yes ? "border-jade bg-jade-soft text-jade-ink" : "border-maroon bg-rose-soft text-maroon") : "border-line-strong bg-white text-charcoal",
                   )}
                 >
-                  {yes ? <CheckIcon size={22} /> : <CloseIcon size={22} />}
+                  <motion.span animate={on ? { scale: [1, 1.25, 1] } : { scale: 1 }} transition={{ duration: 0.35 }}>
+                    {yes ? <CheckIcon size={22} /> : <CloseIcon size={22} />}
+                  </motion.span>
                   {yes ? c.yes : c.no}
-                </button>
+                </motion.button>
               );
             })}
           </div>
 
-          {attending && (
-            <div className="flex items-center justify-between">
-              <span id="party-label" className="text-sm font-semibold">{c.people}</span>
-              <div className="flex items-center gap-3" role="group" aria-labelledby="party-label">
-                <button type="button" onClick={() => setParty((n) => Math.max(1, n - 1))} aria-disabled={party <= 1} aria-label={c.fewer} className="size-12 cursor-pointer rounded-card border-[1.5px] border-line-strong bg-white text-[22px] text-maroon aria-disabled:opacity-40">−</button>
-                <output aria-live="polite" className="min-w-7 text-center text-xl font-bold">{formatNumber(party, lang)}</output>
-                <button type="button" onClick={() => setParty((n) => Math.min(10, n + 1))} aria-disabled={party >= 10} aria-label={c.more} className="size-12 cursor-pointer rounded-card border-[1.5px] border-line-strong bg-white text-[22px] text-maroon aria-disabled:opacity-40">+</button>
-              </div>
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {attending && (
+              <motion.div
+                key="party"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: EASE }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center justify-between">
+                  <span id="party-label" className="text-sm font-semibold">{c.people}</span>
+                  <div className="flex items-center gap-3" role="group" aria-labelledby="party-label">
+                    <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => setParty((n) => Math.max(1, n - 1))} aria-disabled={party <= 1} aria-label={c.fewer} className="size-12 cursor-pointer rounded-card border-[1.5px] border-line-strong bg-white text-[22px] text-maroon aria-disabled:opacity-40">−</motion.button>
+                    <output aria-live="polite" className="min-w-7 overflow-hidden text-center text-xl font-bold">
+                      <motion.span key={party} className="inline-block" initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 500, damping: 30 }}>
+                        {formatNumber(party, lang)}
+                      </motion.span>
+                    </output>
+                    <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => setParty((n) => Math.min(10, n + 1))} aria-disabled={party >= 10} aria-label={c.more} className="size-12 cursor-pointer rounded-card border-[1.5px] border-line-strong bg-white text-[22px] text-maroon aria-disabled:opacity-40">+</motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div>
             <label htmlFor="rsvp-msg" className="text-[13px] font-semibold text-ink-soft">{c.msg}</label>

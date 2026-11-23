@@ -26,23 +26,20 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
 # ── KHQR payments ─────────────────────────────────────────────────────
-PAYMENT_PROVIDER=sandbox
-ALLOW_SANDBOX_PAYMENTS=false
+# bakong (default). Use sandbox only on your own machine; production always refuses it.
+PAYMENT_PROVIDER=bakong
 PAYMENT_WEBHOOK_SECRET=
 PAYMENT_WEBHOOK_SIGNATURE_HEADER=x-signature
 PAYMENT_CONFIRM_WEBHOOKS=false
 
-# ABA PayWay (when PAYMENT_PROVIDER=aba_payway)
-ABA_PAYWAY_MERCHANT_ID=
-ABA_PAYWAY_API_KEY=
-ABA_PAYWAY_API_URL=
-
-# Bakong KHQR (when PAYMENT_PROVIDER=bakong)
+# Bakong KHQR
 BAKONG_ACCOUNT_ID=
 BAKONG_API_TOKEN=
-BAKONG_API_URL=
+BAKONG_API_URL=https://api-bakong.nbc.gov.kh
 BAKONG_MERCHANT_NAME=TheabKa
 BAKONG_MERCHANT_CITY=Phnom Penh
+BAKONG_MERCHANT_ID=
+BAKONG_ACQUIRING_BANK=
 ```
 
 ## What each variable does
@@ -82,29 +79,24 @@ From Google Cloud Console → **APIs & Services → Credentials →** your OAuth
 
 | Variable | Needed | Secret? | What it is |
 |---|---|---|---|
-| `PAYMENT_PROVIDER` | Always | No | Who processes payments: `sandbox` (fake, pays itself; the default), `aba_payway` or `bakong`. |
-| `ALLOW_SANDBOX_PAYMENTS` | Rarely | No | The sandbox is refused in production for safety. Set `true` only on a staging site where you want fake payments. Leave `false` otherwise. |
+| `PAYMENT_PROVIDER` | Optional | No | `bakong` (the default and the only real provider for now). Set `sandbox` on your own machine to test without money: the payment completes by itself after 3 seconds. Production always refuses the sandbox. ABA PayWay is not supported yet. |
 | `PAYMENT_WEBHOOK_SECRET` | With a real provider | **Yes** | Shared secret used to check that payment webhooks really come from your provider (HMAC signature). Use the value your provider gives you, or generate a long random string if you set the secret yourself. |
 | `PAYMENT_WEBHOOK_SIGNATURE_HEADER` | Optional | No | The HTTP header that carries the webhook signature. Defaults to `x-signature`; change it if your provider uses a different header. |
 | `PAYMENT_CONFIRM_WEBHOOKS` | Optional | No | `true` makes the server double-check every payment webhook with the provider's status API before publishing. Turn it on if your provider doesn't sign its webhooks with a shared secret (see `docs/supabase-setup.md`). |
-
-**ABA PayWay** (from your ABA PayWay merchant account):
-
-| Variable | Secret? | What it is |
-|---|---|---|
-| `ABA_PAYWAY_MERCHANT_ID` | No | Your merchant ID. |
-| `ABA_PAYWAY_API_KEY` | **Yes** | Your API key. |
-| `ABA_PAYWAY_API_URL` | No | The API base URL. Use the sandbox URL while testing and the production URL when live. |
 
 **Bakong KHQR** (from the National Bank of Cambodia's Bakong developer portal):
 
 | Variable | Secret? | What it is |
 |---|---|---|
 | `BAKONG_ACCOUNT_ID` | No | Your Bakong account ID, such as `theabka@aclb`. |
-| `BAKONG_API_TOKEN` | **Yes** | Your API token. |
-| `BAKONG_API_URL` | No | The Bakong API base URL. |
-| `BAKONG_MERCHANT_NAME` | No | Name shown on the customer's KHQR scan, such as `TheabKa`. |
-| `BAKONG_MERCHANT_CITY` | No | City shown on the KHQR, such as `Phnom Penh`. |
+| `BAKONG_API_TOKEN` | **Yes** | Your API token. It expires, so renew it in the Bakong developer portal before it does, or payments stay "waiting". |
+| `BAKONG_API_URL` | No | The Bakong API base URL: `https://api-bakong.nbc.gov.kh`. |
+| `BAKONG_MERCHANT_NAME` | No | Name shown on the customer's KHQR scan and on the pay sheet, such as `TheabKa`. Latin letters only, up to 25 characters. |
+| `BAKONG_MERCHANT_CITY` | No | City shown on the KHQR, such as `Phnom Penh`. Up to 15 characters. |
+| `BAKONG_MERCHANT_ID` | No | Only for a Bakong **merchant** account: your merchant ID. Leave it empty for an individual account. |
+| `BAKONG_ACQUIRING_BANK` | No | Only for a merchant account: the bank that holds it, such as `ACLEDA Bank`. |
+
+The KHQR code is built by the app; payment is confirmed by asking the Bakong API about that code every few seconds while the pay sheet is open. The Bakong API may refuse requests from servers outside Cambodia; if payments never confirm and the server log shows `check refused: HTTP 403`, run the status check from a host in Cambodia or through a relay there.
 
 You only need the variables for the provider you choose.
 
@@ -118,7 +110,7 @@ You only need the variables for the provider you choose.
 ## Rules for keeping keys safe
 
 - Anything starting with `NEXT_PUBLIC_` is sent to every visitor's browser. Only public values go there.
-- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `PAYMENT_WEBHOOK_SECRET`, `ABA_PAYWAY_API_KEY` and `BAKONG_API_TOKEN`. Keep them server-side only.
+- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `PAYMENT_WEBHOOK_SECRET` and `BAKONG_API_TOKEN`. Keep them server-side only.
 - If a secret leaks (committed, pasted, screenshotted), rotate it in the Supabase or provider dashboard right away.
 - **Each environment gets its own keys.** Use test keys locally and production keys only in Vercel's production environment.
 

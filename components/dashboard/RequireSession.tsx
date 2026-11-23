@@ -28,7 +28,7 @@ export function useSession(): { loading: boolean; session: Session | null } {
 }
 
 /**
- * Host pages need a signed-in user (prototype: session in localStorage).
+ * Host pages need a signed-in user (Supabase Auth session).
  * Children remount on every push/replace navigation (`bfcacheId`), because
  * cacheComponents keeps visited pages alive and they'd otherwise show stale
  * localStorage data. Browser back/forward still restores them.

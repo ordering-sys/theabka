@@ -5,6 +5,7 @@ import { PinIcon } from "@/components/ui/Icons";
 import { formatEnglishDate, formatKhmerDate, formatTime, toKhmerNumerals } from "@/lib/khmer";
 import type { Invitation, Photo, Template } from "@/lib/mock-data";
 import { AddToCalendar, DirectionsLink, MadeWith } from "./islands";
+import { GuestReveal, GuestStagger, GuestStaggerItem } from "./reveal";
 
 type Props = { invitation: Invitation; photos: Photo[]; template: Template; url: string };
 
@@ -40,26 +41,34 @@ export function InvitationBody({ invitation: inv, photos, template, url }: Props
     <div className="pb-28">
       {/* Cover */}
       <section className="relative flex h-[520px] items-end overflow-hidden" style={{ background: bg }}>
-        {cover && <img src={cover.url} alt="" className="absolute inset-0 size-full object-cover" />}
-        <div
+        {cover && (
+          <GuestReveal onMount variant="zoomOut" className="absolute inset-0">
+            <img src={cover.url} alt="" className="size-full object-cover" />
+          </GuestReveal>
+        )}
+        {/* Names rise in as the doors finish opening. */}
+        <GuestStagger
+          onMount
+          delay={0.55}
+          stagger={0.15}
           className="relative w-full px-5 pt-20 pb-7 text-center"
           style={{
             color: cover ? "var(--color-ivory)" : fg,
             background: cover ? "linear-gradient(to top, rgba(40,10,14,0.85), rgba(40,10,14,0))" : undefined,
           }}
         >
-          <div lang="km" className="font-moul text-[15px] leading-[1.9]" style={{ color: cover ? "var(--color-gold-light)" : accent }}>
+          <GuestStaggerItem lang="km" className="font-moul text-[15px] leading-[1.9]" style={{ color: cover ? "var(--color-gold-light)" : accent }}>
             {headingKm(template)}
-          </div>
-          <h1 lang="en" className="mt-1 font-serif text-[34px] leading-[1.2] italic">
+          </GuestStaggerItem>
+          <GuestStaggerItem as="h1" lang="en" className="mt-1 font-serif text-[34px] leading-[1.2] italic">
             {short(inv.groomEn)} &amp; {short(inv.brideEn)}
-          </h1>
-          <div lang="km" className="mt-1.5 text-sm">{formatKhmerDate(inv.eventDate)}</div>
-        </div>
+          </GuestStaggerItem>
+          <GuestStaggerItem lang="km" className="mt-1.5 text-sm">{formatKhmerDate(inv.eventDate)}</GuestStaggerItem>
+        </GuestStagger>
       </section>
 
       {/* Invitation card */}
-      <section className="relative mx-4 mt-5 rounded-card bg-white px-[22px] py-[34px] text-center shadow-card">
+      <GuestReveal as="section" delay={0.4} className="relative mx-4 mt-5 rounded-card bg-white px-[22px] py-[34px] text-center shadow-card">
         <KbachCorners color={accent} />
         <div className="flex justify-center"><Lotus size={40} color={accent} strokeWidth={1.2} /></div>
         <p lang="km" className="mt-2.5 text-sm leading-[1.9] text-ink-soft">{text.km}</p>
@@ -96,15 +105,15 @@ export function InvitationBody({ invitation: inv, photos, template, url }: Props
         {inv.startTime && <div lang="km" className="text-sm text-ink-soft">{formatTime(inv.startTime, "km")}</div>}
         <div lang="en" className="text-[13px] text-muted">{formatEnglishDate(inv.eventDate)}{timeEn}</div>
         <AddToCalendar invitation={inv} url={url} />
-      </section>
+      </GuestReveal>
 
       {/* Schedule */}
       {inv.schedule.length > 0 && (
-        <section className="mx-4 mt-4 rounded-card bg-white p-5 shadow-card">
+        <GuestReveal as="section" className="mx-4 mt-4 rounded-card bg-white p-5 shadow-card">
           <SectionTitle km="កម្មវិធី" en="Schedule" />
-          <ol>
+          <GuestStagger as="ol" stagger={0.1} delay={0.2}>
             {inv.schedule.map((ev, i) => (
-              <li key={ev.id ?? i} className="flex gap-3.5">
+              <GuestStaggerItem as="li" key={ev.id ?? i} className="flex gap-3.5">
                 <div aria-hidden className="flex w-3.5 flex-col items-center">
                   <span className="mt-1.5 size-3 rounded-full border-2 border-gold-soft bg-gold" />
                   <span className={i < inv.schedule.length - 1 ? "w-0.5 grow bg-line" : "w-0.5 grow"} />
@@ -118,28 +127,30 @@ export function InvitationBody({ invitation: inv, photos, template, url }: Props
                   <div lang="km" className="text-[15px] font-semibold">{ev.titleKm}</div>
                   <div lang="en" className="text-[13px] text-muted">{ev.titleEn}</div>
                 </div>
-              </li>
+              </GuestStaggerItem>
             ))}
-          </ol>
-        </section>
+          </GuestStagger>
+        </GuestReveal>
       )}
 
       {/* Gallery */}
       {photos.length > 0 && (
         <section className="mt-4">
-          <SectionTitle km="រូបភាពអនុស្សាវរីយ៍" en="Gallery" />
-          <ul className="grid grid-cols-3 gap-1.5 px-4">
+          <GuestReveal>
+            <SectionTitle km="រូបភាពអនុស្សាវរីយ៍" en="Gallery" />
+          </GuestReveal>
+          <GuestStagger as="ul" stagger={0.08} className="grid grid-cols-3 gap-1.5 px-4">
             {photos.map((p, i) => (
-              <li key={p.id}>
+              <GuestStaggerItem as="li" variant="popIn" key={p.id}>
                 <img src={p.url} alt={`រូបថតទី${toKhmerNumerals(i + 1)} · Photo ${i + 1}`} loading="lazy" className="aspect-[3/4] w-full rounded-lg object-cover" />
-              </li>
+              </GuestStaggerItem>
             ))}
-          </ul>
+          </GuestStagger>
         </section>
       )}
 
       {/* Venue */}
-      <section className="mx-4 mt-4 overflow-hidden rounded-card bg-white shadow-card">
+      <GuestReveal as="section" className="mx-4 mt-4 overflow-hidden rounded-card bg-white shadow-card">
         <div aria-hidden className="relative h-[150px] overflow-hidden bg-[#e8e4d8]">
           <span className="absolute -inset-x-5 top-[60px] h-[34px] -rotate-12 bg-[#b9d3dc]" />
           <span className="absolute inset-y-0 left-[60px] w-2.5 bg-white" />
@@ -161,7 +172,7 @@ export function InvitationBody({ invitation: inv, photos, template, url }: Props
           </div>
           <DirectionsLink invitation={inv} />
         </div>
-      </section>
+      </GuestReveal>
 
       <MadeWith />
     </div>

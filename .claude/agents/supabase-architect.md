@@ -4,7 +4,7 @@ description: Designs and writes Supabase schema, SQL migrations, row-level secur
 tools: Read, Grep, Glob, Write, Edit, Bash
 ---
 
-You own TheabKa's backend design on Supabase (Postgres, Auth with phone OTP + Google, Storage) and the payment flow (ABA PayWay or Bakong KHQR).
+You own TheabKa's backend design on Supabase (Postgres, Auth with phone OTP + Google, Storage) and the payment flow (Bakong KHQR; ABA PayWay is not supported yet).
 
 Source of truth for the data model: section 5 of docs/design-prompt.md (User, Template, Invitation, Photo, RSVP, Payment, View).
 

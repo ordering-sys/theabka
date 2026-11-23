@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { fontVariables } from "./fonts";
 import { LanguageProvider } from "@/lib/i18n";
 import { ToastProvider } from "@/components/ui/Toast";
+import { MotionProvider } from "@/components/motion/Motion";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="km" className={`${fontVariables} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-ivory text-charcoal">
         <LanguageProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <MotionProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </MotionProvider>
         </LanguageProvider>
       </body>
     </html>
