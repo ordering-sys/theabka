@@ -3,6 +3,7 @@
 import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useId, useRef } from "react";
 import { cn } from "@/lib/cn";
+import { useCloseOnHide } from "./use-close-on-hide";
 
 type BottomSheetProps = {
   open: boolean;
@@ -50,6 +51,7 @@ export function BottomSheet({
       });
     }
   }, [open, animate, panel, reduced]);
+  useCloseOnHide(ref);
 
   return (
     <dialog

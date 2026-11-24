@@ -4,7 +4,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { CloseIcon, PinIcon, PlayIcon } from "@/components/ui/Icons";
+import {
+  ClockIcon, CloseIcon, EditIcon, GiftIcon, GlobeIcon, ImageIcon, MusicIcon, PinIcon, PlayIcon, PlusIcon, SparkleIcon, UserIcon,
+} from "@/components/ui/Icons";
 import { MockQr } from "@/components/invitation/MockQr";
 import { cn } from "@/lib/cn";
 import { MAX_UPLOAD_BYTES } from "@/modules/editor/lib/image";
@@ -14,7 +16,7 @@ import { formatEnglishDate, formatKhmerDate, formatNumber, formatTime } from "@/
 import { PLANS, musicTracks, sampleInvitation, type Tier } from "@/lib/mock-data";
 import type { Draft } from "@/lib/store";
 import { editorContent } from "@/modules/editor/content";
-import { Alert, EditorCard, TextArea, TextField, fieldClass } from "./fields";
+import { Alert, CardHeader, EditorCard, SubHeading, TextArea, TextField, fieldClass } from "./fields";
 import { newId } from "@/modules/editor/hooks/useDraft";
 
 export type SectionProps = {
@@ -26,7 +28,8 @@ export type SectionProps = {
 /* a. Couple */
 export function CoupleSection({ draft, update }: SectionProps) {
   const c = useContent(editorContent).couple;
-  const side = (who: "groom" | "bride") => {
+  const req = useContent(editorContent).required;
+  const side =(who: "groom" | "bride") => {
     const p = draft.parents[who];
     const sample = sampleInvitation.parents[who];
     const setParent = (key: keyof typeof p, value: string) =>
@@ -35,10 +38,11 @@ export function CoupleSection({ draft, update }: SectionProps) {
     const nameEn = who === "groom" ? "groomEn" : "brideEn";
     return (
       <EditorCard>
-        <h3 className="font-bold text-maroon">{c[who]}</h3>
-        <TextField id={`${who}-km`} label={c.nameKm} lang="km" placeholder={sampleInvitation[nameKm]} value={draft[nameKm]} onChange={(e) => update({ [nameKm]: e.target.value })} />
-        <TextField id={`${who}-en`} label={c.nameEn} lang="en" autoCapitalize="words" placeholder={sampleInvitation[nameEn]} value={draft[nameEn]} onChange={(e) => update({ [nameEn]: e.target.value })} />
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <CardHeader icon={<UserIcon size={20} />} title={c[who]} tone={who === "groom" ? "maroon" : "gold"} />
+        <TextField id={`${who}-km`} requiredLabel={req} label={c.nameKm} lang="km" placeholder={sampleInvitation[nameKm]} value={draft[nameKm]} onChange={(e) => update({ [nameKm]: e.target.value })} />
+        <TextField id={`${who}-en`} requiredLabel={req} label={c.nameEn} lang="en" autoCapitalize="words" placeholder={sampleInvitation[nameEn]} value={draft[nameEn]} onChange={(e) => update({ [nameEn]: e.target.value })} />
+        <SubHeading>{c.parents}</SubHeading>
+        <div className="grid gap-3 sm:grid-cols-2">
           <TextField id={`${who}-f-km`} label={c.fatherKm} lang="km" placeholder={sample.fatherKm} value={p.fatherKm} onChange={(e) => setParent("fatherKm", e.target.value)} />
           <TextField id={`${who}-m-km`} label={c.motherKm} lang="km" placeholder={sample.motherKm} value={p.motherKm} onChange={(e) => setParent("motherKm", e.target.value)} />
           <TextField id={`${who}-f-en`} label={c.fatherEn} lang="en" placeholder={sample.fatherEn} value={p.fatherEn} onChange={(e) => setParent("fatherEn", e.target.value)} />
@@ -48,7 +52,7 @@ export function CoupleSection({ draft, update }: SectionProps) {
     );
   };
   return (
-    <div className="grid gap-3.5 xl:grid-cols-2">
+    <div className="grid gap-4 xl:grid-cols-2">
       {side("groom")}
       {side("bride")}
     </div>
@@ -58,10 +62,17 @@ export function CoupleSection({ draft, update }: SectionProps) {
 /* b. Date and time */
 export function DateSection({ draft, update }: SectionProps) {
   const c = useContent(editorContent).date;
+  const cards = useContent(editorContent).cards;
+  const req = useContent(editorContent).required;
   return (
-    <EditorCard className="max-w-[560px]">
-      <TextField id="date" type="date" label={c.date} value={draft.eventDate} onChange={(e) => update({ eventDate: e.target.value })} />
-      <div className="rounded-card bg-rose-soft/60 p-3 text-center" aria-live="polite">
+    <EditorCard>
+      <CardHeader icon={<ClockIcon size={20} />} title={cards.date} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TextField id="date" requiredLabel={req} type="date" label={c.date} value={draft.eventDate} onChange={(e) => update({ eventDate: e.target.value })} />
+        <TextField requiredLabel={req} id="time" type="time" label={c.time} value={draft.startTime} onChange={(e) => update({ startTime: e.target.value })} />
+      </div>
+      {/* How it reads on the invitation: Khmer first, Western date smaller underneath. */}
+      <div className="rounded-card bg-rose-soft/60 px-4 py-3.5 text-center" aria-live="polite">
         <div className="text-xs text-muted">{c.showsAs}</div>
         {draft.eventDate ? (
           <>
@@ -71,13 +82,12 @@ export function DateSection({ draft, update }: SectionProps) {
         ) : (
           <div className="text-lg text-maroon">—</div>
         )}
+        {draft.startTime && (
+          <div className="mt-1 text-[13px] text-ink-soft">
+            <span lang="km">{formatTime(draft.startTime, "km")}</span> · <span lang="en">{formatTime(draft.startTime, "en")}</span>
+          </div>
+        )}
       </div>
-      <TextField id="time" type="time" label={c.time} value={draft.startTime} onChange={(e) => update({ startTime: e.target.value })} />
-      {draft.startTime && (
-        <p className="-mt-1 text-[13px] text-muted">
-          <span lang="km">{formatTime(draft.startTime, "km")}</span> · <span lang="en">{formatTime(draft.startTime, "en")}</span>
-        </p>
-      )}
     </EditorCard>
   );
 }
@@ -87,6 +97,8 @@ const MAP_BOUNDS = { latMin: 11.55, latMax: 11.62, lngMin: 104.88, lngMax: 104.9
 
 export function VenueSection({ draft, update }: SectionProps) {
   const c = useContent(editorContent).venue;
+  const cards = useContent(editorContent).cards;
+  const req = useContent(editorContent).required;
   const x = ((draft.lng - MAP_BOUNDS.lngMin) / (MAP_BOUNDS.lngMax - MAP_BOUNDS.lngMin)) * 100;
   const y = ((MAP_BOUNDS.latMax - draft.lat) / (MAP_BOUNDS.latMax - MAP_BOUNDS.latMin)) * 100;
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${draft.lat},${draft.lng}`;
@@ -115,26 +127,28 @@ export function VenueSection({ draft, update }: SectionProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div className="flex flex-col gap-4">
       <EditorCard>
-        <div className="grid gap-2.5 lg:grid-cols-2">
-          <TextField id="venue-km" lang="km" label={c.nameKm} placeholder={sampleInvitation.venueNameKm} value={draft.venueNameKm} onChange={(e) => update({ venueNameKm: e.target.value })} />
-          <TextField id="venue-en" lang="en" label={c.nameEn} placeholder={sampleInvitation.venueNameEn} value={draft.venueNameEn} onChange={(e) => update({ venueNameEn: e.target.value })} />
-          <TextField id="addr-km" lang="km" label={c.addressKm} placeholder={sampleInvitation.venueAddressKm} value={draft.venueAddressKm} onChange={(e) => update({ venueAddressKm: e.target.value })} />
-          <TextField id="addr-en" lang="en" label={c.addressEn} placeholder={sampleInvitation.venueAddressEn} value={draft.venueAddressEn} onChange={(e) => update({ venueAddressEn: e.target.value })} />
+        <CardHeader icon={<PinIcon size={20} />} title={cards.venue} />
+        <div className="grid gap-3 lg:grid-cols-2">
+          <TextField id="venue-km" requiredLabel={req} lang="km" label={c.nameKm} placeholder={sampleInvitation.venueNameKm} value={draft.venueNameKm} onChange={(e) => update({ venueNameKm: e.target.value })} />
+          <TextField id="venue-en" requiredLabel={req} lang="en" label={c.nameEn} placeholder={sampleInvitation.venueNameEn} value={draft.venueNameEn} onChange={(e) => update({ venueNameEn: e.target.value })} />
+          <TextField requiredLabel={req} id="addr-km" lang="km" label={c.addressKm} placeholder={sampleInvitation.venueAddressKm} value={draft.venueAddressKm} onChange={(e) => update({ venueAddressKm: e.target.value })} />
+          <TextField requiredLabel={req} id="addr-en" lang="en" label={c.addressEn} placeholder={sampleInvitation.venueAddressEn} value={draft.venueAddressEn} onChange={(e) => update({ venueAddressEn: e.target.value })} />
         </div>
       </EditorCard>
-      <EditorCard className="gap-0 overflow-hidden p-0 lg:p-0">
+      <EditorCard>
+        <CardHeader icon={<GlobeIcon size={20} />} title={cards.map} tone="gold" />
         <button
           type="button"
           onClick={movePin}
           onKeyDown={nudgePin}
           aria-label={c.mapLabel}
           aria-describedby="map-coords"
-          className="relative h-[170px] w-full cursor-crosshair overflow-hidden bg-[#e8e4d8] lg:h-[220px]"
+          className="relative h-[170px] w-full cursor-crosshair overflow-hidden rounded-card bg-map-land ring-1 ring-line lg:h-[220px]"
         >
           {/* Stylised river and roads */}
-          <span aria-hidden className="absolute -inset-x-5 top-[70px] h-[34px] -rotate-12 bg-[#b9d3dc]" />
+          <span aria-hidden className="absolute -inset-x-5 top-[70px] h-[34px] -rotate-12 bg-map-road" />
           <span aria-hidden className="absolute inset-y-0 left-[15%] w-2.5 bg-white" />
           <span aria-hidden className="absolute inset-x-0 top-[130px] h-2 bg-white" />
           <span aria-hidden className="absolute inset-y-0 left-[60%] w-2 bg-white" />
@@ -143,7 +157,7 @@ export function VenueSection({ draft, update }: SectionProps) {
           </span>
           <span className="absolute right-2 bottom-2 rounded-lg bg-white px-2 py-1 text-[11px] text-ink-soft">{c.tapPin}</span>
         </button>
-        <div className="flex items-center justify-between gap-2 px-3.5 py-3">
+        <div className="-mb-1 flex items-center justify-between gap-2">
           <span id="map-coords" lang="en" aria-live="polite" className="text-[13px] text-muted">
             {draft.lat.toFixed(4)}° N, {draft.lng.toFixed(4)}° E
           </span>
@@ -159,6 +173,7 @@ export function VenueSection({ draft, update }: SectionProps) {
 /* d. Schedule */
 export function ScheduleSection({ draft, update }: SectionProps) {
   const c = useContent(editorContent).schedule;
+  const cards = useContent(editorContent).cards;
   const { lang } = useLanguage();
   const listRef = useRef<HTMLDivElement>(null);
   const prevCount = useRef(draft.schedule.length);
@@ -173,12 +188,19 @@ export function ScheduleSection({ draft, update }: SectionProps) {
     update((d) => ({ schedule: d.schedule.map((ev, j) => (j === i ? { ...ev, [key]: value } : ev)) }));
 
   return (
+    <EditorCard>
+      <CardHeader
+        icon={<SparkleIcon size={20} />}
+        title={cards.schedule}
+        aside={draft.schedule.length > 0 && <Badge tone="gold">{formatNumber(draft.schedule.length, lang)}</Badge>}
+      />
     <div ref={listRef} className="flex flex-col gap-2.5">
-      {draft.schedule.length === 0 && <p className="rounded-card bg-white p-4 text-sm text-muted">{c.empty}</p>}
+      {draft.schedule.length === 0 && <p className="rounded-card border-[1.5px] border-dashed border-line px-4 py-6 text-center text-sm text-muted">{c.empty}</p>}
       {draft.schedule.map((ev, i) => {
         const n = formatNumber(i + 1, lang);
         return (
-          <EditorCard key={ev.id ?? i} data-row className="flex-row items-start gap-2.5">
+          <div key={ev.id ?? i} data-row className="flex items-start gap-2.5 rounded-card border border-line bg-sand-light/40 p-2.5">
+            <span aria-hidden className="mt-3 flex size-6 shrink-0 items-center justify-center rounded-full bg-maroon text-[11px] font-bold text-white">{n}</span>
             <input
               type="time"
               value={ev.time}
@@ -194,28 +216,30 @@ export function ScheduleSection({ draft, update }: SectionProps) {
               type="button"
               onClick={() => update((d) => ({ schedule: d.schedule.filter((_, j) => j !== i) }))}
               aria-label={`${c.remove} ${n}`}
-              className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-card bg-sand-light text-maroon"
+              className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-card text-muted transition-colors hover:bg-rose-soft hover:text-maroon"
             >
               <CloseIcon size={16} />
             </button>
-          </EditorCard>
+          </div>
         );
       })}
       <button
         type="button"
         onClick={() => update((d) => ({ schedule: [...d.schedule, { id: newId("ev"), time: "", titleKm: "", titleEn: "" }] }))}
-        className="flex min-h-[50px] w-full cursor-pointer items-center justify-center gap-2 rounded-card border-[1.5px] border-dashed border-gold bg-white font-semibold text-maroon lg:w-auto lg:self-start lg:px-5"
+        className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-card border-[1.5px] border-dashed border-gold bg-white font-semibold text-maroon transition-colors hover:bg-gold-soft/40 lg:w-auto lg:self-start lg:px-5"
       >
-        <span aria-hidden className="text-lg">+</span>
+        <PlusIcon size={18} />
         {c.add}
       </button>
     </div>
+    </EditorCard>
   );
 }
 
 /* e. Photos */
 export function PhotosSection({ draft, update, tier }: SectionProps) {
   const c = useContent(editorContent).photos;
+  const cards = useContent(editorContent).cards;
   const { lang } = useLanguage();
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<UploadError | null>(null);
@@ -273,11 +297,17 @@ export function PhotosSection({ draft, update, tier }: SectionProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-between gap-2 text-[13px] text-muted">
-        <span aria-live="polite">{c.count(formatNumber(photos.length, lang), formatNumber(max, lang))}</span>
-        {photos.length > 1 && <span className="text-right">{c.tapCover}</span>}
-      </div>
+    <EditorCard>
+      <CardHeader
+        icon={<ImageIcon size={20} />}
+        title={cards.photos}
+        aside={
+          <Badge tone={full ? "gold" : "neutral"} aria-live="polite">
+            {c.count(formatNumber(photos.length, lang), formatNumber(max, lang))}
+          </Badge>
+        }
+      />
+      {photos.length > 1 && <p className="-mt-1 text-[13px] text-muted">{c.tapCover}</p>}
 
       <ul className="grid grid-cols-3 gap-2 lg:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] lg:gap-3">
         {photos.map((p, i) => {
@@ -336,9 +366,11 @@ export function PhotosSection({ draft, update, tier }: SectionProps) {
               disabled={uploading}
               aria-busy={uploading}
               aria-label={uploading ? c.uploading : c.addLabel}
-              className="flex h-[110px] w-full cursor-pointer flex-col items-center justify-center rounded-card border-[1.5px] border-dashed border-gold bg-white text-maroon lg:h-40"
+              className="flex h-[110px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-card border-[1.5px] border-dashed border-gold bg-ivory/60 text-maroon transition-colors hover:bg-gold-soft/40 lg:h-40"
             >
-              <span aria-hidden className="text-2xl leading-none">{uploading ? "…" : "+"}</span>
+              <span aria-hidden className="flex size-9 items-center justify-center rounded-full bg-gold-soft">
+                {uploading ? <span className="text-lg leading-none">…</span> : <PlusIcon size={18} />}
+              </span>
               <span className="text-xs font-semibold">{uploading ? c.uploading : c.add}</span>
             </button>
           </li>
@@ -354,13 +386,14 @@ export function PhotosSection({ draft, update, tier }: SectionProps) {
           {c.errors[error]}
         </Alert>
       )}
-    </div>
+    </EditorCard>
   );
 }
 
 /* f. Music */
 export function MusicSection({ draft, update, tier }: SectionProps) {
   const c = useContent(editorContent).music;
+  const cards = useContent(editorContent).cards;
   const { lang, t } = useLanguage();
   const input = useRef<HTMLInputElement>(null);
   const [playing, setPlaying] = useState<string | null>(null);
@@ -385,7 +418,9 @@ export function MusicSection({ draft, update, tier }: SectionProps) {
   }
 
   return (
-    <div className="flex max-w-[560px] flex-col gap-2">
+    <div className="flex flex-col gap-4">
+      <EditorCard>
+      <CardHeader icon={<MusicIcon size={20} />} title={cards.music} />
       <ul aria-label={c.groupLabel} className="flex flex-col gap-2">
         {musicTracks.map((tr) => {
           const on = draft.musicUrl === tr.url;
@@ -452,8 +487,11 @@ export function MusicSection({ draft, update, tier }: SectionProps) {
       </button>
       <input ref={input} type="file" accept="audio/*" hidden onChange={(e) => onFile(e.target.files?.[0])} />
       {error && <Alert onDismiss={() => setError(null)} dismissLabel={t.common.close}>{error}</Alert>}
+      </EditorCard>
 
-      <EditorCard className="mt-1.5 flex-row items-center justify-between gap-3">
+      <EditorCard>
+        <CardHeader icon={<PlayIcon size={16} />} title={cards.playback} tone="gold" />
+        <div className="flex items-center justify-between gap-3">
         <div>
           <div id="mute-label" className="text-sm font-semibold">{c.muteDefault}</div>
           <div id="mute-hint" className="text-xs text-muted">{c.muteHint}</div>
@@ -469,6 +507,7 @@ export function MusicSection({ draft, update, tier }: SectionProps) {
         >
           <span aria-hidden className={cn("absolute top-1 size-6 rounded-full bg-white transition-[left]", draft.musicMutedDefault ? "left-6" : "left-1")} />
         </button>
+        </div>
       </EditorCard>
     </div>
   );
@@ -477,6 +516,8 @@ export function MusicSection({ draft, update, tier }: SectionProps) {
 /* g. Gift */
 export function GiftSection({ draft, update }: SectionProps) {
   const c = useContent(editorContent).gift;
+  const cards = useContent(editorContent).cards;
+  const req = useContent(editorContent).required;
   const errs = useContent(editorContent).photos;
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<UploadError | null>(null);
@@ -494,8 +535,10 @@ export function GiftSection({ draft, update }: SectionProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3.5">
-      <EditorCard className="items-center lg:flex-row lg:items-center lg:gap-5">
+    <div className="flex flex-col gap-4">
+      <EditorCard>
+        <CardHeader icon={<GiftIcon size={20} />} title={cards.gift} />
+        <div className="flex flex-col items-center gap-3 lg:flex-row lg:items-center lg:gap-5">
         <p className="text-center text-[13px] text-muted lg:order-2 lg:text-left lg:text-sm">{c.hint}</p>
         <div className="w-[180px] shrink-0 rounded-card border border-line bg-white p-3">
           {draft.giftQrUrl ? (
@@ -508,25 +551,29 @@ export function GiftSection({ draft, update }: SectionProps) {
             </>
           )}
         </div>
-      </EditorCard>
-      <div className="flex gap-2">
-        <Button variant="secondary" fullWidth disabled={uploading} onClick={() => input.current?.click()}>
-          {uploading ? errs.uploading : draft.giftQrUrl ? c.replace : c.upload}
-        </Button>
-        {draft.giftQrUrl && (
-          <Button variant="ghost" onClick={() => update({ giftQrUrl: null })}>{c.remove}</Button>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="secondary" fullWidth disabled={uploading} onClick={() => input.current?.click()}>
+            {uploading ? errs.uploading : draft.giftQrUrl ? c.replace : c.upload}
+          </Button>
+          {draft.giftQrUrl && (
+            <Button variant="ghost" onClick={() => update({ giftQrUrl: null })}>{c.remove}</Button>
+          )}
+        </div>
+        <input ref={input} type="file" accept="image/jpeg,image/png" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+        {error && (
+          <Alert title={errs.errTitle} onDismiss={() => setError(null)} dismissLabel={errs.dismiss}>
+            {errs.errors[error]}
+          </Alert>
         )}
-      </div>
-      <input ref={input} type="file" accept="image/jpeg,image/png" hidden onChange={(e) => onFile(e.target.files?.[0])} />
-      {error && (
-        <Alert title={errs.errTitle} onDismiss={() => setError(null)} dismissLabel={errs.dismiss}>
-          {errs.errors[error]}
-        </Alert>
-      )}
-      <div className="grid gap-2.5 lg:grid-cols-2">
-        <TextArea id="gift-km" lang="km" label={c.noteKm} value={draft.giftNoteKm ?? ""} onChange={(e) => update({ giftNoteKm: e.target.value || null })} />
-        <TextArea id="gift-en" lang="en" label={c.noteEn} value={draft.giftNoteEn ?? ""} onChange={(e) => update({ giftNoteEn: e.target.value || null })} />
-      </div>
+      </EditorCard>
+      <EditorCard>
+        <CardHeader icon={<EditIcon size={18} />} title={cards.note} tone="gold" />
+        <div className="grid gap-3 lg:grid-cols-2">
+          <TextArea requiredLabel={req} id="gift-km" lang="km" label={c.noteKm} value={draft.giftNoteKm ?? ""} onChange={(e) => update({ giftNoteKm: e.target.value || null })} />
+          <TextArea requiredLabel={req} id="gift-en" lang="en" label={c.noteEn} value={draft.giftNoteEn ?? ""} onChange={(e) => update({ giftNoteEn: e.target.value || null })} />
+        </div>
+      </EditorCard>
     </div>
   );
 }

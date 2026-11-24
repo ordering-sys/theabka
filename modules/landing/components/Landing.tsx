@@ -85,8 +85,8 @@ function LandingHeader() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: EASE }}
       className={cn(
-        "sticky top-0 z-30 border-b transition-colors duration-300",
-        solid ? "border-line bg-ivory/90 backdrop-blur-md" : "border-transparent bg-ivory",
+        "sticky top-0 z-30 border-b border-line transition-[background-color,box-shadow] duration-300",
+        solid ? "bg-white/90 shadow-[0_4px_16px_-8px_rgba(43,43,43,0.12)] backdrop-blur-md" : "bg-white",
       )}
     >
       <div
@@ -199,7 +199,7 @@ function LandingHeader() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: EASE }}
-              className="absolute inset-x-0 top-full border-b border-line bg-ivory px-4 pt-2 pb-5 lg:hidden"
+              className="absolute inset-x-0 top-full border-b border-line bg-white px-4 pt-2 pb-5 lg:hidden"
             >
               <Stagger as="ul" onMount stagger={0.05} aria-label={c.nav.label} className="flex flex-col">
                 {nav.map(([href, label]) => {

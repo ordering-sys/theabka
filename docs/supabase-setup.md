@@ -39,7 +39,7 @@ Put these in `.env.local` (development) and in Vercel. `NEXT_PUBLIC_*` values ar
 npx supabase login
 npx supabase init                 # creates supabase/config.toml; keeps supabase/migrations
 npx supabase link --project-ref YOUR-PROJECT-REF
-npx supabase db push              # applies the three migrations in order
+npx supabase db push              # applies the four migrations in order
 ```
 
 The migrations create:
@@ -49,6 +49,7 @@ The migrations create:
 | `20261122090000_init.sql` | enums, `plans` (prices and limits), `profiles` (+ trigger on sign-up), `templates` (8 seeded), `music_tracks` (5 seeded), `invitations`, `photos`, `rsvps`, `views`, `payments`, guard triggers, `mark_payment_paid()` |
 | `20261122090100_rls.sql` | RLS on every table, grants, helper predicates, `get_published_invitation(slug)` |
 | `20261122090200_storage.sql` | `photos`, `music`, `gift-qr` buckets (private, 10 MB, mime allow-lists) and their policies |
+| `20261123090000_explicit_grants.sql` | Explicit table and function grants for `anon`, `authenticated` and `service_role`. Newer Supabase projects don't grant these by default; without them, creating an invitation fails with "permission denied for table invitations". Idempotent, and it doesn't widen anything the earlier migrations restricted. |
 
 Optional: regenerate the TypeScript types once linked:
 
@@ -78,6 +79,7 @@ Hosts sign in (and register, on first use) with their email: the app sends a 6-d
    Don't use `supabase config push` for this: it pushes the whole Auth config and would overwrite dashboard settings such as Google sign-in and SMTP.
 3. **Code length 6.** The script sets it. If you used the dashboard, set **Email OTP Length** to `6` under **Authentication > Providers > Email** (the app accepts 6 to 8 digits as a safety net, but the screen says 6). Keep **Email OTP Expiration** at 600 to 3600 s.
 4. **Use your own SMTP before launch.** Supabase's built-in email sender is for testing only: it sends very few emails per hour and only to team members' addresses on some plans. Connect Resend (below) or another provider (Postmark, Amazon SES, Brevo).
+5. Keep rate limits on (**Authentication > Rate Limits**). The app shows a clear message when someone hits one.
 
 ### Sending sign-in emails with Resend
 
@@ -106,7 +108,6 @@ The app has no email code of its own: Supabase Auth sends the codes, so Resend i
 5. **Test.** Sign in at `/signin` with a Gmail, a Yahoo and an Outlook address. Check that the code arrives in the inbox (not spam) and the sender shows as TheabKa. Delivery logs are in Resend under **Emails**; failures on the Supabase side show in **Authentication → Logs**.
 
 Treat the Resend API key as a secret: it lives only in Supabase's SMTP settings, never in this repo or `.env`.
-5. Keep rate limits on (**Authentication > Rate Limits**). The app shows a clear message when a guest hits one.
 
 ## 4. Auth: Google
 
@@ -135,13 +136,37 @@ The migration creates the buckets and policies. Nothing to click, but verify:
 - Anyone can read files of a **live** invitation (through signed URLs). Draft files are visible only to the owner.
 - If you change limits, do it in a new migration, not in the dashboard, so environments stay in sync.
 
+### Deleting drafts
+
+Hosts can delete an invitation from `/app` while it's still a draft (`deleteDraft()` in `lib/data/index.ts`, called through `lib/store.ts`):
+
+- The RLS policy `hosts delete own drafts` allows deleting only the caller's own rows with `status = 'draft'`. A live (paid) invitation can't be deleted from the client; the code also filters on `status = 'draft'` as a second guard.
+- Photos, RSVPs and views go with the row (`on delete cascade`). Payments keep their record, with `invitation_id` set to null.
+- After the row is deleted, the app removes the draft's files under `<user_id>/<invitation_id>/` from all three buckets. This is best effort: if it fails, the files stay private (draft files are readable only by the owner) and can be cleaned up later.
+
 ## 6. Payments
 
 Pricing comes from the `plans` table: Basic 500 cents / 20,000 riel (3 photos), Premium 1,500 cents / 60,000 riel (6 photos and custom music). The server computes the amount from the invitation's template tier; the client never sends an amount.
 
-Flow:
+### What must be filled in before paying
 
-1. The pay sheet calls `startKhqrPayment(invitationId, currency)` (POST `/api/payments/khqr`). This returns the QR payload and expiry (10 minutes).
+An invitation can only be paid for (and so published) once every required field is filled in. The rules live in one place, `modules/payments/lib/invitation-checks.ts` (`missingDetails()`), and are used by the editor (Publish lock and step warnings), the pay screen and the payment API, so the three always agree:
+
+| Step | Required |
+| --- | --- |
+| Couple | Groom's and bride's names, in Khmer and English. Parents' names are optional. |
+| Date and time | Event date and start time |
+| Venue | Venue name and address, each in Khmer and English |
+| Program | At least one event, each with a time and a title in Khmer and English |
+| Photos | At least one photo |
+| Music | A song selected |
+| Gift | The host's KHQR image, and the gift note in Khmer and English |
+
+If anything is missing, POST `/api/payments/khqr` refuses with HTTP 422 `{"error":"incomplete","missing":[...]}` and creates no charge. To change the rules, edit `missingDetails()` and its labels in `modules/payments/lib/missing-labels.ts`.
+
+### Flow
+
+1. The pay sheet calls `startKhqrPayment(invitationId, currency)` (POST `/api/payments/khqr`). The server checks the requirements above and the plan limits, then returns the QR payload and expiry (10 minutes).
 2. The sheet polls `getPaymentStatus(paymentId)` (GET `/api/payments/status?id=`) every 2-3 s.
 3. The payment is confirmed either by the provider's webhook (POST `/api/payments/webhook`) or by the status endpoint asking the provider's API. Both call `mark_payment_paid()`, which marks the payment paid and sets the invitation live in one transaction, idempotent on `provider_ref`.
 
@@ -179,7 +204,9 @@ Sending it twice returns `{"ok":true,"alreadyPaid":true}` the second time.
 
 ## 8. Launch checklist
 
-- [ ] Migrations applied; RLS enabled on all tables.
+- [ ] All four migrations applied; RLS enabled on all tables.
+- [ ] A test host can create an invitation, see it on `/app`, and delete it while it's a draft.
+- [ ] The pay screen refuses an incomplete invitation and lists what's missing.
 - [ ] Sign-in code emails arrive (inbox, not spam) at Gmail, Yahoo and Outlook addresses through your own SMTP.
 - [ ] Google sign-in works on the production domain.
 - [ ] A small real Bakong payment flips an invitation to live, and the status check isn't refused (HTTP 401/403 in the server log means an expired token or a server outside Cambodia).

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { KhqrCharge } from "@/lib/data/types";
-import { missingDetails } from "@/modules/payments/lib/invitation-checks";
+import { missingDetails, type Checkable } from "@/modules/payments/lib/invitation-checks";
 import { getPaymentAdapter, KHQR_TTL_MS, newPaymentReference, ProviderNotConfiguredError } from "@/modules/payments/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -25,35 +25,46 @@ export async function POST(request: NextRequest) {
   // RLS: only the owner can see the invitation.
   const { data: inv } = await supabase
     .from("invitations")
-    .select("id, user_id, status, template_id, music_url, groom_km, groom_en, bride_km, bride_en, event_date, venue_name_km, venue_name_en")
+    // One string literal so the typed client can infer the row shape.
+    .select("id, user_id, status, template_id, music_url, groom_km, groom_en, bride_km, bride_en, event_date, start_time, venue_name_km, venue_name_en, venue_address_km, venue_address_en, schedule, gift_qr_url, gift_note_km, gift_note_en")
     .eq("id", invitationId)
     .maybeSingle();
   if (!inv || inv.user_id !== auth.user.id) return error(404, "not_found");
   if (inv.status === "live") return error(409, "already_live");
 
-  // Don't charge for an invitation guests couldn't use yet.
+  const admin = getSupabaseAdminClient();
+  const { count: photoCount } = await admin
+    .from("photos")
+    .select("id", { count: "exact", head: true })
+    .eq("invitation_id", inv.id);
+
+  // Don't charge for an invitation that isn't fully filled in (same rules as the editor).
   const missing = missingDetails({
     groomKm: inv.groom_km,
     groomEn: inv.groom_en,
     brideKm: inv.bride_km,
     brideEn: inv.bride_en,
     eventDate: inv.event_date,
+    startTime: inv.start_time,
     venueNameKm: inv.venue_name_km,
     venueNameEn: inv.venue_name_en,
+    venueAddressKm: inv.venue_address_km,
+    venueAddressEn: inv.venue_address_en,
+    schedule: (inv.schedule ?? []) as Checkable["schedule"],
+    photoCount: photoCount ?? 0,
+    musicUrl: inv.music_url,
+    giftQrUrl: inv.gift_qr_url,
+    giftNoteKm: inv.gift_note_km,
+    giftNoteEn: inv.gift_note_en,
   });
   if (missing.length) return error(422, "incomplete", { missing });
 
-  const admin = getSupabaseAdminClient();
   const { data: template } = await admin.from("templates").select("tier").eq("id", inv.template_id).single();
   if (!template) return error(422, "invalid_template");
   const { data: plan } = await admin.from("plans").select("*").eq("tier", template.tier).single();
   if (!plan) return error(500, "plan_missing");
 
   // Plan limits (also enforced by triggers; re-checked here because the template may have changed).
-  const { count: photoCount } = await admin
-    .from("photos")
-    .select("id", { count: "exact", head: true })
-    .eq("invitation_id", inv.id);
   if ((photoCount ?? 0) > plan.max_photos) return error(422, "too_many_photos", { maxPhotos: plan.max_photos });
   if (inv.music_url?.startsWith("storage://") && !plan.custom_music) return error(422, "custom_music_requires_premium");
 

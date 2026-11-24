@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { CloseIcon } from "@/components/ui/Icons";
+import { useCloseOnHide } from "@/components/ui/use-close-on-hide";
 import type { Invitation, Photo } from "@/lib/mock-data";
 import { InvitationCover } from "./InvitationCover";
 
@@ -16,6 +17,7 @@ export function PreviewDialog({
     if (open && !d.open) d.showModal();
     if (!open && d.open) d.close();
   }, [open]);
+  useCloseOnHide(ref);
 
   return (
     <dialog ref={ref} onClose={onClose} aria-label={label} className="m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-scrim">

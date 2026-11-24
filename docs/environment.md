@@ -10,7 +10,7 @@ The file is git-ignored (`.gitignore` has `.env*`), so your keys stay on your co
 2. Paste the template below into it.
 3. Restart `npm run dev`. Next.js only reads `.env` at startup.
 
-With every Supabase value left blank, the app keeps running on the browser-storage prototype, and payments run in sandbox mode. Fill in the values as you set up each service.
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required: the app stores everything in Supabase and has no offline or browser-storage mode, so it stops with "Supabase is not configured" without them. For local payments, set `PAYMENT_PROVIDER=sandbox`. Fill in the other values as you set up each service.
 
 ```bash
 # ── Site ──────────────────────────────────────────────────────────────

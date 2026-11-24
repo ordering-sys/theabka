@@ -69,7 +69,7 @@ export function GuestShell({ invitation: inv, template, demo = false, children }
 
   return (
     <DoorsOpenContext.Provider value={opened}>
-    <div className="relative mx-auto min-h-dvh max-w-[480px] bg-ivory ring-1 ring-line">
+    <div className="relative mx-auto min-h-dvh max-w-[480px] bg-white ring-1 ring-line">
       <main id="invitation" tabIndex={-1} className="outline-none" inert={doors !== "gone"}>{children}</main>
 
       {/* Sample invitation: a pill back to the landing page (top-left, opposite the controls). */}
@@ -122,7 +122,7 @@ export function GuestShell({ invitation: inv, template, demo = false, children }
 
       {/* Sticky action bar: slides up once the doors open. */}
       <motion.div
-        className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-[480px] gap-2.5 border-t border-line bg-ivory/95 px-4 pt-3 pb-[max(1.125rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
+        className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-[480px] gap-2.5 border-t border-line bg-white/95 px-4 pt-3 pb-[max(1.125rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
         inert={doors !== "gone"}
         initial={false}
         animate={{ y: opened ? "0%" : "110%" }}

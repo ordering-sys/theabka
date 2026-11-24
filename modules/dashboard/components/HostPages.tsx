@@ -22,7 +22,9 @@ export function DashboardPage() {
   return <RequireSession fallback={<DashboardSkeleton />}>{(s) => <InvitationList session={s} />}</RequireSession>;
 }
 
-function WithInvitation({ render, variant }: { render: (inv: Draft) => React.ReactNode; variant: "detail" | "form" }) {
+type Render = (inv: Draft, session: Session) => React.ReactNode;
+
+function WithInvitation({ render, variant }: { render: Render; variant: "detail" | "form" }) {
   const { id } = useParams<{ id: string }>();
   const isClient = useIsClient();
   if (!isClient) return <DashboardSkeleton variant={variant} />;
@@ -35,7 +37,7 @@ function WithInvitation({ render, variant }: { render: (inv: Draft) => React.Rea
 
 function Loaded({
   id, session, render, variant,
-}: { id: string; session: Session; render: (inv: Draft) => React.ReactNode; variant: "detail" | "form" }) {
+}: { id: string; session: Session; render: Render; variant: "detail" | "form" }) {
   const [state, setState] = useState<{ loading: boolean; inv?: Draft }>({ loading: true });
   useEffect(() => {
     let alive = true;
@@ -50,11 +52,11 @@ function Loaded({
   if (state.loading) return <DashboardSkeleton variant={variant} />;
   // Hosts only see their own invitations (Supabase RLS also enforces this).
   if (!state.inv || state.inv.userId !== session.userId) return <HostNotFound />;
-  return <>{render(state.inv)}</>;
+  return <>{render(state.inv, session)}</>;
 }
 
 export function InvitationDashboardPage() {
-  return <WithInvitation variant="detail" render={(inv) => <InvitationDashboard invitation={inv} />} />;
+  return <WithInvitation variant="detail" render={(inv, s) => <InvitationDashboard invitation={inv} session={s} />} />;
 }
 
 export function PayPage() {

@@ -68,8 +68,9 @@ export function Header({ actions, end, showSignIn = false }: HeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 border-b transition-colors duration-300",
-        scrolled ? "border-line bg-ivory/90 backdrop-blur-md" : "border-transparent bg-ivory",
+        // On a white page the bottom line is what separates the bar from the content, so it's always shown.
+        "sticky top-0 z-30 border-b border-line transition-[background-color,box-shadow] duration-300",
+        scrolled ? "bg-white/90 shadow-[0_4px_16px_-8px_rgba(43,43,43,0.12)] backdrop-blur-md" : "bg-white",
       )}
     >
       <div

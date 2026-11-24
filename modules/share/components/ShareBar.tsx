@@ -5,21 +5,29 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { BottomSheet } from "@/components/ui/BottomSheet";
-import { QrIcon, SendIcon } from "@/components/ui/Icons";
+import { CheckIcon, CopyIcon, ExternalIcon, LinkIcon, QrIcon, SendIcon } from "@/components/ui/Icons";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { useContent } from "@/lib/i18n";
 import { inviteUrl } from "@/lib/use-client";
 
 const content = {
-  en: { link: "Share link", copy: "Copy", copied: "Copied", copiedToast: "Link copied", messengerToast: "Link copied. Paste it in Messenger.", qr: "QR code", view: "View", qrTitle: "QR code for your invitation", qrHint: "Print it on cards or show it at the venue.", download: "Download QR image", close: "Close", qrAlt: "QR code linking to the invitation" },
-  km: { link: "តំណចែករំលែក", copy: "ចម្លង", copied: "បានចម្លង", copiedToast: "បានចម្លងតំណ", messengerToast: "បានចម្លងតំណ។ សូមបិទភ្ជាប់ក្នុង Messenger។", qr: "QR", view: "មើល", qrTitle: "កូដ QR សម្រាប់ធៀបការរបស់អ្នក", qrHint: "បោះពុម្ពលើកាត ឬបង្ហាញនៅកន្លែងកម្មវិធី។", download: "ទាញយករូប QR", close: "បិទ", qrAlt: "កូដ QR ភ្ជាប់ទៅធៀបការ" },
+  en: { link: "Share link", copy: "Copy", copied: "Copied", copiedToast: "Link copied", messengerToast: "Link copied. Paste it in Messenger.", qr: "QR code", view: "View", viewInvite: "View invitation", qrTitle: "QR code for your invitation", qrHint: "Print it on cards or show it at the venue.", download: "Download QR image", close: "Close", qrAlt: "QR code linking to the invitation" },
+  km: { link: "តំណចែករំលែក", copy: "ចម្លង", copied: "បានចម្លង", copiedToast: "បានចម្លងតំណ", messengerToast: "បានចម្លងតំណ។ សូមបិទភ្ជាប់ក្នុង Messenger។", qr: "QR", view: "មើល", viewInvite: "មើលធៀបការ", qrTitle: "កូដ QR សម្រាប់ធៀបការរបស់អ្នក", qrHint: "បោះពុម្ពលើកាត ឬបង្ហាញនៅកន្លែងកម្មវិធី។", download: "ទាញយករូប QR", close: "បិទ", qrAlt: "កូដ QR ភ្ជាប់ទៅធៀបការ" },
 };
 
-type Props = { slug: string; title: string; showView?: boolean; className?: string };
+type Props = {
+  slug: string;
+  title: string;
+  showView?: boolean;
+  /** "wide": link and actions side by side from `lg` (dashboard). "stack" keeps the phone layout everywhere (pay success). */
+  layout?: "stack" | "wide";
+  className?: string;
+};
 
 /** Copy link + Telegram / Messenger / QR / View. Used on the pay success screen and the dashboard. */
-export function ShareBar({ slug, title, showView = true, className }: Props) {
+export function ShareBar({ slug, title, showView = true, layout = "stack", className }: Props) {
+  const wide = layout === "wide";
   const c = useContent(content);
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -52,23 +60,57 @@ export function ShareBar({ slug, title, showView = true, className }: Props) {
   }
 
   const telegram = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-  const tile = "flex min-h-11 min-w-16 flex-1 flex-col items-center gap-1 text-xs font-semibold text-charcoal no-underline cursor-pointer";
-  const icon = "flex size-11 items-center justify-center rounded-full";
+  const tile = cn(
+    "flex min-h-11 min-w-16 flex-1 flex-col items-center gap-1 text-xs font-semibold text-charcoal no-underline cursor-pointer",
+    wide && "lg:h-13 lg:flex-none lg:flex-row lg:gap-2.5 lg:rounded-card lg:border-[1.5px] lg:border-line lg:bg-white lg:pr-4 lg:pl-2 lg:text-[13px] lg:transition-colors lg:hover:border-line-strong lg:hover:bg-sand-light",
+  );
+  const icon = cn("flex size-11 items-center justify-center rounded-full", wide && "lg:size-8 lg:[&>svg]:size-4");
+  // "theabka.com/i/dara-sophea": muted host, bold slug.
+  const cut = display.indexOf("/i/");
+  const host = cut >= 0 ? display.slice(0, cut + 3) : "";
+  const path = cut >= 0 ? display.slice(cut + 3) : display;
 
   return (
-    <div className={cn("rounded-card bg-white p-3 shadow-card lg:p-4", className)}>
-      <div className="text-xs font-semibold text-muted">{c.link}</div>
-      <div className="mt-1 flex items-center gap-2">
-        <div lang="en" className="min-w-0 grow truncate text-sm font-semibold">{display}</div>
-        <button
-          type="button"
-          onClick={() => copy()}
-          className="min-h-11 shrink-0 cursor-pointer rounded-[10px] bg-maroon px-3.5 text-[13px] font-semibold text-white hover:bg-maroon-dark"
-        >
-          {copied ? c.copied : c.copy}
-        </button>
+    <div className={cn("rounded-card bg-white p-3 shadow-card lg:p-4", wide && "lg:px-5 lg:py-4", className)}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-semibold text-muted">{c.link}</div>
+        {wide && showView && (
+          <Link href={`/i/${slug}`} target="_blank" className="hidden items-center gap-1 text-[13px] font-semibold text-maroon no-underline hover:underline lg:flex">
+            {c.viewInvite}
+            <ExternalIcon size={14} />
+          </Link>
+        )}
       </div>
-      <div className="mt-2.5 flex">
+      <div className={cn(wide && "lg:mt-1.5 lg:flex lg:items-center lg:gap-3")}>
+        <div
+          className={cn(
+            "mt-1 flex items-center gap-2",
+            wide && "rounded-card border-[1.5px] border-line bg-ivory py-1 pr-1 pl-1.5 lg:mt-0 lg:h-13 lg:min-w-0 lg:grow",
+          )}
+        >
+          {wide && (
+            <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-gold-soft text-gold-deep">
+              <LinkIcon size={17} />
+            </span>
+          )}
+          <div lang="en" className="min-w-0 grow truncate text-sm">
+            <span className="text-muted">{host}</span>
+            <span className="font-semibold text-charcoal">{path}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => copy()}
+            className={cn(
+              "flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px] px-3.5 text-[13px] font-semibold text-white transition-colors",
+              copied ? "bg-jade" : "bg-maroon hover:bg-maroon-dark",
+            )}
+          >
+            {copied ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
+            {copied ? c.copied : c.copy}
+          </button>
+        </div>
+        {wide && <span aria-hidden className="hidden h-8 w-px shrink-0 bg-line lg:block" />}
+        <div className={cn("mt-2.5 flex", wide && "lg:mt-0 lg:shrink-0 lg:gap-2")}>
         <a href={telegram} target="_blank" rel="noreferrer" className={tile}>
           <span className={cn(icon, "bg-telegram text-white")}><SendIcon size={20} /></span>
           Telegram
@@ -86,7 +128,7 @@ export function ShareBar({ slug, title, showView = true, className }: Props) {
           {c.qr}
         </button>
         {showView && (
-          <Link href={`/i/${slug}`} className={tile}>
+          <Link href={`/i/${slug}`} className={cn(tile, wide && "lg:hidden")}>
             <span className={cn(icon, "bg-gold-soft text-maroon")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
@@ -96,6 +138,7 @@ export function ShareBar({ slug, title, showView = true, className }: Props) {
             {c.view}
           </Link>
         )}
+        </div>
       </div>
       <QrSheet open={qrOpen} onClose={() => setQrOpen(false)} url={url} slug={slug} />
     </div>

@@ -64,7 +64,8 @@ There is no test runner yet.
 
 - Khmer first, English beside it. A KH/EN toggle switches the host UI; the guest invitation always shows both languages.
 - Invitations use Khmer numerals and Khmer dates (e.g. ថ្ងៃអាទិត្យ ទី១៥ ខែធ្នូ ឆ្នាំ២០២៦), with the Western date smaller underneath.
-- Colours: maroon `#7A1F2B` (primary), gold `#C9A24B` (accent), ivory `#FBF6EE` (background), charcoal `#2B2B2B` (text), jade `#5E8C7A` (success / attending). Define them as Tailwind theme tokens rather than hard-coding hex values.
+- Colours: maroon `#7A1F2B` (primary), gold `#C9A24B` (accent), ivory `#FBF6EE` (soft tint for panels inside cards), charcoal `#2B2B2B` (text), jade `#5E8C7A` (success / attending). Define them as Tailwind theme tokens rather than hard-coding hex values.
+- Page and navbar backgrounds are white on every page (`bg-white`), not ivory. This overrides the prototypes, which use ivory. Cards stand out through `shadow-card`, which includes a hairline edge.
 - Fonts (Google Fonts via `next/font`): Moul (Khmer decorative titles only), Kantumruy Pro (Khmer UI and body), Playfair Display (English invitation titles), Inter (English UI).
 - Khmer text needs line height of at least 1.6 so stacked vowels and subscripts don't clip.
 - Mobile-first at 390 px. Tap targets at least 44 px, 12 px corner radius, shadows on cards only.

@@ -18,7 +18,8 @@ import { formatPrice, formatRiel, toKhmerNumerals } from "@/lib/khmer";
 import { PLANS, getTemplate, templates, type Tier } from "@/lib/mock-data";
 import { getDraft, getPaymentStatus, startPayment as startCharge, type Draft, type KhqrCharge } from "@/lib/store";
 import { inviteUrl } from "@/lib/use-client";
-import { DETAIL_STEP, missingDetails } from "@/modules/payments/lib/invitation-checks";
+import { DETAIL_STEP, draftCheckable, missingDetails } from "@/modules/payments/lib/invitation-checks";
+import { missingLabels } from "@/modules/payments/lib/missing-labels";
 
 const content = {
   en: {
@@ -36,7 +37,7 @@ const content = {
     providerDown: "Bakong payments aren't available right now. You weren't charged. Please try again later.",
     incompleteFailed: "Some details are still missing. Close this and fill them in first.",
     incompleteTitle: "Finish your invitation first", incompleteBody: "Add these before you pay:", add: "Add",
-    missing: { names: "Groom's and bride's names (Khmer and English)", date: "Event date", venue: "Venue name" },
+    missing: missingLabels.en,
     qrAlt: "KHQR payment code", alreadyLiveSub: "Your edits are published as soon as they save. There's nothing to pay.", close: "Close",
   },
   km: {
@@ -54,7 +55,7 @@ const content = {
     providerDown: "ការបង់ប្រាក់តាមបាគងមិនអាចប្រើបានទេពេលនេះ។ មិនមានការកាត់ប្រាក់ទេ។ សូមព្យាយាមម្ដងទៀតនៅពេលក្រោយ។",
     incompleteFailed: "នៅខ្វះព័ត៌មានខ្លះ។ សូមបិទផ្ទាំងនេះ ហើយបំពេញវាជាមុនសិន។",
     incompleteTitle: "សូមបំពេញធៀបការជាមុនសិន", incompleteBody: "សូមបន្ថែមព័ត៌មានទាំងនេះ មុនពេលបង់ប្រាក់៖", add: "បន្ថែម",
-    missing: { names: "ឈ្មោះកូនកំលោះ និងកូនក្រមុំ (ខ្មែរ និងអង់គ្លេស)", date: "កាលបរិច្ឆេទកម្មវិធី", venue: "ឈ្មោះទីកន្លែង" },
+    missing: missingLabels.km,
     qrAlt: "កូដបង់ប្រាក់ KHQR", alreadyLiveSub: "ការកែប្រែរបស់អ្នកត្រូវបានផ្សព្វផ្សាយភ្លាមៗពេលរក្សាទុក។ មិនចាំបាច់បង់ប្រាក់ទេ។", close: "បិទ",
   },
 };
@@ -159,7 +160,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
   const clock = lang === "km" ? toKhmerNumerals(`${mm}:${ss}`) : `${mm}:${ss}`;
   const alreadyLive = initial.status === "live";
   // The server refuses incomplete invitations too; this explains why and links to the fix.
-  const missing = alreadyLive ? [] : missingDetails(draft);
+  const missing = alreadyLive ? [] : missingDetails(draftCheckable(draft));
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col pb-28">
@@ -202,7 +203,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
                 <ul className="mt-1.5 flex flex-col">
                   {missing.map((m) => (
                     <li key={m} className="flex items-center justify-between gap-3 border-t border-maroon/10 first:border-t-0">
-                      <span className="leading-[1.7]">{c.missing[m]}</span>
+                      <span className="leading-[1.7]">{c.missing[m].item}</span>
                       <Link href={`/app/${draft.id}/edit?step=${DETAIL_STEP[m]}`} className="inline-flex min-h-11 shrink-0 items-center font-semibold text-maroon underline">
                         {c.add}
                       </Link>

@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { EASE, SPRING, Stagger, fadeUp } from "@/components/motion/Motion";
 import { TierBadge } from "@/components/ui/Badge";
 import { CloseIcon } from "@/components/ui/Icons";
+import { useCloseOnHide } from "@/components/ui/use-close-on-hide";
 import { TopBar } from "@/components/ui/TopBar";
 import { Lotus, TemplateThumb, headingKm } from "@/components/invitation/TemplateArt";
 import { cn } from "@/lib/cn";
@@ -67,7 +68,7 @@ export function TemplatePicker() {
 
   return (
     <main className="mx-auto w-full max-w-[1000px]">
-      <header className="sticky top-0 z-10 bg-ivory px-3 pt-2 pb-2.5">
+      <header className="sticky top-0 z-10 bg-white px-3 pt-2 pb-2.5">
         <TopBar backHref={BACK} title={c.title} />
         <div role="group" aria-label={c.title} className="flex gap-2 overflow-x-auto px-1 pt-2.5">
           {filters.map(([value, label]) => (
@@ -150,6 +151,9 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
     if (template && !dialog.open) dialog.showModal();
     if (!template && dialog.open) dialog.close();
   }, [template]);
+  // Navigating to the editor hides (doesn't unmount) this page: close the preview so it
+  // can't block the editor, and drop the "Creating…" state for when the host comes back.
+  useCloseOnHide(ref, () => setCreating(false));
 
   // ?from=<draftId>: switching template for an existing draft (from the pay screen) keeps its details.
   const from = useSearchParams().get("from");

@@ -23,9 +23,15 @@
   --color-line-strong: #d9cfc0;
 
   --radius-card: 12px;
-  --shadow-card: 0 2px 12px rgba(43, 43, 43, 0.06);
+  /*
+   * Cards sit on a white page, so their edge does the separating: a warm 1px outline in
+   * the line colour, plus a short contact shadow and a soft wide one (layered, so it reads
+   * as depth rather than a grey smudge).
+   */
+  --shadow-card: 0 0 0 1px var(--color-line), 0 1px 2px rgba(43, 43, 43, 0.04), 0 6px 18px -6px rgba(122, 31, 43, 0.08);
   --shadow-sheet: 0 -8px 30px rgba(43, 43, 43, 0.12);
-  --shadow-lift: 0 12px 28px rgba(43, 43, 43, 0.12);
+  /* Hover: the edge darkens a step and the card lifts. */
+  --shadow-lift: 0 0 0 1px var(--color-line-strong), 0 2px 4px rgba(43, 43, 43, 0.04), 0 16px 32px -10px rgba(122, 31, 43, 0.16);
 
   --font-sans: var(--font-inter-face), var(--font-kantumruy-face), sans-serif;
   --font-khmer: var(--font-kantumruy-face), sans-serif;
@@ -95,7 +101,7 @@
 /* In the base layer so Tailwind utilities (font-moul, leading-*) still win. */
 @layer base {
   html {
-    background: var(--color-ivory);
+    background: var(--color-white);
     color: var(--color-charcoal);
   }
 
