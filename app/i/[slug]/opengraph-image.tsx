@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { formatEnglishDate } from "@/lib/khmer";
 import { getTemplate, templates } from "@/lib/mock-data";
-import { findPublished, publishedSlugs } from "@/lib/published";
+import { findPublished, publishedSlugs } from "@/modules/guest/server/published";
 
 export const alt = "TheabKa invitation";
 export const size = { width: 1200, height: 630 };

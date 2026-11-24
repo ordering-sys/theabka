@@ -1,7 +1,7 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { invitationTag, publish } from "@/lib/data/server";
-import { getPaymentAdapter, InvalidSignatureError } from "@/lib/payments";
+import { getPaymentAdapter, InvalidSignatureError } from "@/modules/payments/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**

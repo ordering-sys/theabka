@@ -7,15 +7,15 @@ import { Button } from "@/components/ui/Button";
 import { CloseIcon, PinIcon, PlayIcon } from "@/components/ui/Icons";
 import { MockQr } from "@/components/invitation/MockQr";
 import { cn } from "@/lib/cn";
-import { MAX_UPLOAD_BYTES } from "@/lib/image";
+import { MAX_UPLOAD_BYTES } from "@/modules/editor/lib/image";
 import { uploadGiftQr, uploadMusic, uploadPhoto, type UploadError } from "@/lib/store";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatEnglishDate, formatKhmerDate, formatNumber, formatTime } from "@/lib/khmer";
 import { PLANS, musicTracks, sampleInvitation, type Tier } from "@/lib/mock-data";
 import type { Draft } from "@/lib/store";
-import { editorContent } from "./content";
+import { editorContent } from "@/modules/editor/content";
 import { Alert, EditorCard, TextArea, TextField, fieldClass } from "./fields";
-import { newId } from "./useDraft";
+import { newId } from "@/modules/editor/hooks/useDraft";
 
 export type SectionProps = {
   draft: Draft;

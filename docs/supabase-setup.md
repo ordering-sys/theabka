@@ -164,7 +164,7 @@ Sending it twice returns `{"ok":true,"alreadyPaid":true}` the second time.
 
 1. Register for the Bakong Open API (NBC) and get an API token. You need a Bakong account to receive money.
 2. Set `BAKONG_ACCOUNT_ID`, `BAKONG_API_TOKEN`, `BAKONG_API_URL` (`https://api-bakong.nbc.gov.kh`), and optionally `BAKONG_MERCHANT_NAME`, `BAKONG_MERCHANT_CITY` (and `BAKONG_MERCHANT_ID`, `BAKONG_ACQUIRING_BANK` for a merchant account). `PAYMENT_PROVIDER` defaults to `bakong`.
-3. The app builds the KHQR itself (`lib/payments/khqr.ts`) and uses its md5 as `provider_ref`.
+3. The app builds the KHQR itself (`modules/payments/server/khqr.ts`) and uses its md5 as `provider_ref`.
 4. Bakong has no merchant webhook: confirmation comes from the status endpoint polling `check_transaction_by_md5`. If you add a background worker, have it POST signed events to `/api/payments/webhook`.
 
 ## 7. Vercel

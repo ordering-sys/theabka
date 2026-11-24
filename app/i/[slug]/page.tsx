@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { GuestShell } from "@/components/guest/GuestShell";
-import { InvitationBody } from "@/components/guest/InvitationBody";
+import { GuestShell } from "@/modules/guest/components/GuestShell";
+import { InvitationBody } from "@/modules/guest/components/InvitationBody";
 import { formatEnglishDate, formatKhmerDate } from "@/lib/khmer";
 import { PLANS, getTemplate, templates, type Invitation } from "@/lib/mock-data";
-import { findPublished, publishedSlugs } from "@/lib/published";
+import { findPublished, publishedSlugs } from "@/modules/guest/server/published";
 
 // Known slugs are prerendered; new ones render on first request and are then cached.
 export function generateStaticParams() {

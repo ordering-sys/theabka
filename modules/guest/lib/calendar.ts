@@ -1,4 +1,4 @@
-import type { Invitation } from "./mock-data";
+import type { Invitation } from "@/lib/mock-data";
 
 /** Cambodia is UTC+7 all year (no daylight saving). */
 const PHNOM_PENH_OFFSET_H = 7;

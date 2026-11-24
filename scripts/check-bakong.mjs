@@ -8,7 +8,7 @@
  *                                        for $0.01 to your account) and waits for payment
  *   npm run bakong:check -- --md5 <md5>  look up one QR's payment
  *
- * The QR is built by the app's own lib/payments/khqr.ts, so a successful scan
+ * The QR is built by the app's own modules/payments/server/khqr.ts, so a successful scan
  * and payment here means the pay sheet's codes work too.
  */
 import { createRequire } from "node:module";
@@ -157,7 +157,7 @@ async function loadKhqr() {
   const ts = require("typescript");
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "theabka-khqr-"));
   for (const f of ["khqr", "parse"]) {
-    const src = fs.readFileSync(path.join(root, "lib/payments", `${f}.ts`), "utf8").replace(/from "\.\/(\w+)"/g, 'from "./$1.mjs"');
+    const src = fs.readFileSync(path.join(root, "modules/payments/server", `${f}.ts`), "utf8").replace(/from "\.\/(\w+)"/g, 'from "./$1.mjs"');
     const js = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
     fs.writeFileSync(path.join(dir, `${f}.mjs`), js);
   }

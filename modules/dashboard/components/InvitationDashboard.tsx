@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { CountUp, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion/Motion";
-import { ShareBar } from "@/components/share/ShareBar";
+import { ShareBar } from "@/modules/share/components/ShareBar";
 import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
@@ -13,7 +13,7 @@ import { useContent, useLanguage } from "@/lib/i18n";
 import { formatKhmerDate, formatNumber, formatShortDate } from "@/lib/khmer";
 import { getRsvpStats, getTemplate, templates, type Rsvp } from "@/lib/mock-data";
 import { getRsvps, getViewCount, type Draft } from "@/lib/store";
-import { dashboardContent } from "./content";
+import { dashboardContent } from "@/modules/dashboard/content";
 
 type Filter = "all" | "yes" | "no";
 

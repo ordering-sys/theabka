@@ -2,7 +2,7 @@ import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { invitationTag, publish } from "@/lib/data/server";
 import type { PaymentStatusResult } from "@/lib/data/types";
-import { getPaymentAdapter } from "@/lib/payments";
+import { getPaymentAdapter } from "@/modules/payments/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 

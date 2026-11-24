@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { PinIcon } from "@/components/ui/Icons";
 import { useToast } from "@/components/ui/Toast";
-import { buildIcs, directionsUrl } from "@/lib/calendar";
+import { buildIcs, directionsUrl } from "@/modules/guest/lib/calendar";
 import { useContent } from "@/lib/i18n";
 import type { Invitation } from "@/lib/mock-data";
-import { guestContent } from "./content";
+import { guestContent } from "@/modules/guest/content";
 
 /** Small client pieces inside the server-rendered invitation (labels follow the KH/EN toggle). */
 

@@ -14,7 +14,7 @@ import { COMPANY } from "@/lib/company";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatNumber, formatPrice } from "@/lib/khmer";
 import { PLANS, getRsvpStats, rsvps, templates, type EventType } from "@/lib/mock-data";
-import { landingContent } from "./content";
+import { landingContent } from "@/modules/landing/content";
 import { HowItWorks } from "./HowItWorks";
 
 const SAMPLE_INVITE = "/i/dara-sophea";

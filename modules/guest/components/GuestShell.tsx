@@ -13,7 +13,7 @@ import { useContent, useLanguage } from "@/lib/i18n";
 import { addDays, formatDayMonth, formatNumber } from "@/lib/khmer";
 import type { Invitation, Template } from "@/lib/mock-data";
 import { addRsvp, addView } from "@/lib/store";
-import { guestContent } from "./content";
+import { guestContent } from "@/modules/guest/content";
 import { DoorsOpenContext } from "./reveal";
 
 type Props = { invitation: Invitation; template: Template; children: React.ReactNode };

@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { COMPANY, LEGAL_UPDATED } from "@/lib/company";
 import { useContent, useLanguage, type Lang } from "@/lib/i18n";
 import { formatDayMonth, toKhmerNumerals } from "@/lib/khmer";
-import { legalUi } from "./content";
+import { legalUi } from "@/modules/legal/content";
 
 /** A paragraph, a bullet list, or a paragraph ending in a link. */
 export type LegalBlock = string | { list: string[] } | { text: string; link: { label: string; href: string } };

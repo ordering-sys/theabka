@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { GoogleIcon } from "@/components/ui/Icons";
 import { LotusMark } from "@/components/ui/Header";
 import { TopBar } from "@/components/ui/TopBar";
-import { useSession } from "@/components/dashboard/RequireSession";
+import { useSession } from "@/modules/auth/components/RequireSession";
 import * as auth from "@/lib/auth/client";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { toKhmerNumerals } from "@/lib/khmer";

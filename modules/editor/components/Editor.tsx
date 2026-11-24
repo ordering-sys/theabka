@@ -15,12 +15,12 @@ import { useContent, useLanguage } from "@/lib/i18n";
 import { formatNumber, formatPrice } from "@/lib/khmer";
 import { PLANS, getTemplate, templates } from "@/lib/mock-data";
 import type { Draft } from "@/lib/store";
-import { editorContent } from "./content";
+import { editorContent } from "@/modules/editor/content";
 import {
   CoupleSection, DateSection, GiftSection, MusicSection, PhotosSection, ScheduleSection, VenueSection,
   type SectionProps,
 } from "./Sections";
-import { useDraft, type SaveStatus } from "./useDraft";
+import { useDraft, type SaveStatus } from "@/modules/editor/hooks/useDraft";
 
 const SECTIONS: React.ComponentType<SectionProps>[] = [
   CoupleSection, DateSection, VenueSection, ScheduleSection, PhotosSection, MusicSection, GiftSection,

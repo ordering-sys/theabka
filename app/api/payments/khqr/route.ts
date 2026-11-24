@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { KhqrCharge } from "@/lib/data/types";
-import { missingDetails } from "@/lib/invitation-checks";
-import { getPaymentAdapter, KHQR_TTL_MS, newPaymentReference, ProviderNotConfiguredError } from "@/lib/payments";
+import { missingDetails } from "@/modules/payments/lib/invitation-checks";
+import { getPaymentAdapter, KHQR_TTL_MS, newPaymentReference, ProviderNotConfiguredError } from "@/modules/payments/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 

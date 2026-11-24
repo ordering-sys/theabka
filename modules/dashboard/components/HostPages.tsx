@@ -3,16 +3,16 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
-import { PayScreen } from "@/components/pay/PayScreen";
-import { Editor } from "@/components/editor/Editor";
+import { PayScreen } from "@/modules/payments/components/PayScreen";
+import { Editor } from "@/modules/editor/components/Editor";
 import { useContent } from "@/lib/i18n";
 import { getDraft, type Draft, type Session } from "@/lib/store";
 import { useIsClient } from "@/lib/use-client";
-import { dashboardContent } from "./content";
+import { dashboardContent } from "@/modules/dashboard/content";
 import { InvitationDashboard } from "./InvitationDashboard";
 import { InvitationList } from "./InvitationList";
-import { TemplatePicker } from "@/app/app/new/TemplatePicker";
-import { DashboardSkeleton, RequireSession } from "./RequireSession";
+import { TemplatePicker } from "@/modules/templates/components/TemplatePicker";
+import { DashboardSkeleton, RequireSession } from "@/modules/auth/components/RequireSession";
 
 /** Host screens read the signed-in user's Supabase session, so they render only in the browser. */
 

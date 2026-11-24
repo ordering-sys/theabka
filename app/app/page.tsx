@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DashboardPage } from "@/components/dashboard/HostPages";
+import { DashboardPage } from "@/modules/dashboard/components/HostPages";
 
 export const metadata: Metadata = { title: "My invitations" };
 

@@ -17,9 +17,16 @@ Where the spec and a prototype disagree, follow the prototype and say so (e.g. t
 
 ## Current state
 
-All 9 screens and the extra states are built. UI code reads and writes data only through `lib/store.ts`, which is backed by Supabase only (`lib/data/`, `lib/auth/`, `app/api/payments/`); `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required (there is no localStorage fallback). Server-side guest lookups go through `lib/published.ts`. Templates, plans and music tracks are static in `lib/mock-data.ts` (the database seeds the same ids); its sample couple and RSVPs are only demo content for the landing page and editor placeholders, never a host's data. Schema, RLS and storage live in `supabase/migrations/`; setup steps in `docs/supabase-setup.md`, env vars in `docs/environment.md`. Never import `lib/data` directly from components. shadcn/ui and PostHog are not installed.
+All 9 screens and the extra states are built. UI code reads and writes data only through `lib/store.ts`, which is backed by Supabase only (`lib/data/`, `lib/auth/`, `app/api/payments/`); `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required (there is no localStorage fallback). Server-side guest lookups go through `modules/guest/server/published.ts`. Templates, plans and music tracks are static in `lib/mock-data.ts` (the database seeds the same ids); its sample couple and RSVPs are only demo content for the landing page and editor placeholders, never a host's data. Schema, RLS and storage live in `supabase/migrations/`; setup steps in `docs/supabase-setup.md`, env vars in `docs/environment.md`. Never import `lib/data` directly from components. shadcn/ui and PostHog are not installed.
 
-Code layout: page copy lives next to each feature in a `content.ts` with `km` and `en` objects (read it with `useContent`); shared UI in `components/ui/`; invitation artwork (lotus, kbach, template thumbnails) in `components/invitation/`.
+Code layout (modular, by feature):
+
+- `app/`: routes only. Pages stay thin and render a module's component.
+- `modules/<feature>/`: one folder per feature: `auth`, `landing`, `templates`, `editor`, `payments`, `dashboard`, `guest`, `legal`, `share`. Inside each one: `components/` (UI), `content.ts` (page copy with `km` and `en` objects, read with `useContent`), and only when needed `hooks/`, `lib/` (pure helpers, safe on client and server) and `server/` (server-only code, never imported by client components).
+- `components/`: UI shared across modules only: `ui/` (buttons, sheets, toasts), `motion/`, `invitation/` (lotus, kbach, template thumbnails).
+- `lib/`: core infrastructure shared by every module: `store.ts`, `data/`, `auth/`, `supabase/`, `i18n.tsx`, `khmer.ts`, `mock-data.ts`, `cn.ts`.
+
+Modules may import from `components/`, `lib/` and, when needed, from another module's files. `lib/` and `components/` never import from `modules/`. Import with the `@/` alias across folders and with `./` inside the same folder.
 
 ## Commands
 
@@ -34,7 +41,7 @@ There is no test runner yet.
 - Next.js 16 (App Router, TypeScript), React 19, Tailwind CSS 4. This Next.js version differs from older ones: check `node_modules/next/dist/docs/` before using an API you are unsure of (see AGENTS.md).
 - Import alias `@/*` points to the project root.
 - `cacheComponents` is on in `next.config.ts`: anything that reads runtime data (`useParams`, `useSearchParams`, `params`, cookies) must sit inside a `<Suspense>` boundary or the build fails with a "blocking prerender" error. Pipe-free `npm run build` exit codes are the real pass/fail signal.
-- Backend: Supabase (Postgres with row-level security, Storage, Auth). Hosts sign in with a 6-digit email code or Google; there is no phone or password sign-in. Payments: KHQR via Bakong only for now (`lib/payments/bakong.ts`, QR built in `lib/payments/khqr.ts`); ABA PayWay is not supported yet. `PAYMENT_PROVIDER=sandbox` gives fake payments for local development and is always refused in production.
+- Backend: Supabase (Postgres with row-level security, Storage, Auth). Hosts sign in with a 6-digit email code or Google; there is no phone or password sign-in. Payments: KHQR via Bakong only for now (`modules/payments/server/bakong.ts`, QR built in `modules/payments/server/khqr.ts`); ABA PayWay is not supported yet. `PAYMENT_PROVIDER=sandbox` gives fake payments for local development and is always refused in production.
 - Planned: shadcn/ui, PostHog, Vercel.
 
 ## Routes

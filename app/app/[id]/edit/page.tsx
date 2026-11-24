@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { DashboardSkeleton } from "@/components/dashboard/RequireSession";
-import { EditorPage } from "@/components/dashboard/HostPages";
+import { DashboardSkeleton } from "@/modules/auth/components/RequireSession";
+import { EditorPage } from "@/modules/dashboard/components/HostPages";
 
 export const metadata: Metadata = { title: "Edit invitation" };
 

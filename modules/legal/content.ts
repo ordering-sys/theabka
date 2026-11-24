@@ -1,7 +1,7 @@
 import { PLANS } from "@/lib/mock-data";
 import { COMPANY } from "@/lib/company";
 import { formatPrice, toKhmerNumerals } from "@/lib/khmer";
-import type { LegalDoc } from "./LegalPage";
+import type { LegalDoc } from "@/modules/legal/components/LegalPage";
 
 /* ─── Shared page chrome ─────────────────────────────────────────────── */
 

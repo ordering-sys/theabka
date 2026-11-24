@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { DashboardSkeleton } from "@/components/dashboard/RequireSession";
-import { PayPage } from "@/components/dashboard/HostPages";
+import { DashboardSkeleton } from "@/modules/auth/components/RequireSession";
+import { PayPage } from "@/modules/dashboard/components/HostPages";
 
 export const metadata: Metadata = { title: "Preview and pay" };
 

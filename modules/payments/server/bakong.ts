@@ -17,7 +17,7 @@ import {
  *      and for a merchant (not individual) account BAKONG_MERCHANT_ID and
  *      BAKONG_ACQUIRING_BANK.
  *
- * The KHQR is generated locally (lib/payments/khqr.ts) and payment is
+ * The KHQR is generated locally (modules/payments/server/khqr.ts) and payment is
  * confirmed by asking the Bakong Open API about the QR's md5, so checkStatus()
  * is the main confirmation path: the status endpoint calls it while the pay
  * sheet polls. The API token expires (renew it in the Bakong developer portal).

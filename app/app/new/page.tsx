@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { TemplatePickerPage } from "@/components/dashboard/HostPages";
-import { DashboardSkeleton } from "@/components/dashboard/RequireSession";
+import { TemplatePickerPage } from "@/modules/dashboard/components/HostPages";
+import { DashboardSkeleton } from "@/modules/auth/components/RequireSession";
 
 export const metadata: Metadata = { title: "Pick a template" };
 

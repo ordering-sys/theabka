@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatKhmerDate, formatNumber, formatPrice } from "@/lib/khmer";
 import { getRsvpStats, rsvps, sampleInvitation as inv, sampleViewCount, templates } from "@/lib/mock-data";
-import { landingContent } from "./content";
+import { landingContent } from "@/modules/landing/content";
 
 /**
  * Interactive 4-step walkthrough (from WebHowItWorks.dc.html).

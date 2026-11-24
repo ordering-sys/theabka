@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 import { EASE, Reveal, Stagger, StaggerItem, popIn } from "@/components/motion/Motion";
 import { InvitationCover } from "@/components/invitation/InvitationCover";
 import { PreviewDialog } from "@/components/invitation/PreviewDialog";
-import { ShareBar } from "@/components/share/ShareBar";
+import { ShareBar } from "@/modules/share/components/ShareBar";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { CheckIcon } from "@/components/ui/Icons";
@@ -18,7 +18,7 @@ import { formatPrice, formatRiel, toKhmerNumerals } from "@/lib/khmer";
 import { PLANS, getTemplate, templates, type Tier } from "@/lib/mock-data";
 import { getDraft, getPaymentStatus, startPayment as startCharge, type Draft, type KhqrCharge } from "@/lib/store";
 import { inviteUrl } from "@/lib/use-client";
-import { DETAIL_STEP, missingDetails } from "@/lib/invitation-checks";
+import { DETAIL_STEP, missingDetails } from "@/modules/payments/lib/invitation-checks";
 
 const content = {
   en: {

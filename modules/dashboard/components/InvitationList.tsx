@@ -12,8 +12,8 @@ import { useContent, useLanguage } from "@/lib/i18n";
 import { formatNumber, formatNumericDate } from "@/lib/khmer";
 import { getRsvpStats, getTemplate, templates } from "@/lib/mock-data";
 import { getRsvps, listInvitations, signOut as storeSignOut, type Draft, type Session } from "@/lib/store";
-import { DashboardSkeleton } from "./RequireSession";
-import { dashboardContent } from "./content";
+import { DashboardSkeleton } from "@/modules/auth/components/RequireSession";
+import { dashboardContent } from "@/modules/dashboard/content";
 
 type Row = Draft & { going: number };
 

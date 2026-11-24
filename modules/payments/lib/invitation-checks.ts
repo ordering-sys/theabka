@@ -5,7 +5,7 @@
  */
 export type MissingDetail = "names" | "date" | "venue";
 
-/** Editor step (0-based, see SECTIONS in components/editor/Editor.tsx) where each detail is filled in. */
+/** Editor step (0-based, see SECTIONS in modules/editor/components/Editor.tsx) where each detail is filled in. */
 export const DETAIL_STEP: Record<MissingDetail, number> = { names: 0, date: 1, venue: 2 };
 
 type Checkable = {
