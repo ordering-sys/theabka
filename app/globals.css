@@ -25,6 +25,7 @@
   --radius-card: 12px;
   --shadow-card: 0 2px 12px rgba(43, 43, 43, 0.06);
   --shadow-sheet: 0 -8px 30px rgba(43, 43, 43, 0.12);
+  --shadow-lift: 0 12px 28px rgba(43, 43, 43, 0.12);
 
   --font-sans: var(--font-inter-face), var(--font-kantumruy-face), sans-serif;
   --font-khmer: var(--font-kantumruy-face), sans-serif;
@@ -43,6 +44,9 @@
   --color-footer-muted: #a8a29a;
   --color-jade-light: #8fc1ac;
   --color-scrim: rgba(20, 12, 12, 0.55);
+  /* Placeholder map on the guest invitation. */
+  --color-map-land: #e8e4d8;
+  --color-map-road: #b9d3dc;
 
   --animate-toast: toast 2.2s ease forwards;
   --animate-sheet-up: sheet-up 0.25s ease-out;
@@ -78,6 +82,13 @@
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+
+  /* A soft light sweep across primary buttons on the landing page. */
+  --animate-shimmer: shimmer 3.6s ease-in-out infinite;
+  @keyframes shimmer {
+    0%, 55% { transform: translateX(-120%) skewX(-20deg); }
+    100% { transform: translateX(320%) skewX(-20deg); }
   }
 }
 

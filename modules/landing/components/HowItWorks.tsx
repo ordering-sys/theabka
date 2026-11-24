@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { EASE, Reveal, SPRING, Stagger, StaggerItem } from "@/components/motion/Motion";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useAnimationFrame, useInView, useMotionValue, useReducedMotion } from "motion/react";
+import { EASE, Reveal, SPRING } from "@/components/motion/Motion";
 import { ButtonLink, Button } from "@/components/ui/Button";
-import { CheckIcon } from "@/components/ui/Icons";
+import { Badge } from "@/components/ui/Badge";
+import { CheckIcon, EyeIcon } from "@/components/ui/Icons";
 import { TemplateThumb } from "@/components/invitation/TemplateArt";
 import { MockQr } from "@/components/invitation/MockQr";
+import { PreviewDialog } from "@/components/invitation/PreviewDialog";
 import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
-import { formatKhmerDate, formatNumber, formatPrice } from "@/lib/khmer";
-import { getRsvpStats, rsvps, sampleInvitation as inv, sampleViewCount, templates } from "@/lib/mock-data";
+import { formatEnglishDate, formatKhmerDate, formatNumber, formatPrice } from "@/lib/khmer";
+import { PLANS, getRsvpStats, rsvps, sampleInvitation as inv, sampleViewCount, templates, type EventType } from "@/lib/mock-data";
 import { landingContent } from "@/modules/landing/content";
+import { useStartHref } from "@/modules/landing/hooks/useStartHref";
+import { HowItWorksMobile } from "./HowItWorksMobile";
+
+/** How long each step stays up during autoplay. */
+const AUTOPLAY_MS = 6000;
 
 /**
  * Interactive 4-step walkthrough (from WebHowItWorks.dc.html).
@@ -22,6 +29,58 @@ export function HowItWorks() {
   const { lang } = useLanguage();
   const [step, setStep] = useState(0);
   const last = c.steps.length - 1;
+  const start = useStartHref();
+  const basicPrice = formatPrice(PLANS.basic.priceUsd, lang);
+
+  // Autoplay: advance every AUTOPLAY_MS while the section is on screen. Hover or focus
+  // pauses it; any click on the walkthrough stops it for good; reduced motion disables it.
+  // Observed on the desktop block, which is display:none on mobile, so it never runs there.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(stageRef, { amount: 0.4 });
+  const reduced = useReducedMotion();
+  const [auto, setAuto] = useState(true);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const autoplaying = auto && !reduced && step < last;
+  const running = autoplaying && inView && !hovered && !focused;
+  const progress = useMotionValue(0);
+
+  // Screen-reader text for steps autoplay moves to (user-chosen tabs announce themselves).
+  const [announcement, setAnnouncement] = useState("");
+  const stepLabel = (i: number) =>
+    c.stepOf.replace("{n}", formatNumber(i + 1, lang)).replace("{total}", formatNumber(c.steps.length, lang));
+
+  useAnimationFrame((_, delta) => {
+    if (!running) return;
+    const next = progress.get() + delta / AUTOPLAY_MS;
+    if (next < 1) return progress.set(next);
+    progress.set(0);
+    const to = Math.min(step + 1, last);
+    setStep(to);
+    setAnnouncement(`${stepLabel(to)}: ${c.steps[to].title}`);
+  });
+
+  /** A user choice: go to that step and stop autoplay. */
+  function go(i: number) {
+    setAuto(false);
+    setStep(i);
+  }
+
+  // Vertical tabs keyboard pattern: Up/Down move (wrapping), Home/End jump; selection follows focus.
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  function onTabKey(e: React.KeyboardEvent) {
+    const n = c.steps.length;
+    const to =
+      e.key === "ArrowDown" ? (step + 1) % n
+      : e.key === "ArrowUp" ? (step - 1 + n) % n
+      : e.key === "Home" ? 0
+      : e.key === "End" ? last
+      : null;
+    if (to === null) return;
+    e.preventDefault();
+    go(to);
+    tabRefs.current[to]?.focus();
+  }
 
   return (
     <section id="how" className="scroll-mt-20 lg:border-y lg:border-line lg:bg-white">
@@ -32,126 +91,206 @@ export function HowItWorks() {
           <p className="hidden text-base text-muted lg:block">{c.sub}</p>
         </Reveal>
 
-        {/* Mobile: numbered list */}
-        <Stagger as="ol" stagger={0.09} className="flex flex-col gap-2.5 lg:hidden">
-          {c.steps.map((s, i) => (
-            <StaggerItem as="li" key={s.title} className="flex items-center gap-3.5 rounded-card bg-white p-3.5 shadow-card">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-soft font-bold text-maroon">
-                {formatNumber(i + 1, lang)}
-              </span>
-              <span>
-                <span className="block text-[15px] font-semibold">{s.title}</span>
-                <span className="block text-[13px] text-muted">{s.sub}</span>
-              </span>
-            </StaggerItem>
-          ))}
-        </Stagger>
+        {/* Mobile: accordion with a compact panel per step */}
+        <HowItWorksMobile />
 
         {/* Desktop: stepper with live panel */}
-        <Reveal className="hidden items-stretch gap-8 lg:flex">
-          <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-1.5">
-            {c.steps.map((s, i) => {
-              const on = i === step;
-              return (
-                <button
-                  key={s.title}
-                  type="button"
-                  onClick={() => setStep(i)}
-                  aria-current={on ? "step" : undefined}
-                  className={cn(
-                    "relative flex cursor-pointer items-start gap-3.5 rounded-card border-[1.5px] border-transparent p-4 text-left transition-colors",
-                    !on && "hover:bg-ivory",
-                  )}
-                >
-                  {/* Active highlight glides between steps. */}
-                  {on && (
-                    <motion.span
-                      layoutId="how-active-step"
-                      transition={SPRING}
-                      aria-hidden
-                      className="absolute -inset-[1.5px] rounded-card border-[1.5px] border-maroon bg-ivory"
-                    />
-                  )}
-                  <span
-                    className={cn(
-                      "relative flex size-10 shrink-0 items-center justify-center rounded-full font-bold transition-colors",
-                      i < step ? "bg-jade text-white" : on ? "bg-maroon text-white" : "bg-sand text-maroon",
+        <p aria-live="polite" className="sr-only">{announcement}</p>
+        <Reveal className="hidden lg:block">
+          <div
+            ref={stageRef}
+            className="flex items-stretch gap-8"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onFocus={() => setFocused(true)}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
+            }}
+            // Clicks inside the live panel (e.g. a template preview) also count as taking over.
+            onPointerDownCapture={() => setAuto(false)}
+          >
+            <div className="flex min-w-0 flex-[1_1_340px] flex-col">
+              <div role="tablist" aria-label={c.title} aria-orientation="vertical" onKeyDown={onTabKey} className="flex flex-col gap-1.5">
+                {c.steps.map((s, i) => {
+                  const on = i === step;
+                  return (
+                    <button
+                      key={s.title}
+                      ref={(el) => {
+                        tabRefs.current[i] = el;
+                      }}
+                      type="button"
+                      role="tab"
+                      id={`how-tab-${i}`}
+                      aria-selected={on}
+                      aria-controls="how-panel"
+                      tabIndex={on ? 0 : -1}
+                      onClick={() => go(i)}
+                      className={cn(
+                        "relative flex cursor-pointer items-center gap-3.5 rounded-card border-[1.5px] border-transparent p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
+                        !on && "hover:bg-ivory",
+                      )}
+                    >
+                      {/* Active highlight glides between steps. */}
+                      {on && (
+                        <motion.span
+                          layoutId="how-active-step"
+                          transition={SPRING}
+                          aria-hidden
+                          className="absolute -inset-[1.5px] rounded-card border-[1.5px] border-maroon bg-ivory"
+                        />
+                      )}
+                      {/* Connector from this circle down to the next one (centre x = 16px padding + 20px).
+                          It runs 21px past this button: 1.5px border + 6px gap + 1.5px border + 16px
+                          padding, minus 4px of breathing room above the next circle. z-1 keeps it above
+                          the next step's ivory highlight; the circles sit above it at z-2. */}
+                      {i < last && (
+                        <span aria-hidden className="absolute top-[60px] -bottom-[21px] left-[35px] z-1 w-0.5 overflow-hidden rounded-full bg-line-strong">
+                          <motion.span
+                            initial={false}
+                            animate={{ scaleY: i < step ? 1 : 0 }}
+                            transition={{ duration: 0.45, ease: EASE }}
+                            className="block size-full origin-top bg-jade"
+                          />
+                        </span>
+                      )}
+                      <span
+                        className={cn(
+                          "relative z-2 flex size-10 shrink-0 items-center justify-center rounded-full font-bold transition-colors",
+                          i < step ? "bg-jade text-white" : on ? "bg-maroon text-white" : "bg-sand text-maroon",
+                        )}
+                      >
+                        {i < step ? <CheckIcon size={18} /> : formatNumber(i + 1, lang)}
+                        {/* Autoplay countdown: a ring around the active circle that fills clockwise
+                            from the top. 48px box, r=23 with a 2px stroke leaves a 2px gap to the circle. */}
+                        {on && autoplaying && (
+                          <svg aria-hidden viewBox="0 0 48 48" className="pointer-events-none absolute -inset-1 size-12 -rotate-90">
+                            <circle cx="24" cy="24" r="23" fill="none" strokeWidth="2" className="stroke-gold-soft" />
+                            <motion.circle
+                              cx="24"
+                              cy="24"
+                              r="23"
+                              fill="none"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              className="stroke-maroon"
+                              style={{ pathLength: progress }}
+                            />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="relative flex flex-col gap-0.5">
+                        <span className="text-[17px] font-bold">{s.title}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-5 flex gap-2.5">
+                {step > 0 && <Button variant="secondary" onClick={() => go(step - 1)}>{c.prev}</Button>}
+                {step < last ? (
+                  <Button onClick={() => go(step + 1)}>{c.next}</Button>
+                ) : (
+                  <span className="relative inline-flex">
+                    {/* Gold pulse draws the eye to the CTA once the walkthrough ends. */}
+                    {!reduced && (
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-0 rounded-card bg-gold/50"
+                        initial={{ scale: 1, opacity: 0.7 }}
+                        animate={{ scale: 1.18, opacity: 0 }}
+                        transition={{ duration: 1.6, ease: "easeOut", repeat: Infinity, repeatDelay: 0.4 }}
+                      />
                     )}
+                    <ButtonLink href={start} className="relative">{c.start}</ButtonLink>
+                  </span>
+                )}
+              </div>
+              {/* Reassurance under the final CTA: what's free, when you pay, and the entry price. */}
+              <AnimatePresence initial={false}>
+                {step === last && (
+                  <motion.ul
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.3, ease: EASE, delay: 0.15 }}
+                    className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px] text-ink-soft"
                   >
-                    {i < step ? <CheckIcon size={18} /> : formatNumber(i + 1, lang)}
-                  </span>
-                  <span className="relative flex flex-col gap-0.5">
-                    <span className="text-[17px] font-bold">{s.title}</span>
-                    <span className="text-sm text-muted">{s.sub}</span>
-                    <span className="text-xs font-semibold text-gold-ink">{s.time}</span>
-                  </span>
-                </button>
-              );
-            })}
-            <div className="mt-3.5 flex gap-2.5">
-              {step > 0 && <Button variant="secondary" onClick={() => setStep(step - 1)}>{c.prev}</Button>}
-              {step < last ? (
-                <Button onClick={() => setStep(step + 1)}>{c.next}</Button>
-              ) : (
-                <ButtonLink href="/signin">{c.start}</ButtonLink>
-              )}
+                    {[
+                      ...c.reassure,
+                      c.fromPrice.replace("{usd}", basicPrice.usd).replace("{riel}", basicPrice.riel),
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-1.5">
+                        <CheckIcon size={14} className="shrink-0 text-jade-ink" />
+                        {item}
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
 
-          <div className="flex min-h-[560px] min-w-0 flex-[2_1_560px] flex-col gap-[18px] rounded-[20px] bg-white p-8 shadow-[0_10px_40px_rgba(43,43,43,0.08)] ring-1 ring-line">
-            <div className="flex items-center justify-between gap-3">
+            <div
+              role="tabpanel"
+              tabIndex={0}
+              id="how-panel"
+              aria-labelledby={`how-tab-${step}`}
+              className="flex min-h-[560px] min-w-0 flex-[2_1_560px] flex-col gap-[18px] rounded-[20px] bg-white p-8 shadow-[0_10px_40px_rgba(43,43,43,0.08)] ring-1 ring-line focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xl font-bold"
+                  >
+                    {c.steps[step].title}
+                  </motion.div>
+                </AnimatePresence>
+                <div className="flex gap-1.5" role="img" aria-label={stepLabel(step)}>
+                  {c.steps.map((s, i) => (
+                    <motion.span
+                      key={s.title}
+                      initial={false}
+                      animate={{ width: i === step ? 32 : 8 }}
+                      transition={SPRING}
+                      className={cn("h-2 rounded-full transition-colors", i <= step ? "bg-maroon" : "bg-line-strong")}
+                    />
+                  ))}
+                </div>
+              </div>
+
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={step}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-xl font-bold"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.3, ease: EASE }}
                 >
-                  {c.steps[step].title}
+                  {step === 0 && <PanelTemplates />}
+                  {step === 1 && <PanelDetails />}
+                  {step === 2 && <PanelPay />}
+                  {step === 3 && <PanelShare />}
                 </motion.div>
               </AnimatePresence>
-              <div className="flex gap-1.5" aria-hidden>
-                {c.steps.map((s, i) => (
-                  <motion.span
-                    key={s.title}
-                    initial={false}
-                    animate={{ width: i === step ? 32 : 8 }}
-                    transition={SPRING}
-                    className={cn("h-2 rounded-full transition-colors", i <= step ? "bg-maroon" : "bg-line-strong")}
-                  />
-                ))}
-              </div>
+
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-auto rounded-card bg-ivory px-4 py-3 text-sm text-ink-soft"
+                >
+                  {c.steps[step].note}
+                </motion.div>
+              </AnimatePresence>
             </div>
-
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 24 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -24 }}
-                transition={{ duration: 0.3, ease: EASE }}
-              >
-                {step === 0 && <PanelTemplates />}
-                {step === 1 && <PanelDetails />}
-                {step === 2 && <PanelPay />}
-                {step === 3 && <PanelShare />}
-              </motion.div>
-            </AnimatePresence>
-
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={step}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mt-auto rounded-card bg-ivory px-4 py-3 text-sm text-ink-soft"
-              >
-                {c.steps[step].note}
-              </motion.div>
-            </AnimatePresence>
           </div>
         </Reveal>
       </div>
@@ -159,17 +298,112 @@ export function HowItWorks() {
   );
 }
 
+/**
+ * Template grid: filter by event type, click a template to select it and open
+ * the full-screen preview (as the panel note promises).
+ */
 function PanelTemplates() {
+  const c = useContent(landingContent);
+  const { lang, t } = useLanguage();
+  const [filter, setFilter] = useState<"all" | EventType>("all");
+  const [selectedId, setSelectedId] = useState(templates[0].id);
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const shown = templates.filter((tpl) => filter === "all" || tpl.eventType === filter);
+  const filters = [
+    ["all", c.templates.all],
+    ["wedding", t.eventType.wedding],
+    ["engagement", t.eventType.engagement],
+  ] as const;
+
   return (
-    <div className="grid grid-cols-4 gap-3">
-      {templates.map((tpl, i) => (
-        <TemplateThumb
-          key={tpl.id}
-          template={tpl}
-          size="sm"
-          className={cn("h-[170px]", i === 0 && "outline-[3px] outline-offset-[3px] outline-gold")}
-        />
-      ))}
+    <div className="flex flex-col gap-3.5">
+      <div role="group" aria-label={c.how.filterLabel} className="flex gap-2">
+        {filters.map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={filter === value}
+            onClick={() => setFilter(value)}
+            className={cn(
+              "relative min-h-11 cursor-pointer rounded-full border-[1.5px] px-4 text-sm font-semibold transition-colors",
+              filter === value ? "border-charcoal text-white" : "border-line-strong bg-white text-charcoal hover:border-charcoal",
+            )}
+          >
+            {filter === value && (
+              <motion.span layoutId="how-template-filter" transition={SPRING} aria-hidden className="absolute -inset-[1.5px] rounded-full bg-charcoal" />
+            )}
+            <span className="relative">{label}</span>
+          </button>
+        ))}
+      </div>
+
+      <ul className="grid grid-cols-4 gap-3">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {shown.map((tpl) => {
+            const name = lang === "km" ? tpl.nameKm : tpl.nameEn;
+            const selected = tpl.id === selectedId;
+            return (
+              <motion.li
+                key={tpl.id}
+                layout
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.25, ease: EASE }}
+              >
+                <motion.button
+                  type="button"
+                  onClick={() => {
+                    setSelectedId(tpl.id);
+                    setPreviewId(tpl.id);
+                  }}
+                  aria-pressed={selected}
+                  aria-label={`${c.how.preview}: ${name} · ${t.tier[tpl.tier]} · ${formatPrice(tpl.priceUsd, lang).both}`}
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group flex w-full cursor-pointer flex-col gap-2 rounded-card text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
+                >
+                  <span className="relative block">
+                    <TemplateThumb
+                      template={tpl}
+                      size="md"
+                      className={cn(
+                        "h-[150px] transition-shadow duration-300 group-hover:shadow-lift",
+                        selected && "outline-[3px] outline-offset-[3px] outline-gold",
+                      )}
+                    />
+                    {/* Hover hint: the whole card opens the preview. */}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 bottom-2.5 flex justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-charcoal/80 px-3 py-1 text-xs font-semibold text-white">
+                        <EyeIcon size={14} />
+                        {c.how.preview}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="flex items-center justify-between gap-1.5 px-0.5">
+                    <span className={cn("truncate text-sm font-semibold", lang === "km" && "leading-[1.7]")}>{name}</span>
+                    <Badge tone={tpl.tier === "premium" ? "gold" : "neutral"} className="text-[11px]">
+                      {t.tier[tpl.tier]}
+                    </Badge>
+                  </span>
+                </motion.button>
+              </motion.li>
+            );
+          })}
+        </AnimatePresence>
+      </ul>
+
+      <PreviewDialog
+        open={previewId !== null}
+        onClose={() => setPreviewId(null)}
+        invitation={{ ...inv, templateId: previewId ?? inv.templateId }}
+        photos={[]}
+        label={c.how.preview}
+        closeLabel={c.how.closePreview}
+      />
     </div>
   );
 }
@@ -192,6 +426,7 @@ function PanelDetails() {
           <div lang="km" className="font-moul text-[10px] leading-[1.9] text-gold">សិរីមង្គលអាពាហ៍ពិពាហ៍</div>
           <div lang="en" className="mt-1.5 font-serif text-lg italic">Dara &amp; Sophea</div>
           <div lang="km" className="mt-2 text-[10px] leading-[1.8]">{formatKhmerDate(inv.eventDate)}</div>
+          <div lang="en" className="text-[9px] opacity-85">{formatEnglishDate(inv.eventDate)}</div>
           <div lang="en" className="text-[9px] opacity-85">{inv.venueNameEn}</div>
         </div>
       </div>
@@ -206,7 +441,10 @@ function PanelPay() {
     <div className="flex flex-wrap items-center justify-center gap-8">
       <div className="w-[220px] overflow-hidden rounded-[14px] border border-line">
         <div className="bg-khqr p-2 text-center font-extrabold tracking-[0.08em] text-white">KHQR</div>
-        <div className="px-3.5 pt-2 text-[22px] font-bold">{formatPrice(15, lang).usd}.00</div>
+        <div className="flex items-baseline justify-between gap-2 px-3.5 pt-2">
+          <span className="text-[22px] font-bold">{formatPrice(15, lang).usd}.00</span>
+          <span className="text-xs text-muted">{formatPrice(15, lang).riel}</span>
+        </div>
         <MockQr className="px-5 pt-2.5 pb-4" />
       </div>
       <ul className="flex max-w-[300px] flex-col gap-3">

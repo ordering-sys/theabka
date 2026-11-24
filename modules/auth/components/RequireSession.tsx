@@ -5,6 +5,7 @@ import { Fragment, useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useContent } from "@/lib/i18n";
 import { getSession, onSessionChange, type Session } from "@/lib/store";
+import { loadingContent } from "@/modules/auth/content";
 
 /** Current user, kept up to date on sign-in/out (also in pages kept alive by Activity). */
 export function useSession(): { loading: boolean; session: Session | null } {
@@ -40,19 +41,20 @@ export function RequireSession({
   const { loading, session } = useSession();
 
   useEffect(() => {
-    if (!loading && !session) router.replace("/signin");
+    // Come back to this exact page (path + query) after signing in.
+    if (!loading && !session) {
+      router.replace(`/signin?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+    }
   }, [loading, session, router]);
 
   if (!session) return fallback;
   return <Fragment key={`${router.bfcacheId}:${session.userId}`}>{children(session)}</Fragment>;
 }
 
-const loading = { en: "Loading…", km: "កំពុងផ្ទុក…" };
-
 /** Loading skeletons. `list` = my invitations; `detail` = one invitation's dashboard; `form` = editor/pay. */
 export function DashboardSkeleton({ variant = "list" }: { variant?: "list" | "detail" | "form" }) {
-  const label = useContent(loading);
-  const bar = "animate-pulse bg-sand";
+  const label = useContent(loadingContent);
+  const bar = "motion-safe:animate-pulse bg-sand";
   return (
     <div aria-busy className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 p-4 lg:p-6">
       <span role="status" className="sr-only">{label}</span>

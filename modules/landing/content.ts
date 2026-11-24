@@ -1,6 +1,7 @@
 const en = {
-  nav: { label: "Main", how: "How it works", templates: "Templates", pricing: "Pricing", faq: "FAQ" },
+  nav: { label: "Main", menu: "Open menu", how: "How it works", templates: "Templates", pricing: "Pricing", faq: "FAQ" },
   create: "Create your invitation",
+  dashboard: "Dashboard",
   hero: {
     badge: "Digital invitations in Khmer and English",
     title: "Beautiful invitations, shared in one link",
@@ -34,8 +35,14 @@ const en = {
     ],
     payPoints: ["Scan with ABA, ACLEDA, Wing or any KHQR app", "Your invitation goes live as soon as you pay", "One payment, no subscription"],
     stats: { opened: "Opened", attending: "Attending", notAttending: "Not attending", total: "Total guests" },
+    filterLabel: "Template type",
+    stepOf: "Step {n} of {total}",
+    reassure: ["Free to build and preview", "Pay only when you publish"],
+    fromPrice: "From {usd} ({riel})",
+    preview: "Preview",
+    closePreview: "Close preview",
   },
-  templates: { title: "Templates", sub: "8 designs for weddings and engagements", seeAll: "See all", all: "All" },
+  templates: { title: "Templates", sub: "8 designs for weddings and engagements", seeAll: "See all", all: "All", use: "Use this template" },
   guests: {
     kicker: "FOR GUESTS",
     title: "Guests open it instantly, no app needed",
@@ -52,11 +59,29 @@ const en = {
     title: "Simple pricing",
     sub: "Pay once per invitation by KHQR. Building and previewing are free.",
     once: "one time",
-    popular: "Popular",
+    popular: "Most popular",
     startBasic: "Start with Basic",
     startPremium: "Start with Premium",
-    basic: ["3 photos", "5 built-in music tracks", "RSVP list", "KHQR gift"],
-    premium: ["6 photos", "Upload your own music", "Premium designs", "Opening animation", "Export guest list as CSV"],
+    basicTagline: "All the essentials",
+    premiumTagline: "Make it extra special",
+    // Basic lists photos.basic + shared.
+    // Premium shows one "Everything in Basic" row, then photos.premium + extras under "Plus".
+    photos: { basic: "Up to 3 photos", premium: "Up to 6 photos" },
+    shared: ["5 built-in songs", "One-tap RSVP", "Google Maps directions", "KHQR gift code", "Khmer & English", "Free edits anytime"],
+    extras: ["Your own song", "Premium designs", "Opening animation", "Guest list download"],
+    everythingBasic: "Everything in Basic",
+    plus: "Plus",
+    trust: ["No subscription", "Pay with any KHQR app", "Free to build and preview"],
+    // Third card: no fixed price, the visitor contacts us to discuss.
+    custom: {
+      name: "Custom",
+      tagline: "Made just for your day",
+      price: "Let's talk",
+      priceNote: "Price based on what you need",
+      everything: "Everything in Premium",
+      items: ["A design made just for you", "Extra photos and sections", "Setup help from our team"],
+      cta: "Contact us",
+    },
   },
   faq: {
     title: "Questions",
@@ -69,11 +94,19 @@ const en = {
   },
   cta: { title: "Ready to invite your guests?", sub: "Make your first invitation. It is free until you publish." },
   legal: { label: "Legal", privacy: "Privacy Policy", terms: "Terms of Service" },
+  footer: { product: "Product", contact: "Contact", follow: "Follow us", made: "Made in Phnom Penh", top: "Back to top" },
+  notFound: {
+    title: "Page not found",
+    body: "The page you are looking for doesn't exist or has moved. Check the address, or go back to the home page.",
+    home: "Go to the home page",
+    app: "My invitations",
+  },
 };
 
 const km: typeof en = {
-  nav: { label: "ម៉ឺនុយ", how: "របៀបដំណើរការ", templates: "គំរូ", pricing: "តម្លៃ", faq: "សំណួរ" },
+  nav: { label: "ម៉ឺនុយ", menu: "បើកម៉ឺនុយ", how: "របៀបដំណើរការ", templates: "គំរូ", pricing: "តម្លៃ", faq: "សំណួរ" },
   create: "បង្កើតធៀបការរបស់អ្នក",
+  dashboard: "ផ្ទាំងគ្រប់គ្រង",
   hero: {
     badge: "ធៀបការឌីជីថល ជាភាសាខ្មែរ និងអង់គ្លេស",
     title: "ធៀបការដ៏ស្រស់ស្អាត ចែករំលែកតែមួយតំណ",
@@ -107,8 +140,14 @@ const km: typeof en = {
     ],
     payPoints: ["ស្កេនដោយ ABA, ACLEDA, Wing ឬកម្មវិធី KHQR ណាមួយ", "ធៀបការផ្សាយភ្លាមៗពេលបង់រួច", "បង់តែម្ដង មិនមានការជាវប្រចាំខែ"],
     stats: { opened: "បានបើក", attending: "ចូលរួម", notAttending: "មិនចូលរួម", total: "ភ្ញៀវសរុប" },
+    filterLabel: "ប្រភេទគំរូ",
+    stepOf: "ជំហានទី {n} នៃ {total}",
+    reassure: ["បង្កើត និងមើលជាមុន ឥតគិតថ្លៃ", "បង់តែពេលផ្សព្វផ្សាយ"],
+    fromPrice: "ចាប់ពី {usd} ({riel})",
+    preview: "មើលជាមុន",
+    closePreview: "បិទការមើលជាមុន",
   },
-  templates: { title: "គំរូធៀបការ", sub: "គំរូ ៨ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ", seeAll: "មើលទាំងអស់", all: "ទាំងអស់" },
+  templates: { title: "គំរូធៀបការ", sub: "គំរូ ៨ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ", seeAll: "មើលទាំងអស់", all: "ទាំងអស់", use: "ប្រើគំរូនេះ" },
   guests: {
     kicker: "សម្រាប់ភ្ញៀវ",
     title: "ភ្ញៀវបើកភ្លាម មិនចាំបាច់ដំឡើងកម្មវិធី",
@@ -125,11 +164,26 @@ const km: typeof en = {
     title: "តម្លៃសាមញ្ញ",
     sub: "បង់តែម្ដងក្នុងមួយធៀបការ តាម KHQR។ បង្កើត និងមើលជាមុន ឥតគិតថ្លៃ។",
     once: "បង់ម្ដង",
-    popular: "ពេញនិយម",
+    popular: "ពេញនិយមបំផុត",
     startBasic: "ចាប់ផ្ដើមជាមួយមូលដ្ឋាន",
     startPremium: "ចាប់ផ្ដើមជាមួយពិសេស",
-    basic: ["រូបថត ៣ សន្លឹក", "តន្ត្រីស្រាប់ ៥ បទ", "បញ្ជី RSVP", "ចំណងដៃតាម KHQR"],
-    premium: ["រូបថត ៦ សន្លឹក", "បង្ហោះតន្ត្រីផ្ទាល់ខ្លួន", "គំរូពិសេស", "ចលនាបើកធៀប", "នាំចេញបញ្ជីភ្ញៀវ CSV"],
+    basicTagline: "គ្រប់យ៉ាងដែលចាំបាច់",
+    premiumTagline: "ធ្វើឱ្យកាន់តែពិសេស",
+    photos: { basic: "រូបថតរហូតដល់ ៣ សន្លឹក", premium: "រូបថតរហូតដល់ ៦ សន្លឹក" },
+    shared: ["បទចម្រៀងស្រាប់ ៥ បទ", "RSVP តែមួយចុច", "ផែនទី Google Maps", "KHQR ចំណងដៃ", "ខ្មែរ និងអង់គ្លេស", "កែសម្រួលឥតគិតថ្លៃ"],
+    extras: ["បទចម្រៀងផ្ទាល់ខ្លួន", "គំរូពិសេស", "ចលនាបើកធៀប", "ទាញយកបញ្ជីភ្ញៀវ"],
+    everythingBasic: "គ្រប់យ៉ាងក្នុងកញ្ចប់មូលដ្ឋាន",
+    plus: "បូកថែម",
+    trust: ["គ្មានការជាវប្រចាំខែ", "បង់តាមកម្មវិធី KHQR ណាមួយ", "បង្កើត និងមើលជាមុន ឥតគិតថ្លៃ"],
+    custom: {
+      name: "ផ្ទាល់ខ្លួន",
+      tagline: "រចនាឡើងសម្រាប់ថ្ងៃពិសេសរបស់អ្នក",
+      price: "ពិភាក្សា",
+      priceNote: "តម្លៃតាមតម្រូវការរបស់អ្នក",
+      everything: "គ្រប់យ៉ាងក្នុងកញ្ចប់ពិសេស",
+      items: ["ការរចនាផ្ទាល់សម្រាប់អ្នក", "រូបថត និងផ្នែកបន្ថែម", "ក្រុមការងារជួយរៀបចំ"],
+      cta: "ទាក់ទងមកយើង",
+    },
   },
   faq: {
     title: "សំណួរញឹកញាប់",
@@ -142,6 +196,13 @@ const km: typeof en = {
   },
   cta: { title: "ត្រៀមអញ្ជើញភ្ញៀវរបស់អ្នកហើយឬនៅ?", sub: "បង្កើតធៀបការដំបូងរបស់អ្នក ឥតគិតថ្លៃ រហូតដល់ពេលផ្សព្វផ្សាយ។" },
   legal: { label: "ច្បាប់", privacy: "គោលការណ៍ឯកជនភាព", terms: "លក្ខខណ្ឌប្រើប្រាស់" },
+  footer: { product: "ផលិតផល", contact: "ទំនាក់ទំនង", follow: "តាមដានយើង", made: "បង្កើតនៅភ្នំពេញ", top: "ត្រឡប់ទៅលើ" },
+  notFound: {
+    title: "រកមិនឃើញទំព័រនេះទេ",
+    body: "ទំព័រដែលអ្នកកំពុងស្វែងរកមិនមាន ឬត្រូវបានផ្លាស់ទី។ សូមពិនិត្យអាសយដ្ឋានម្ដងទៀត ឬត្រឡប់ទៅទំព័រដើមវិញ។",
+    home: "ទៅទំព័រដើម",
+    app: "ធៀបការរបស់ខ្ញុំ",
+  },
 };
 
 export const landingContent = { km, en };

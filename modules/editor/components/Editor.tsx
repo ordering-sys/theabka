@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { EASE, SPRING } from "@/components/motion/Motion";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { BackIcon, CheckIcon } from "@/components/ui/Icons";
+import { BackIcon, CheckIcon, EyeIcon } from "@/components/ui/Icons";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { InvitationCover, PhoneFrame } from "@/components/invitation/InvitationCover";
 import { PreviewDialog } from "@/components/invitation/PreviewDialog";
@@ -98,8 +98,9 @@ export function Editor({ initial, initialStep = 0 }: { initial: Draft; initialSt
             <SaveIndicator status={status} />
           </div>
           <LanguageToggle />
-          <Button variant="secondary" size="sm" className="min-h-11 px-3 text-[13px] lg:hidden" onClick={() => setPreviewOpen(true)}>
-            <EyeIcon />
+          {/* The side preview only fits from xl; below that the button opens it full-screen. */}
+          <Button variant="secondary" size="sm" className="min-h-11 px-3 text-[13px] xl:hidden" onClick={() => setPreviewOpen(true)}>
+            <EyeIcon size={16} />
             {c.preview}
           </Button>
           <ButtonLink href={doneHref} onClick={(e) => leave(e, doneHref)} className="hidden lg:inline-flex">
@@ -227,14 +228,5 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
       {/* Screen readers hear only "saved" or the error, not every keystroke. */}
       <span role="status" className="sr-only">{status === "saving" ? "" : status === "saved" ? c.saved : c.saveFailedShort}</span>
     </>
-  );
-}
-
-function EyeIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
   );
 }

@@ -6,6 +6,7 @@ import { CountUp, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion
 import { ShareBar } from "@/modules/share/components/ShareBar";
 import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
+import { MailIcon } from "@/components/ui/Icons";
 import { TopBar } from "@/components/ui/TopBar";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
@@ -14,6 +15,7 @@ import { formatKhmerDate, formatNumber, formatShortDate } from "@/lib/khmer";
 import { getRsvpStats, getTemplate, templates, type Rsvp } from "@/lib/mock-data";
 import { getRsvps, getViewCount, type Draft } from "@/lib/store";
 import { dashboardContent } from "@/modules/dashboard/content";
+import { inputClass } from "@/components/ui/field";
 
 type Filter = "all" | "yes" | "no";
 
@@ -149,7 +151,7 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
                   onChange={(e) => setQ(e.target.value)}
                   placeholder={c.search}
                   aria-label={c.searchLabel}
-                  className="min-h-12 w-full rounded-card border-[1.5px] border-line-strong bg-white pr-3 pl-10 text-[15px] outline-none focus:border-maroon"
+                  className={cn(inputClass, "min-h-12 pr-3 pl-10 text-[15px]")}
                 />
               </div>
               <div role="group" aria-label={c.rsvps} className="flex gap-2 overflow-x-auto">
@@ -173,10 +175,15 @@ export function InvitationDashboard({ invitation: inv }: { invitation: Draft }) 
 
           {all === null ? (
             <div aria-busy className="flex flex-col gap-3 px-4 pb-5">
-              {[0, 1, 2].map((i) => <div key={i} className="h-10 animate-pulse rounded-card bg-sand" />)}
+              {[0, 1, 2].map((i) => <div key={i} className="h-10 motion-safe:animate-pulse rounded-card bg-sand" />)}
             </div>
           ) : all.length === 0 ? (
-            <p className="px-4 pb-6 text-center text-sm text-muted">{c.noRsvps}</p>
+            <div className="flex flex-col items-center gap-2.5 px-6 pt-4 pb-8 text-center">
+              <span aria-hidden className="flex size-16 items-center justify-center rounded-full bg-gold-soft text-maroon">
+                <MailIcon size={30} strokeWidth={1.4} />
+              </span>
+              <p className="max-w-[320px] text-sm text-muted">{c.noRsvps}</p>
+            </div>
           ) : rows.length === 0 ? (
             <p role="status" className="px-4 pb-6 text-center text-sm text-muted">{c.noMatch}</p>
           ) : (

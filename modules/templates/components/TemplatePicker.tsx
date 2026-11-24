@@ -26,6 +26,38 @@ export function TemplatePicker() {
   const { lang, t } = useLanguage();
   const [filter, setFilter] = useState<"all" | EventType>("all");
   const [selected, setSelected] = useState<Template | null>(null);
+
+  // ?template=<id> (from the landing page): create the draft straight away and open the
+  // editor, skipping the picker. Not when switching template for an existing draft (?from=).
+  const router = useRouter();
+  const params = useSearchParams();
+  const autoTemplate = params.get("from") ? undefined : templates.find((tpl) => tpl.id === params.get("template"));
+  const [autoFailed, setAutoFailed] = useState(false);
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoTemplate || autoStarted.current) return;
+    autoStarted.current = true; // once only, even when effects run twice in dev
+    createDraft(autoTemplate.id).then(
+      // replace: Back from the editor shouldn't land here and create another draft.
+      (draft) => router.replace(`/app/${draft.id}/edit`),
+      (err) => {
+        console.error("Couldn't create invitation:", err);
+        setAutoFailed(true);
+      },
+    );
+  }, [autoTemplate, router]);
+
+  if (autoTemplate && !autoFailed) {
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-3 px-6 text-center">
+        <span className="motion-safe:animate-pulse">
+          <Lotus size={44} color="var(--color-gold)" strokeWidth={1.2} />
+        </span>
+        <p role="status" className="font-semibold">{c.creating}</p>
+        <p className="text-sm text-muted">{lang === "km" ? autoTemplate.nameKm : autoTemplate.nameEn}</p>
+      </main>
+    );
+  }
   const shown = templates.filter((tpl) => filter === "all" || tpl.eventType === filter);
   const filters = [
     ["all", c.all],
@@ -58,6 +90,10 @@ export function TemplatePicker() {
         </div>
       </header>
 
+      {autoFailed && (
+        <p role="alert" className="mx-4 mb-2 rounded-card bg-rose-soft px-3.5 py-2.5 text-sm text-maroon">{c.failed}</p>
+      )}
+
       <Stagger as="ul" onMount stagger={0.06} delay={0.05} className="grid grid-cols-2 gap-3 px-4 pt-1.5 pb-6 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5">
         <AnimatePresence mode="popLayout" initial={false}>
         {shown.map((tpl) => {
@@ -73,9 +109,9 @@ export function TemplatePicker() {
                 type="button"
                 onClick={() => setSelected(tpl)}
                 aria-label={`${name} · ${t.tier[tpl.tier]} · ${formatPrice(tpl.priceUsd, lang).both}`}
-                whileHover={{ y: -4, boxShadow: "0 12px 28px rgba(43,43,43,0.12)" }}
+                whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex w-full cursor-pointer flex-col gap-1.5 rounded-card bg-white p-2 text-left shadow-card"
+                className="flex w-full cursor-pointer flex-col gap-1.5 rounded-card bg-white p-2 text-left shadow-card transition-shadow duration-300 hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
               >
                 <TemplateThumb template={tpl} size="md" className="h-[200px] lg:h-[240px]" />
                 <div className="flex items-center justify-between gap-1 px-0.5">
@@ -150,6 +186,8 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
     <dialog
       ref={ref}
       onClose={onClose}
+      // Clicking the dimmed area beside the panel closes it on desktop.
+      onClick={(e) => e.target === e.currentTarget && onClose()}
       aria-label={c.live}
       className="m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-scrim"
     >
@@ -159,7 +197,7 @@ function TemplatePreview({ template, onClose }: { template: Template | null; onC
           initial={{ y: "100%" }}
           animate={{ y: "0%" }}
           transition={{ type: "spring", stiffness: 320, damping: 34 }}
-          className="mx-auto flex h-full max-w-[480px] flex-col"
+          className="mx-auto flex h-full max-w-[480px] flex-col lg:my-6 lg:h-[calc(100dvh-3rem)] lg:overflow-hidden lg:rounded-2xl"
           style={{ background: theme.bg, color: theme.fg }}
         >
           <div className="flex items-center justify-between p-3">

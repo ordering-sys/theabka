@@ -222,13 +222,13 @@ export function PayScreen({ initial }: { initial: Draft }) {
                   key={p}
                   animate={{ scale: on ? 1 : 0.97 }}
                   aria-current={on ? "true" : undefined}
-                  className={cn("flex-1 rounded-card border-2 bg-white p-3 text-left", on ? "border-maroon bg-rose-soft/40" : "border-line opacity-60")}
+                  className={cn("flex-1 rounded-card border-2 p-3 text-left transition-colors", on ? "border-maroon bg-rose-soft/40" : "border-line bg-white text-ink-soft")}
                 >
                   <div className="flex items-center justify-between font-bold">
                     {t.tier[p]}
                     {on && <CheckIcon size={18} className="text-maroon" />}
                   </div>
-                  <div className="text-xl font-bold text-maroon">{pp.usd}</div>
+                  <div className={cn("text-xl font-bold", on ? "text-maroon" : "text-charcoal")}>{pp.usd}</div>
                   <div className="text-xs text-muted">{pp.riel} · {p === "basic" ? c.basicNote : c.premNote}</div>
                 </motion.div>
               );
@@ -281,7 +281,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
             <div className="w-[230px] overflow-hidden rounded-[14px] border border-line shadow-[0_4px_16px_rgba(43,43,43,0.08)]">
               <div className="bg-khqr p-2 text-center font-extrabold tracking-[0.08em] text-white">KHQR</div>
               <div lang="en" className="px-3.5 pt-2.5 pb-1 text-xs text-ink-soft">
-                {charge ? charge.merchantName : <span aria-hidden className="inline-block h-3 w-24 animate-pulse rounded bg-sand align-middle" />}
+                {charge ? charge.merchantName : <span aria-hidden className="inline-block h-3 w-24 motion-safe:animate-pulse rounded bg-sand align-middle" />}
               </div>
               <div className="px-3.5 text-[22px] font-bold">
                 {charge?.currency === "KHR" ? (
@@ -301,13 +301,13 @@ export function PayScreen({ initial }: { initial: Draft }) {
                   // eslint-disable-next-line @next/next/no-img-element -- generated data URL
                   <img src={qrImage} alt={c.qrAlt} className="aspect-square w-full" />
                 ) : (
-                  <div aria-busy className="aspect-square w-full animate-pulse rounded-lg bg-sand" />
+                  <div aria-busy className="aspect-square w-full motion-safe:animate-pulse rounded-lg bg-sand" />
                 )}
               </div>
             </div>
             <div className="text-sm text-ink-soft">{charge ? formatRiel(charge.amountKhr, lang) : price.riel}</div>
             <div role="status" className="flex items-center gap-2 text-[15px] font-semibold text-maroon">
-              <span aria-hidden className="size-2.5 animate-pulse rounded-full bg-gold" />
+              <span aria-hidden className="size-2.5 motion-safe:animate-pulse rounded-full bg-gold" />
               {c.waiting}
             </div>
             <div className="text-[13px] text-muted">

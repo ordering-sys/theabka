@@ -1,5 +1,7 @@
 /** Guest-page UI chrome. The invitation text itself is always bilingual and lives in the components. */
 const en = {
+  sample: "Sample",
+  sampleCta: "Make your own",
   open: "Open the invitation",
   tapToOpen: "Tap to open",
   cal: "Add to calendar",
@@ -39,6 +41,8 @@ const en = {
 };
 
 const km: typeof en = {
+  sample: "គំរូ",
+  sampleCta: "បង្កើតរបស់អ្នក",
   open: "បើកធៀបការ",
   tapToOpen: "ចុចដើម្បីបើក",
   cal: "បញ្ចូលក្នុងប្រតិទិន",

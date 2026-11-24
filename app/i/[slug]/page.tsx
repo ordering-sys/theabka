@@ -6,6 +6,11 @@ import { formatEnglishDate, formatKhmerDate } from "@/lib/khmer";
 import { PLANS, getTemplate, templates, type Invitation } from "@/lib/mock-data";
 import { findPublished, publishedSlugs } from "@/modules/guest/server/published";
 
+// Guests arrive here by a full page load from a shared link (Telegram, Messenger), not by
+// in-app navigation, so the page may block on `params` instead of streaming behind a
+// <Suspense> fallback. Blocking also keeps a real 404 status for unknown slugs.
+export const instant = false;
+
 // Known slugs are prerendered; new ones render on first request and are then cached.
 export function generateStaticParams() {
   return publishedSlugs();
@@ -43,7 +48,7 @@ export default async function InvitationPage({ params }: PageProps<"/i/[slug]">)
   const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/i/${slug}`;
 
   return (
-    <GuestShell invitation={inv} template={template}>
+    <GuestShell invitation={inv} template={template} demo={found.demo}>
       <InvitationBody invitation={inv} photos={photos} template={template} url={url} />
     </GuestShell>
   );

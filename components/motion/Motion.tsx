@@ -77,7 +77,13 @@ export const zoomOut: Variants = {
   show: { scale: 1, transition: { duration: 2.4, ease: EASE } },
 };
 
-const VARIANTS = { fadeUp, fadeIn, popIn, zoomOut };
+/** Lifts in out of a soft blur, for hero headings. */
+export const blurUp: Variants = {
+  hidden: { opacity: 0, y: 14, filter: "blur(8px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: EASE } },
+};
+
+const VARIANTS = { fadeUp, fadeIn, popIn, zoomOut, blurUp };
 type VariantName = keyof typeof VARIANTS;
 
 /** Fades (and lifts) its content in once it scrolls into view. */

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/cn";
 import { useLanguage } from "@/lib/i18n";
 import { LanguageToggle } from "./LanguageToggle";
 
@@ -16,18 +18,26 @@ export function LotusMark({ size = 20, className }: { size?: number; className?:
   );
 }
 
-export function Logo() {
+export function Logo({ className }: { className?: string }) {
   const { t } = useLanguage();
   return (
-    <Link href="/" className="flex items-center gap-2 no-underline" aria-label={`${t.brand.nameKm} ${t.brand.name}`}>
-      <span className="flex size-[34px] items-center justify-center rounded-[10px] bg-maroon text-gold">
-        <LotusMark />
+    <Link
+      href="/"
+      aria-label={`${t.brand.nameKm} ${t.brand.name}`}
+      className={cn(
+        "group flex min-h-11 items-center gap-2.5 rounded-xl no-underline",
+        "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold",
+        className,
+      )}
+    >
+      <span className="relative flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-linear-to-br from-maroon to-maroon-dark text-gold ring-1 ring-gold/30 ring-inset lg:size-[38px]">
+        <LotusMark size={21} className="transition-transform duration-500 ease-out group-hover:-translate-y-px group-hover:scale-110" />
       </span>
-      <span className="leading-[1.1]">
-        <span lang="km" className="block font-moul text-sm leading-[1.6] text-maroon">
+      <span className="flex flex-col">
+        <span lang="km" className="font-moul text-[15px] leading-[1.6] text-maroon lg:text-base">
           {t.brand.nameKm}
         </span>
-        <span lang="en" className="block font-sans text-[11px] font-semibold tracking-[0.08em] text-muted">
+        <span lang="en" className="-mt-1 font-sans text-[10.5px] leading-none font-semibold tracking-[0.14em] text-muted transition-colors group-hover:text-gold-deep">
           THEABKA
         </span>
       </span>
@@ -38,27 +48,52 @@ export function Logo() {
 type HeaderProps = {
   /** Extra controls on the right, before the language toggle. */
   actions?: React.ReactNode;
+  /** Controls after the language toggle (e.g. the account menu). */
+  end?: React.ReactNode;
   /** Show the "Sign in" link (landing page). */
   showSignIn?: boolean;
 };
 
-export function Header({ actions, showSignIn = false }: HeaderProps) {
+export function Header({ actions, end, showSignIn = false }: HeaderProps) {
   const { t } = useLanguage();
+  // Flat at the top of the page; a border and a light blur once content scrolls under it.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-ivory/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
+    <header
+      className={cn(
+        "sticky top-0 z-30 border-b transition-colors duration-300",
+        scrolled ? "border-line bg-ivory/90 backdrop-blur-md" : "border-transparent bg-ivory",
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto flex max-w-[1200px] items-center justify-between gap-3 px-4 transition-[padding] duration-300 lg:px-6",
+          scrolled ? "py-2" : "py-3",
+        )}
+      >
         <Logo />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 lg:gap-3">
           {actions}
-          <LanguageToggle />
+          <LanguageToggle flags />
           {showSignIn && (
-            <Link
-              href="/signin"
-              className="flex min-h-11 items-center px-1 text-[13px] font-semibold text-maroon no-underline hover:text-maroon-dark"
-            >
-              {t.common.signIn}
-            </Link>
+            <>
+              <span aria-hidden className="hidden h-6 w-px bg-line lg:block" />
+              <Link
+                href="/signin"
+                className="flex min-h-11 items-center rounded-xl px-3 text-[13px] font-semibold text-maroon no-underline transition-colors hover:bg-sand-light hover:text-maroon-dark lg:text-sm"
+              >
+                {t.common.signIn}
+              </Link>
+            </>
           )}
+          {end}
         </div>
       </div>
     </header>

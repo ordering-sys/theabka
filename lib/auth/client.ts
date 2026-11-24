@@ -13,6 +13,16 @@ function mapAuthError(message: string, status?: number): AuthResult {
   return { ok: false, error: "failed" };
 }
 
+/** A same-site path to return to after sign-in, or null. Blocks open redirects (//evil.com, /\evil.com). */
+export function safeRedirectPath(next: string | null | undefined): string | null {
+  return next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : null;
+}
+
+/** The `?next=` path on the current page (client only), if it's safe to follow. */
+export function nextFromLocation(): string | null {
+  return safeRedirectPath(new URLSearchParams(window.location.search).get("next"));
+}
+
 /** Rough shape check; Supabase does the real validation. */
 export function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
@@ -55,7 +65,7 @@ export async function verifyEmailOtp(email: string, code: string): Promise<AuthR
  * and a redirect to `next` (default /app).
  */
 export async function signInWithGoogle(next = "/app"): Promise<AuthResult> {
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/app";
+  const safeNext = safeRedirectPath(next) ?? "/app";
   if (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
     // A full page load on purpose: /auth/google is a Route Handler that redirects to Google, not a page.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination

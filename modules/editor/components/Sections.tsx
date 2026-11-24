@@ -391,7 +391,7 @@ export function MusicSection({ draft, update, tier }: SectionProps) {
           const on = draft.musicUrl === tr.url;
           const isPlaying = playing === tr.id;
           return (
-            <li key={tr.id} className={cn("flex min-h-14 items-center gap-3 rounded-card border-[1.5px] bg-white py-2 pr-3 pl-2", on ? "border-maroon bg-rose-soft/40" : "border-line-strong")}>
+            <li key={tr.id} className={cn("flex min-h-14 items-center gap-3 rounded-card border-[1.5px] py-2 pr-3 pl-2", on ? "border-maroon bg-rose-soft/40" : "border-line-strong bg-white")}>
               {/* Preview playback is simulated until the audio files are added. */}
               <button
                 type="button"
@@ -424,7 +424,7 @@ export function MusicSection({ draft, update, tier }: SectionProps) {
             type="button"
             aria-pressed={customSelected}
             onClick={() => update({ musicUrl: `custom:${draft.customMusicName}` })}
-            className={cn("flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-card border-[1.5px] bg-white px-3 py-2 text-left", customSelected ? "border-maroon bg-rose-soft/40" : "border-line-strong")}
+            className={cn("flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-card border-[1.5px] px-3 py-2 text-left", customSelected ? "border-maroon bg-rose-soft/40" : "border-line-strong bg-white")}
           >
             <span className="grow">
               <span className="block text-sm font-semibold">{c.uploaded}</span>

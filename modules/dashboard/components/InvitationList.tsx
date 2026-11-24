@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Motion";
 import { StatusBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
-import { Logo } from "@/components/ui/Header";
-import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { Header } from "@/components/ui/Header";
+import { ChevronRightIcon, MailIcon } from "@/components/ui/Icons";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatNumber, formatNumericDate } from "@/lib/khmer";
 import { getRsvpStats, getTemplate, templates } from "@/lib/mock-data";
@@ -54,11 +53,9 @@ export function InvitationList({ session }: { session: Session }) {
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-line bg-ivory lg:bg-white">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
-          <Logo />
-          <div className="flex items-center gap-2 lg:gap-3">
-            <LanguageToggle />
+      <Header
+        end={
+          <>
             <ButtonLink href="/app/new" size="sm" className="hidden lg:inline-flex">+ {c.newInv}</ButtonLink>
             <details className="relative">
               <summary aria-label={c.account} className="flex size-11 cursor-pointer list-none items-center justify-center rounded-full [&::-webkit-details-marker]:hidden">
@@ -73,9 +70,9 @@ export function InvitationList({ session }: { session: Session }) {
                 </button>
               </div>
             </details>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       <main className="mx-auto max-w-[1200px] px-4 py-2 lg:px-6 lg:py-6">
         <Reveal onMount>
@@ -126,9 +123,7 @@ export function InvitationList({ session }: { session: Session }) {
                         )}
                       </span>
                     </span>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className="shrink-0 text-muted">
-                      <path d="M9 5l7 7-7 7" />
-                    </svg>
+                    <ChevronRightIcon size={18} className="shrink-0 text-muted" />
                   </Link>
                 </StaggerItem>
               );
@@ -152,23 +147,15 @@ export function InvitationList({ session }: { session: Session }) {
 function EmptyState() {
   const c = useContent(dashboardContent).empty;
   return (
-    <Stagger onMount stagger={0.08} className="mt-6 flex flex-col items-center gap-3 rounded-card bg-white px-6 py-10 text-center shadow-card">
+    <Stagger onMount stagger={0.08} className="mx-auto mt-10 flex max-w-[420px] flex-col items-center gap-2.5 px-2 text-center lg:mt-16">
       <StaggerItem variant="popIn">
-        {/* Envelope bobs gently while waiting for the first invitation. */}
-        <motion.span
-          aria-hidden
-          className="flex size-20 items-center justify-center rounded-full bg-gold-soft text-maroon"
-          animate={{ y: [0, -5, 0] }}
-          transition={{ duration: 3, ease: "easeInOut", repeat: Infinity }}
-        >
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
-          </svg>
-        </motion.span>
+        <span aria-hidden className="flex size-[120px] items-center justify-center rounded-full bg-gold-soft text-maroon">
+          <MailIcon size={60} strokeWidth={1.1} />
+        </span>
       </StaggerItem>
       <StaggerItem as="h2" className="text-lg font-bold">{c.title}</StaggerItem>
       <StaggerItem as="p" className="max-w-[320px] text-sm text-muted">{c.body}</StaggerItem>
-      <StaggerItem><ButtonLink href="/app/new" className="mt-1">{c.cta}</ButtonLink></StaggerItem>
+      <StaggerItem className="mt-2 w-full lg:w-auto"><ButtonLink href="/app/new" fullWidth className="lg:w-auto">{c.cta}</ButtonLink></StaggerItem>
     </Stagger>
   );
 }

@@ -116,7 +116,7 @@ function QrSheet({ open, onClose, url, slug }: { open: boolean; onClose: () => v
     <BottomSheet open={open} onClose={onClose} title={c.qrTitle} closeLabel={c.close}>
       <div className="flex flex-col items-center gap-3">
         <div className="flex size-[240px] items-center justify-center rounded-card border border-line bg-white p-2">
-          {dataUrl ? <img src={dataUrl} alt={c.qrAlt} className="size-full" /> : <div className="size-full animate-pulse rounded-lg bg-sand" />}
+          {dataUrl ? <img src={dataUrl} alt={c.qrAlt} className="size-full" /> : <div className="size-full motion-safe:animate-pulse rounded-lg bg-sand" />}
         </div>
         <p className="text-center text-[13px] text-muted">{c.qrHint}</p>
         <a

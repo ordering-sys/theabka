@@ -15,14 +15,16 @@ import type { Invitation, Template } from "@/lib/mock-data";
 import { addRsvp, addView } from "@/lib/store";
 import { guestContent } from "@/modules/guest/content";
 import { DoorsOpenContext } from "./reveal";
+import { inputClass } from "@/components/ui/field";
 
-type Props = { invitation: Invitation; template: Template; children: React.ReactNode };
+/** `demo`: the built-in sample invitation. Views and RSVPs aren't saved, and a "Sample" pill links home. */
+type Props = { invitation: Invitation; template: Template; demo?: boolean; children: React.ReactNode };
 
 /**
  * Interactive layer around the server-rendered invitation: opening doors,
  * music, language toggle, sticky RSVP/Gift bar and their bottom sheets.
  */
-export function GuestShell({ invitation: inv, template, children }: Props) {
+export function GuestShell({ invitation: inv, template, demo = false, children }: Props) {
   const c = useContent(guestContent);
   const [doors, setDoors] = useState<"closed" | "opening" | "gone">("closed");
   const [sheet, setSheet] = useState<"rsvp" | "gift" | null>(null);
@@ -53,7 +55,7 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
       // The doors button disappears; move focus to the invitation so it isn't lost.
       requestAnimationFrame(() => document.getElementById("invitation")?.focus());
     }, reduced ? 0 : 1000);
-    void addView(inv.id);
+    if (!demo) void addView(inv.id);
   }
 
   function toggleMusic() {
@@ -69,6 +71,21 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
     <DoorsOpenContext.Provider value={opened}>
     <div className="relative mx-auto min-h-dvh max-w-[480px] bg-ivory ring-1 ring-line">
       <main id="invitation" tabIndex={-1} className="outline-none" inert={doors !== "gone"}>{children}</main>
+
+      {/* Sample invitation: a pill back to the landing page (top-left, opposite the controls). */}
+      {demo && (
+        <motion.a
+          href="/"
+          className="fixed top-3 left-[max(0.75rem,calc(50vw-240px+0.75rem))] z-20 flex min-h-11 items-center gap-2 rounded-full bg-charcoal/70 py-1.5 pr-3.5 pl-1.5 text-[13px] font-semibold text-white no-underline backdrop-blur-sm"
+          inert={doors !== "gone"}
+          initial={false}
+          animate={opened ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
+          transition={{ duration: 0.4, ease: EASE, delay: opened ? 0.8 : 0 }}
+        >
+          <span className="rounded-full bg-gold px-2 py-0.5 text-[11px] font-bold text-charcoal">{c.sample}</span>
+          {c.sampleCta}
+        </motion.a>
+      )}
 
       {/* Top-right controls */}
       <motion.div
@@ -90,7 +107,7 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
             {playing ? (
               <span aria-hidden className="flex h-3.5 items-end gap-0.5">
                 {[0, 0.2, 0.4].map((d) => (
-                  <span key={d} className="w-[3px] animate-eq bg-gold-light" style={{ animationDelay: `${d}s` }} />
+                  <span key={d} className="w-[3px] motion-safe:animate-eq bg-gold-light" style={{ animationDelay: `${d}s` }} />
                 ))}
               </span>
             ) : (
@@ -123,7 +140,7 @@ export function GuestShell({ invitation: inv, template, children }: Props) {
         )}
       </motion.div>
 
-      <RsvpSheet open={sheet === "rsvp"} onClose={() => setSheet((s) => (s === "rsvp" ? null : s))} invitation={inv} onGift={hasGift ? () => setSheet("gift") : undefined} />
+      <RsvpSheet open={sheet === "rsvp"} onClose={() => setSheet((s) => (s === "rsvp" ? null : s))} invitation={inv} demo={demo} onGift={hasGift ? () => setSheet("gift") : undefined} />
       {hasGift && <GiftSheet open={sheet === "gift"} onClose={() => setSheet((s) => (s === "gift" ? null : s))} invitation={inv} />}
 
       {doors !== "gone" && <Doors invitation={inv} template={template} opening={doors === "opening"} onOpen={openDoors} />}
@@ -210,7 +227,9 @@ const PETALS = Array.from({ length: 12 }, (_, i) => ({
   color: i % 3 === 0 ? "var(--color-gold)" : i % 3 === 1 ? "var(--color-rose-soft)" : "var(--color-gold-light)",
 }));
 
-function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; onClose: () => void; invitation: Invitation; onGift?: () => void }) {
+function RsvpSheet({
+  open, onClose, invitation: inv, demo, onGift,
+}: { open: boolean; onClose: () => void; invitation: Invitation; demo: boolean; onGift?: () => void }) {
   const c = useContent(guestContent);
   const { lang } = useLanguage();
   const [name, setName] = useState("");
@@ -236,7 +255,8 @@ function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; 
     setSending(true);
     setSendError(false);
     try {
-      await addRsvp({ invitationId: inv.id, guestName: name.trim(), attending, partySize: attending ? party : 1, message: message.trim() || null });
+      // The sample shows the thank-you screen without saving anything.
+      if (!demo) await addRsvp({ invitationId: inv.id, guestName: name.trim(), attending, partySize: attending ? party : 1, message: message.trim() || null });
       setSentName(name.trim());
     } catch {
       setSendError(true);
@@ -273,7 +293,7 @@ function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; 
               height="18"
               viewBox="0 0 24 24"
               aria-hidden
-              className="absolute top-0 animate-petal"
+              className="absolute top-0 motion-safe:animate-petal motion-reduce:hidden"
               style={{ left: p.left, animationDuration: p.duration, animationDelay: p.delay }}
             >
               <path d="M12 2c3 4 3 8 0 12-3-4-3-8 0-12z" fill={p.color} />
@@ -308,7 +328,7 @@ function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; 
               required
               aria-invalid={touched && !nameOk}
               aria-describedby={touched && !nameOk ? "rsvp-name-err" : undefined}
-              className="min-h-[50px] w-full rounded-card border-[1.5px] border-line-strong bg-white px-3 text-[15px] outline-none focus:border-maroon aria-invalid:border-maroon"
+              className={cn(inputClass, "min-h-[50px] px-3 text-[15px]")}
             />
             {touched && !nameOk && <p id="rsvp-name-err" className="mt-1 text-[13px] text-maroon">{c.nameRequired}</p>}
           </div>
@@ -372,7 +392,7 @@ function RsvpSheet({ open, onClose, invitation: inv, onGift }: { open: boolean; 
               placeholder={c.msgPh}
               rows={3}
               maxLength={500}
-              className="min-h-[72px] w-full resize-none rounded-card border-[1.5px] border-line-strong bg-white px-3 py-2.5 text-[15px] outline-none focus:border-maroon"
+              className={cn(inputClass, "min-h-[72px] resize-none px-3 py-2.5 text-[15px]")}
             />
           </div>
           {sendError && <p role="alert" className="rounded-card bg-rose-soft px-3 py-2 text-[13px] text-maroon">{c.sendFailed}</p>}

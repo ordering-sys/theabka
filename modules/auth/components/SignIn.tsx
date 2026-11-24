@@ -11,68 +11,14 @@ import { LotusMark } from "@/components/ui/Header";
 import { TopBar } from "@/components/ui/TopBar";
 import { useSession } from "@/modules/auth/components/RequireSession";
 import * as auth from "@/lib/auth/client";
+import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { toKhmerNumerals } from "@/lib/khmer";
 import { listInvitations } from "@/lib/store";
+import { signInContent } from "@/modules/auth/content";
+import { inputClass } from "@/components/ui/field";
 
-const content = {
-  en: {
-    title: "Sign in or create an account",
-    subEmail: "We'll email you a 6-digit code. No password needed.",
-    subOtp: "Enter the code we sent to",
-    email: "Email address",
-    emailPh: "you@example.com",
-    send: "Send code",
-    code: "6-digit code",
-    codeHint: "Check your inbox and spam folder. The code expires in a few minutes.",
-    cont: "Continue",
-    change: "Use a different email",
-    resendIn: "Resend in",
-    resend: "Resend code",
-    resent: "New code sent",
-    or: "or",
-    google: "Continue with Google",
-    terms: { before: "By continuing you agree to the ", terms: "Terms of Service", and: " and ", privacy: "Privacy Policy", after: "" },
-    emailError: "Enter a valid email address, like name@example.com",
-    wait: "Please wait…",
-    errors: {
-      invalid_email: "That doesn't look like a valid email address.",
-      invalid_code: "That code is wrong or has expired. Check your email or send a new code.",
-      rate_limited: "Too many tries. Please wait a minute and try again.",
-      failed: "Something went wrong. Please try again.",
-      oauth_denied: "Google sign-in was cancelled. Try again, or use your email instead.",
-      oauth_failed: "We couldn't sign you in with Google. Try again, or use your email instead.",
-    },
-  },
-  km: {
-    title: "ចូលគណនី ឬបង្កើតគណនីថ្មី",
-    subEmail: "យើងនឹងផ្ញើលេខកូដ ៦ ខ្ទង់ទៅអ៊ីមែលរបស់អ្នក។ មិនចាំបាច់មានពាក្យសម្ងាត់ទេ។",
-    subOtp: "បញ្ចូលលេខកូដដែលយើងបានផ្ញើទៅ",
-    email: "អាសយដ្ឋានអ៊ីមែល",
-    emailPh: "you@example.com",
-    send: "ផ្ញើលេខកូដ",
-    code: "លេខកូដ ៦ ខ្ទង់",
-    codeHint: "សូមពិនិត្យប្រអប់សំបុត្រ និងថតសារឥតបានការ (spam)។ លេខកូដផុតកំណត់ក្នុងពីរបីនាទី។",
-    cont: "បន្ត",
-    change: "ប្រើអ៊ីមែលផ្សេង",
-    resendIn: "ផ្ញើម្ដងទៀតក្នុង",
-    resend: "ផ្ញើលេខកូដម្ដងទៀត",
-    resent: "បានផ្ញើលេខកូដថ្មី",
-    or: "ឬ",
-    google: "បន្តជាមួយ Google",
-    terms: { before: "ដោយបន្ត អ្នកយល់ព្រម", terms: "លក្ខខណ្ឌប្រើប្រាស់", and: " និង", privacy: "គោលការណ៍ឯកជនភាព", after: "" },
-    emailError: "សូមបញ្ចូលអាសយដ្ឋានអ៊ីមែលត្រឹមត្រូវ ឧ. name@example.com",
-    wait: "សូមរង់ចាំ…",
-    errors: {
-      invalid_email: "អាសយដ្ឋានអ៊ីមែលនេះមិនត្រឹមត្រូវទេ។",
-      invalid_code: "លេខកូដមិនត្រឹមត្រូវ ឬផុតកំណត់។ សូមពិនិត្យអ៊ីមែល ឬផ្ញើលេខកូដថ្មី។",
-      rate_limited: "ព្យាយាមច្រើនដងពេក។ សូមរង់ចាំមួយនាទី ហើយព្យាយាមម្ដងទៀត។",
-      failed: "មានបញ្ហាមួយ។ សូមព្យាយាមម្ដងទៀត។",
-      oauth_denied: "ការចូលគណនីតាម Google ត្រូវបានបោះបង់។ សូមព្យាយាមម្ដងទៀត ឬប្រើអ៊ីមែលរបស់អ្នកជំនួសវិញ។",
-      oauth_failed: "យើងមិនអាចចូលគណនីរបស់អ្នកតាម Google បានទេ។ សូមព្យាយាមម្ដងទៀត ឬប្រើអ៊ីមែលរបស់អ្នកជំនួសវិញ។",
-    },
-  },
-};
+
 
 const RESEND_SECONDS = 60;
 
@@ -81,14 +27,14 @@ const RESEND_SECONDS = 60;
  * 6-digit code, type it in. The first sign-in creates the account.
  */
 export function SignIn() {
-  const c = useContent(content);
+  const c = useContent(signInContent);
   const { lang } = useLanguage();
   const router = useRouter();
   const { session } = useSession();
   // Opening /signin while already signed in skips the form. Not after signing in here: verify() picks the destination.
   const signingIn = useRef(false);
   useEffect(() => {
-    if (session && !signingIn.current) router.replace("/app");
+    if (session && !signingIn.current) router.replace(auth.nextFromLocation() ?? "/app");
   }, [session, router]);
 
   const [step, setStep] = useState<"email" | "otp">("email");
@@ -153,6 +99,9 @@ export function SignIn() {
       signingIn.current = false;
       return setError(errorText(r));
     }
+    // ?next= (e.g. a template picked on the landing page) wins; otherwise new hosts go to the picker.
+    const next = auth.nextFromLocation();
+    if (next) return router.push(next);
     const existing = await listInvitations(r.session.userId).catch(() => []);
     router.push(existing.length > 0 ? "/app" : "/app/new");
   }
@@ -161,7 +110,7 @@ export function SignIn() {
     signingIn.current = true;
     setOauthError(null);
     setBusy(true);
-    const r = await auth.signInWithGoogle("/app"); // leaves the page on success
+    const r = await auth.signInWithGoogle(auth.nextFromLocation() ?? "/app"); // leaves the page on success
     if (!r.ok) {
       setBusy(false);
       signingIn.current = false;
@@ -170,7 +119,9 @@ export function SignIn() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[440px] flex-col">
+    // Desktop: the same column, framed as a card on a soft background.
+    <div className="flex min-h-dvh flex-col lg:items-center lg:justify-center lg:bg-sand-light lg:px-6 lg:py-10">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[440px] flex-col lg:min-h-0 lg:rounded-2xl lg:bg-white lg:pb-2 lg:shadow-card">
       <div className="px-3 py-3">
         <TopBar backHref="/" />
       </div>
@@ -230,12 +181,14 @@ export function SignIn() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => setTouched(true)}
+              // The disabled button blocks Enter, so show why straight away.
+              onKeyDown={(e) => e.key === "Enter" && setTouched(true)}
               aria-invalid={showEmailError}
               aria-describedby={showEmailError ? "email-error" : undefined}
-              className="min-h-[52px] w-full min-w-0 rounded-card border-[1.5px] border-line-strong bg-white px-3.5 text-[17px] outline-none focus:border-maroon aria-invalid:border-maroon"
+              className={cn(inputClass, "min-h-[52px] px-3.5 text-[17px]")}
             />
             {showEmailError && <p id="email-error" className="text-[13px] text-maroon">{c.emailError}</p>}
-            <Button type="submit" fullWidth disabled={busy} className="min-h-[52px]">{busy ? c.wait : c.send}</Button>
+            <Button type="submit" fullWidth disabled={busy || !emailOk} className="min-h-[52px]">{busy ? c.wait : c.send}</Button>
           </motion.form>
         ) : (
           <motion.form
@@ -261,7 +214,7 @@ export function SignIn() {
               autoFocus
               aria-describedby="otp-hint"
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 8))}
-              className="min-h-[52px] w-full rounded-card border-[1.5px] border-line-strong bg-white px-3.5 text-center text-2xl font-bold tracking-[0.6em] outline-none focus:border-maroon"
+              className={cn(inputClass, "min-h-[52px] px-3.5 text-center text-2xl font-bold tracking-[0.6em] placeholder:text-line-strong")}
             />
             <p id="otp-hint" className="text-center text-[13px] text-muted">{c.codeHint}</p>
             <Button type="submit" fullWidth disabled={!otpOk || busy} className="min-h-[52px]">{busy ? c.wait : c.cont}</Button>
@@ -332,5 +285,6 @@ export function SignIn() {
         {c.terms.after}
       </p>
     </main>
+    </div>
   );
 }
