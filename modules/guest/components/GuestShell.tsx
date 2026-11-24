@@ -12,19 +12,47 @@ import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { addDays, formatDayMonth, formatNumber } from "@/lib/khmer";
 import type { Invitation, Template } from "@/lib/mock-data";
-import { addRsvp, addView } from "@/lib/store";
+import { addRsvp, addView, markGuestOpened } from "@/lib/store";
+import { defaultPartySize, guestNameEn, guestNameKm, type InvitedGuest } from "@/modules/guest/lib/greeting";
 import { guestContent } from "@/modules/guest/content";
 import { DoorsOpenContext } from "./reveal";
 import { inputClass } from "@/components/ui/field";
 
-/** `demo`: the built-in sample invitation. Views and RSVPs aren't saved, and a "Sample" pill links home. */
-type Props = { invitation: Invitation; template: Template; demo?: boolean; children: React.ReactNode };
+/**
+ * `demo`: the built-in sample invitation. Views and RSVPs aren't saved, and a "Sample" pill links home.
+ * `openingAnimation`: the "tap to open" screen is the animated doors (Premium) instead of a
+ * still cover (Basic). Both need a tap, which also lets the music start.
+ */
+type Props = {
+  invitation: Invitation;
+  template: Template;
+  demo?: boolean;
+  openingAnimation?: boolean;
+  /** False once the plan's RSVP limit is reached: the RSVP sheet says replies are closed. */
+  rsvpsOpen?: boolean;
+  /** Personal link (Premium): greet this guest on the cover, pre-fill and link their RSVP. */
+  guest?: InvitedGuest;
+  /** The personal link's code, to record when the guest first opens it. */
+  guestCode?: string;
+  children: React.ReactNode;
+};
+
+/** "សូមគោរពអញ្ជើញ … / Dear …" on the cover of a personal link. */
+function CoverGreeting({ guest, accent }: { guest: InvitedGuest; accent: string }) {
+  return (
+    <span className="mb-2 flex flex-col items-center">
+      <span lang="km" className="text-xs leading-[1.7] opacity-80">សូមគោរពអញ្ជើញ</span>
+      <span lang="km" className="font-moul text-base leading-[1.9]" style={{ color: accent }}>{guestNameKm(guest)}</span>
+      <span lang="en" className="font-serif text-sm italic opacity-90">Dear {guestNameEn(guest)}</span>
+    </span>
+  );
+}
 
 /**
  * Interactive layer around the server-rendered invitation: opening doors,
  * music, language toggle, sticky RSVP/Gift bar and their bottom sheets.
  */
-export function GuestShell({ invitation: inv, template, demo = false, children }: Props) {
+export function GuestShell({ invitation: inv, template, demo = false, openingAnimation = true, rsvpsOpen = true, guest, guestCode, children }: Props) {
   const c = useContent(guestContent);
   const [doors, setDoors] = useState<"closed" | "opening" | "gone">("closed");
   const [sheet, setSheet] = useState<"rsvp" | "gift" | null>(null);
@@ -49,13 +77,17 @@ export function GuestShell({ invitation: inv, template, demo = false, children }
     setDoors("opening");
     // Opening is a user gesture, so browsers allow audio to start here.
     if (hasMusic && !inv.musicMutedDefault) play();
+    // Doors (Premium) slide for 1 s; the plain cover (Basic) goes at once.
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setTimeout(() => {
       setDoors("gone");
-      // The doors button disappears; move focus to the invitation so it isn't lost.
+      // The cover button disappears; move focus to the invitation so it isn't lost.
       requestAnimationFrame(() => document.getElementById("invitation")?.focus());
-    }, reduced ? 0 : 1000);
-    if (!demo) void addView(inv.id);
+    }, reduced || !openingAnimation ? 0 : 1000);
+    if (!demo) {
+      void addView(inv.id);
+      if (guestCode) void markGuestOpened(inv.slug, guestCode);
+    }
   }
 
   function toggleMusic() {
@@ -140,16 +172,56 @@ export function GuestShell({ invitation: inv, template, demo = false, children }
         )}
       </motion.div>
 
-      <RsvpSheet open={sheet === "rsvp"} onClose={() => setSheet((s) => (s === "rsvp" ? null : s))} invitation={inv} demo={demo} onGift={hasGift ? () => setSheet("gift") : undefined} />
+      <RsvpSheet open={sheet === "rsvp"} onClose={() => setSheet((s) => (s === "rsvp" ? null : s))} invitation={inv} demo={demo} rsvpsOpen={rsvpsOpen} guest={guest} onGift={hasGift ? () => setSheet("gift") : undefined} />
       {hasGift && <GiftSheet open={sheet === "gift"} onClose={() => setSheet((s) => (s === "gift" ? null : s))} invitation={inv} />}
 
-      {doors !== "gone" && <Doors invitation={inv} template={template} opening={doors === "opening"} onOpen={openDoors} />}
+      {doors !== "gone" &&
+        (openingAnimation ? (
+          <Doors invitation={inv} template={template} guest={guest} opening={doors === "opening"} onOpen={openDoors} />
+        ) : (
+          <PlainCover invitation={inv} template={template} guest={guest} onOpen={openDoors} />
+        ))}
     </div>
     </DoorsOpenContext.Provider>
   );
 }
 
-function Doors({ invitation: inv, template, opening, onOpen }: { invitation: Invitation; template: Template; opening: boolean; onOpen: () => void }) {
+/**
+ * Basic plan's "tap to open" screen: still, no doors or motion (the opening animation is
+ * Premium). The tap is the user gesture browsers need before music can start.
+ */
+function PlainCover({ invitation: inv, template, guest, onOpen }: { invitation: Invitation; template: Template; guest?: InvitedGuest; onOpen: () => void }) {
+  const c = useContent(guestContent);
+  const { bg, fg, accent } = template.theme;
+  const last = (s: string) => s.split(" ").at(-1) || s;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={c.open}
+      className="fixed inset-0 z-40 mx-auto flex max-w-[480px] cursor-pointer flex-col items-center justify-center gap-3 p-8 text-center"
+      style={{ background: bg, color: fg }}
+    >
+      <span aria-hidden className="pointer-events-none absolute inset-4 rounded-card border" style={{ borderColor: accent }} />
+      {guest && <CoverGreeting guest={guest} accent={accent} />}
+      <span lang="km" className="font-moul text-base leading-[1.9]" style={{ color: accent }}>
+        {template.eventType === "wedding" ? "សិរីមង្គលអាពាហ៍ពិពាហ៍" : "ពិធីភ្ជាប់ពាក្យ"}
+      </span>
+      <span lang="km" className="font-moul text-xl leading-[1.9]">
+        {inv.groomKm} &amp; {inv.brideKm}
+      </span>
+      <span lang="en" className="font-serif text-2xl italic">
+        {last(inv.groomEn)} &amp; {last(inv.brideEn)}
+      </span>
+      <span className="mt-5 flex min-h-11 items-center rounded-full border px-5 text-sm" style={{ borderColor: accent }}>
+        <span lang="km">ចុចដើម្បីបើក</span>&nbsp;·&nbsp;<span lang="en">Tap to open</span>
+      </span>
+    </button>
+  );
+}
+
+function Doors({ invitation: inv, template, guest, opening, onOpen }: { invitation: Invitation; template: Template; guest?: InvitedGuest; opening: boolean; onOpen: () => void }) {
   const c = useContent(guestContent);
   const { bg, fg, accent } = template.theme;
   const initial = (s: string) => (s.split(" ").at(-1) || s).charAt(0).toUpperCase();
@@ -190,6 +262,7 @@ function Doors({ invitation: inv, template, opening, onOpen }: { invitation: Inv
         animate={opening ? { opacity: 0, scale: 0.6 } : { opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: EASE }}
       >
+        {guest && <CoverGreeting guest={guest} accent={accent} />}
         <span lang="km" className="font-moul text-base leading-[1.9]" style={{ color: accent }}>
           {template.eventType === "wedding" ? "សិរីមង្គលអាពាហ៍ពិពាហ៍" : "ពិធីភ្ជាប់ពាក្យ"}
         </span>
@@ -227,14 +300,24 @@ const PETALS = Array.from({ length: 12 }, (_, i) => ({
   color: i % 3 === 0 ? "var(--color-gold)" : i % 3 === 1 ? "var(--color-rose-soft)" : "var(--color-gold-light)",
 }));
 
+/** localStorage can throw (private mode, blocked storage); treat that as "not set". */
+function readFlag(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === "1";
+  } catch {
+    return false;
+  }
+}
+
 function RsvpSheet({
-  open, onClose, invitation: inv, demo, onGift,
-}: { open: boolean; onClose: () => void; invitation: Invitation; demo: boolean; onGift?: () => void }) {
+  open, onClose, invitation: inv, demo, rsvpsOpen, guest, onGift,
+}: { open: boolean; onClose: () => void; invitation: Invitation; demo: boolean; rsvpsOpen: boolean; guest?: InvitedGuest; onGift?: () => void }) {
   const c = useContent(guestContent);
   const { lang } = useLanguage();
-  const [name, setName] = useState("");
+  // A personal link pre-fills the guest's own name (they can still change it).
+  const [name, setName] = useState(guest?.nameKm ?? "");
   const [attending, setAttending] = useState(true);
-  const [party, setParty] = useState(2);
+  const [party, setParty] = useState(guest ? defaultPartySize(guest) : 2);
   const [message, setMessage] = useState("");
   const [touched, setTouched] = useState(false);
   const [sentName, setSentName] = useState<string | null>(null);
@@ -242,7 +325,13 @@ function RsvpSheet({
   const replyBy = formatDayMonth(addDays(inv.eventDate, -7), lang);
 
   const [sending, setSending] = useState(false);
-  const [sendError, setSendError] = useState(false);
+  const [sendError, setSendError] = useState<false | "network" | "busy">(false);
+  // The page says whether RSVPs are open; a refused insert (limit hit since the page was cached) closes them too.
+  const [closed, setClosed] = useState(!rsvpsOpen);
+  // Remembered on this phone only, to stop accidental double replies. Not a security measure.
+  // Read only while the sheet is open, which never happens during server rendering.
+  const repliedKey = `theabka:rsvp:${inv.id}`;
+  const repliedBefore = open && !demo && readFlag(repliedKey);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -256,10 +345,24 @@ function RsvpSheet({
     setSendError(false);
     try {
       // The sample shows the thank-you screen without saving anything.
-      if (!demo) await addRsvp({ invitationId: inv.id, guestName: name.trim(), attending, partySize: attending ? party : 1, message: message.trim() || null });
+      if (!demo) {
+        await addRsvp({
+          invitationId: inv.id,
+          guestName: name.trim(),
+          attending,
+          partySize: attending ? party : 1,
+          message: message.trim() || null,
+          invitedGuestId: guest?.id ?? null,
+        });
+        try {
+          localStorage.setItem(repliedKey, "1");
+        } catch {}
+      }
       setSentName(name.trim());
-    } catch {
-      setSendError(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("rsvp_limit_reached")) setClosed(true);
+      else setSendError(msg.includes("rsvp_rate_limited") ? "busy" : "network");
     } finally {
       setSending(false);
     }
@@ -280,7 +383,7 @@ function RsvpSheet({
     <BottomSheet
       open={open}
       onClose={close}
-      title={sentName ? undefined : c.rsvpTitle}
+      title={sentName ? undefined : closed ? c.rsvpClosedTitle : c.rsvpTitle}
       label={c.thanksLabel}
       closeLabel={c.close}
     >
@@ -312,9 +415,15 @@ function RsvpSheet({
           <Button variant="secondary" className="mt-2.5 min-w-[200px]" onClick={close}>{c.backInv}</Button>
           {onGift && <Button variant="gold" className="min-w-[200px]" onClick={onGift}>{c.sendGift}</Button>}
         </div>
+      ) : closed ? (
+        <div role="status" className="flex flex-col gap-3 pb-2">
+          <p className="text-sm leading-[1.7] text-ink-soft">{c.rsvpClosed}</p>
+          <Button variant="secondary" fullWidth onClick={close}>{c.backInv}</Button>
+        </div>
       ) : (
         <form onSubmit={submit} noValidate className="flex flex-col gap-3">
           <p className="-mt-2 text-[13px] text-muted">{c.rsvpBy(replyBy)}</p>
+          {repliedBefore && <p className="rounded-card bg-gold-soft px-3 py-2 text-[13px] leading-[1.7] text-gold-ink">{c.alreadyReplied}</p>}
           <div>
             <label htmlFor="rsvp-name" className="text-[13px] font-semibold text-ink-soft">{c.name}</label>
             <input
@@ -395,7 +504,11 @@ function RsvpSheet({
               className={cn(inputClass, "min-h-[72px] resize-none px-3 py-2.5 text-[15px]")}
             />
           </div>
-          {sendError && <p role="alert" className="rounded-card bg-rose-soft px-3 py-2 text-[13px] text-maroon">{c.sendFailed}</p>}
+          {sendError && (
+            <p role="alert" className="rounded-card bg-rose-soft px-3 py-2 text-[13px] text-maroon">
+              {sendError === "busy" ? c.rsvpBusy : c.sendFailed}
+            </p>
+          )}
           <Button type="submit" fullWidth disabled={sending} className="min-h-[52px]">{sending ? c.sending : c.send}</Button>
         </form>
       )}

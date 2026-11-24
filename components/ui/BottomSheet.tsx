@@ -15,7 +15,15 @@ type BottomSheetProps = {
   closeLabel?: string;
   children: React.ReactNode;
   className?: string;
+  /**
+   * From tablet width (`sm`, 640 px) up, show a centred modal that fades in, instead of a
+   * sheet sliding up from the bottom. Phones always get the sheet. Used for host forms.
+   */
+  dialogOnDesktop?: boolean;
 };
+
+/** Must match Tailwind's `sm` breakpoint used in the classes below. */
+const MODAL_QUERY = "(min-width: 640px)";
 
 /**
  * Modal sheet that slides up from the bottom. Built on <dialog> so focus
@@ -23,7 +31,7 @@ type BottomSheetProps = {
  * The panel springs in, and slides back down before the dialog closes.
  */
 export function BottomSheet({
-  open, onClose, title, label, closeLabel = "Close", children, className,
+  open, onClose, title, label, closeLabel = "Close", children, className, dialogOnDesktop = false,
 }: BottomSheetProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [panel, animate] = useAnimate<HTMLDivElement>();
@@ -39,18 +47,22 @@ export function BottomSheet({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog || !panel.current) return;
+    // Centred modal from tablet width up (when asked for); a sheet from the bottom on phones.
+    const modal = dialogOnDesktop && window.matchMedia(MODAL_QUERY).matches;
     if (open && !dialog.open) {
       dialog.showModal();
-      if (reduced) animate(panel.current, { y: "0%" }, { duration: 0 });
-      else animate(panel.current, { y: ["100%", "0%"] }, { type: "spring", stiffness: 380, damping: 36 });
+      if (reduced) animate(panel.current, { y: "0%", opacity: 1, scale: 1 }, { duration: 0 });
+      else if (modal) animate(panel.current, { y: "0%", opacity: [0, 1], scale: [0.96, 1] }, { duration: 0.2, ease: [0.2, 0, 0, 1] });
+      else animate(panel.current, { y: ["100%", "0%"], opacity: 1, scale: 1 }, { type: "spring", stiffness: 380, damping: 36 });
     }
     if (!open && dialog.open) {
-      animate(panel.current, { y: "100%" }, { duration: reduced ? 0 : 0.22, ease: [0.4, 0, 1, 1] }).then(() => {
-        // Re-opened while sliding away: keep it open.
+      const out = modal ? { opacity: 0, scale: 0.96 } : { y: "100%" };
+      animate(panel.current, out, { duration: reduced ? 0 : modal ? 0.15 : 0.22, ease: [0.4, 0, 1, 1] }).then(() => {
+        // Re-opened while closing: keep it open.
         if (!openRef.current) dialog.close();
       });
     }
-  }, [open, animate, panel, reduced]);
+  }, [open, animate, panel, reduced, dialogOnDesktop]);
   useCloseOnHide(ref);
 
   return (
@@ -72,7 +84,8 @@ export function BottomSheet({
       }}
       className={cn(
         "m-0 mt-auto w-full max-w-none overflow-hidden bg-transparent p-0 backdrop:bg-scrim backdrop:animate-fade-in",
-        "sm:mx-auto sm:max-w-[480px]",
+        // Modal: centred with side margins from `sm`. Sheet: pinned to the bottom, 480 px wide from `sm`.
+        dialogOnDesktop ? "sm:m-auto sm:max-w-130 sm:px-4" : "sm:mx-auto sm:max-w-[480px]",
       )}
     >
       <motion.div
@@ -80,10 +93,12 @@ export function BottomSheet({
         style={{ y: "100%" }}
         className={cn(
           "max-h-[90dvh] overflow-y-auto rounded-t-[22px] bg-white px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-sheet",
+          dialogOnDesktop && "sm:max-h-[85dvh] sm:rounded-[22px] sm:px-6 sm:pt-5 sm:pb-6",
           className,
         )}
       >
-        <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line-strong" />
+        {/* Grab handle: sheets only. */}
+        <div aria-hidden className={cn("mx-auto mb-3 h-1 w-10 rounded-full bg-line-strong", dialogOnDesktop && "sm:hidden")} />
         <div className="mb-3 flex items-center justify-between gap-3">
           {title ? (
             <h2 id={titleId} className="text-lg font-bold">

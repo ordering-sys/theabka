@@ -119,6 +119,8 @@ export function rowToDraft(
       .sort((a, b) => a.position - b.position)
       .map((p) => rowToPhoto(p, urls)),
     customMusicName: row.custom_music_ref ? row.custom_music_name : null,
+    paidTier: row.paid_tier,
+    purgedAt: row.purged_at ?? null,
   };
 }
 
@@ -182,6 +184,7 @@ export function rowToRsvp(row: RsvpRow): Rsvp {
     partySize: row.party_size,
     message: row.message,
     createdAt: toPhnomPenhDate(row.created_at),
+    invitedGuestId: row.invited_guest_id ?? null,
   };
 }
 

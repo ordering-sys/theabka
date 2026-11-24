@@ -9,7 +9,7 @@
  */
 import { blankInvitationContent } from "@/lib/mock-data";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { InvitationRow, PhotoRow } from "@/lib/supabase/database.types";
+import type { InvitationGuestRow, InvitationRow, PhotoRow } from "@/lib/supabase/database.types";
 import {
   GIFT_QR_TYPES,
   HOST_URL_TTL,
@@ -21,7 +21,9 @@ import { draftToWritable, refsFor, rowToDraft, rowToMusicTrack, rowToRsvp, rowTo
 import { newObjectPath, parseRef, signRefs, toRef, type Bucket } from "./storage-refs";
 import type {
   Draft,
+  InvitationGuest,
   KhqrCharge,
+  NewInvitationGuest,
   MusicTrack,
   PaymentCurrency,
   PaymentStatusResult,
@@ -60,6 +62,82 @@ async function draftsFromRows(rows: InvitationRow[]): Promise<Draft[]> {
 // ---------------------------------------------------------------------------
 // Session (browser). See lib/auth/client.ts for sign-in helpers.
 // ---------------------------------------------------------------------------
+
+/* ─── Personal invitation guests (Premium) ─────────────────────────── */
+
+function rowToGuest(row: InvitationGuestRow): InvitationGuest {
+  return {
+    id: row.id,
+    invitationId: row.invitation_id,
+    title: row.title,
+    nameKm: row.name_km,
+    nameEn: row.name_en,
+    companion: row.companion,
+    code: row.code,
+    sentAt: row.sent_at,
+    openedAt: row.opened_at,
+  };
+}
+
+/** The host's named guests for one invitation, in the order they were added. */
+export async function listGuests(invitationId: string): Promise<InvitationGuest[]> {
+  const { data, error } = await db()
+    .from("invitation_guests")
+    .select("*")
+    .eq("invitation_id", invitationId)
+    .order("created_at", { ascending: true });
+  if (error || !data) return [];
+  return data.map(rowToGuest);
+}
+
+/**
+ * Add guests (one or many). Throws "guests_require_premium", "guest_limit_reached"
+ * or "invitation_ended" from the database guard.
+ */
+export async function addGuests(invitationId: string, guests: NewInvitationGuest[]): Promise<InvitationGuest[]> {
+  const rows = guests
+    .map((g) => ({
+      invitation_id: invitationId,
+      title: g.title,
+      name_km: g.nameKm.trim().slice(0, 100),
+      name_en: g.nameEn.trim().slice(0, 100),
+      companion: g.companion,
+    }))
+    .filter((r) => r.name_km.length > 0);
+  if (!rows.length) return [];
+  const { data, error } = await db().from("invitation_guests").insert(rows).select("*");
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(rowToGuest);
+}
+
+/** Change a guest's title, names or companion. Their code (and so their link) stays the same. */
+export async function updateGuest(guestId: string, fields: NewInvitationGuest): Promise<InvitationGuest> {
+  const nameKm = fields.nameKm.trim().slice(0, 100);
+  if (!nameKm) throw new Error("name_required");
+  const { data, error } = await db()
+    .from("invitation_guests")
+    .update({ title: fields.title, name_km: nameKm, name_en: fields.nameEn.trim().slice(0, 100), companion: fields.companion })
+    .eq("id", guestId)
+    .select("*")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "update_failed");
+  return rowToGuest(data);
+}
+
+export async function deleteGuest(guestId: string): Promise<boolean> {
+  const { error, count } = await db().from("invitation_guests").delete({ count: "exact" }).eq("id", guestId);
+  return !error && count === 1;
+}
+
+/** The host shared this guest's link. */
+export async function markGuestSent(guestId: string): Promise<void> {
+  await db().from("invitation_guests").update({ sent_at: new Date().toISOString() }).eq("id", guestId).is("sent_at", null);
+}
+
+/** A guest opened their personal link (first time only; the database ignores repeats). */
+export async function markGuestOpened(slug: string, code: string): Promise<void> {
+  await db().rpc("mark_guest_opened", { p_slug: slug, p_code: code });
+}
 
 /** Same shape as getSessionMock(). Reads the locally stored session (no network). */
 export async function getSession(): Promise<Session | null> {
@@ -163,9 +241,24 @@ export async function createDraft(templateId: string): Promise<Draft> {
   return rowToDraft(data, [], new Map());
 }
 
-/** Delete a draft (live invitations can't be deleted by the client). */
+/**
+ * Delete a draft and its files (live invitations can't be deleted by the client).
+ * Files go first: they sit under <user_id>/<invitation_id>/ in each bucket, and the
+ * owner's storage policies allow listing and removing them.
+ */
 export async function deleteDraft(id: string): Promise<boolean> {
-  const { error, count } = await db().from("invitations").delete({ count: "exact" }).eq("id", id);
+  const supabase = db();
+  const { data: row } = await supabase.from("invitations").select("user_id, status").eq("id", id).maybeSingle();
+  if (!row || row.status !== "draft") return false;
+  const folder = `${row.user_id}/${id}`;
+  await Promise.all(
+    (["photos", "music", "gift-qr"] as const).map(async (bucket) => {
+      const { data } = await supabase.storage.from(bucket).list(folder, { limit: 1000 });
+      const files = (data ?? []).filter((f) => f.id).map((f) => `${folder}/${f.name}`);
+      if (files.length) await supabase.storage.from(bucket).remove(files);
+    }),
+  );
+  const { error, count } = await supabase.from("invitations").delete({ count: "exact" }).eq("id", id);
   return !error && count === 1;
 }
 
@@ -235,6 +328,7 @@ export async function addRsvp(rsvp: Omit<Rsvp, "id" | "createdAt">): Promise<Rsv
     attending: rsvp.attending,
     party_size: partySize,
     message,
+    ...(rsvp.invitedGuestId ? { invited_guest_id: rsvp.invitedGuestId } : {}),
   });
   if (error) throw new Error(error.message);
   return {
@@ -437,12 +531,13 @@ async function json<T>(res: Response): Promise<T> {
  * not_signed_in, not_found, already_live, incomplete, too_many_photos,
  * custom_music_requires_premium, provider_error.
  */
-export async function startKhqrPayment(invitationId: string, currency: PaymentCurrency = "USD"): Promise<KhqrCharge> {
+/** `upgrade`: pay the difference to raise a live Basic invitation to Premium. */
+export async function startKhqrPayment(invitationId: string, currency: PaymentCurrency = "USD", upgrade = false): Promise<KhqrCharge> {
   return json<KhqrCharge>(
     await fetch("/api/payments/khqr", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ invitationId, currency }),
+      body: JSON.stringify({ invitationId, currency, ...(upgrade ? { upgrade: true } : {}) }),
     }),
   );
 }

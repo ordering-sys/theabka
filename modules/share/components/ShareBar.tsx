@@ -3,17 +3,17 @@
 
 import Link from "next/link";
 import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BottomSheet } from "@/components/ui/BottomSheet";
-import { CheckIcon, CopyIcon, ExternalIcon, LinkIcon, QrIcon, SendIcon } from "@/components/ui/Icons";
+import { CheckIcon, ChevronRightIcon, CopyIcon, ExternalIcon, LinkIcon, QrIcon, SendIcon } from "@/components/ui/Icons";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { useContent } from "@/lib/i18n";
 import { inviteUrl } from "@/lib/use-client";
 
 const content = {
-  en: { link: "Share link", copy: "Copy", copied: "Copied", copiedToast: "Link copied", messengerToast: "Link copied. Paste it in Messenger.", qr: "QR code", view: "View", viewInvite: "View invitation", qrTitle: "QR code for your invitation", qrHint: "Print it on cards or show it at the venue.", download: "Download QR image", close: "Close", qrAlt: "QR code linking to the invitation" },
-  km: { link: "តំណចែករំលែក", copy: "ចម្លង", copied: "បានចម្លង", copiedToast: "បានចម្លងតំណ", messengerToast: "បានចម្លងតំណ។ សូមបិទភ្ជាប់ក្នុង Messenger។", qr: "QR", view: "មើល", viewInvite: "មើលធៀបការ", qrTitle: "កូដ QR សម្រាប់ធៀបការរបស់អ្នក", qrHint: "បោះពុម្ពលើកាត ឬបង្ហាញនៅកន្លែងកម្មវិធី។", download: "ទាញយករូប QR", close: "បិទ", qrAlt: "កូដ QR ភ្ជាប់ទៅធៀបការ" },
+  en: { link: "Share link", send: "Send", copy: "Copy", copied: "Copied", copiedToast: "Link copied", messengerToast: "Link copied. Paste it in Messenger.", qr: "QR code", view: "View", viewInvite: "View invitation", qrTitle: "QR code for your invitation", qrHint: "Print it on cards or show it at the venue.", download: "Download QR image", close: "Close", qrAlt: "QR code linking to the invitation" },
+  km: { link: "តំណចែករំលែក", send: "ផ្ញើ", copy: "ចម្លង", copied: "បានចម្លង", copiedToast: "បានចម្លងតំណ", messengerToast: "បានចម្លងតំណ។ សូមបិទភ្ជាប់ក្នុង Messenger។", qr: "QR", view: "មើល", viewInvite: "មើលធៀបការ", qrTitle: "កូដ QR សម្រាប់ធៀបការរបស់អ្នក", qrHint: "បោះពុម្ពលើកាត ឬបង្ហាញនៅកន្លែងកម្មវិធី។", download: "ទាញយករូប QR", close: "បិទ", qrAlt: "កូដ QR ភ្ជាប់ទៅធៀបការ" },
 };
 
 type Props = {
@@ -22,16 +22,22 @@ type Props = {
   showView?: boolean;
   /** "wide": link and actions side by side from `lg` (dashboard). "stack" keeps the phone layout everywhere (pay success). */
   layout?: "stack" | "wide";
+  /** Small line inside the card under the link, e.g. how long the link stays online. */
+  note?: React.ReactNode;
   className?: string;
 };
 
-/** Copy link + Telegram / Messenger / QR / View. Used on the pay success screen and the dashboard. */
-export function ShareBar({ slug, title, showView = true, layout = "stack", className }: Props) {
+/**
+ * Copy link + Telegram / Messenger / QR / View. Used on the pay success screen and the dashboard.
+ * "wide" on desktop: Copy plus one "Send" menu, so the card stays calm.
+ */
+export function ShareBar({ slug, title, showView = true, layout = "stack", note, className }: Props) {
   const wide = layout === "wide";
   const c = useContent(content);
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const sendMenu = useRef<HTMLDetailsElement>(null);
   const url = inviteUrl(slug);
   const display = url.replace(/^https?:\/\//, "");
 
@@ -64,7 +70,10 @@ export function ShareBar({ slug, title, showView = true, layout = "stack", class
     "flex min-h-11 min-w-16 flex-1 flex-col items-center gap-1 text-xs font-semibold text-charcoal no-underline cursor-pointer",
     wide && "lg:h-13 lg:flex-none lg:flex-row lg:gap-2.5 lg:rounded-card lg:border-[1.5px] lg:border-line lg:bg-white lg:pr-4 lg:pl-2 lg:text-[13px] lg:transition-colors lg:hover:border-line-strong lg:hover:bg-sand-light",
   );
-  const icon = cn("flex size-11 items-center justify-center rounded-full", wide && "lg:size-8 lg:[&>svg]:size-4");
+  const icon = "flex size-11 items-center justify-center rounded-full";
+  const menuItem = "flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left text-sm font-semibold text-charcoal no-underline hover:bg-sand-light";
+  const menuIcon = "flex size-8 shrink-0 items-center justify-center rounded-full";
+  const closeSendMenu = () => sendMenu.current?.removeAttribute("open");
   // "theabka.com/i/dara-sophea": muted host, bold slug.
   const cut = display.indexOf("/i/");
   const host = cut >= 0 ? display.slice(0, cut + 3) : "";
@@ -109,8 +118,35 @@ export function ShareBar({ slug, title, showView = true, layout = "stack", class
             {copied ? c.copied : c.copy}
           </button>
         </div>
-        {wide && <span aria-hidden className="hidden h-8 w-px shrink-0 bg-line lg:block" />}
-        <div className={cn("mt-2.5 flex", wide && "lg:mt-0 lg:shrink-0 lg:gap-2")}>
+        {wide && (
+          // Desktop: one menu instead of three tiles.
+          <details ref={sendMenu} className="group relative hidden shrink-0 lg:block">
+            <summary className="flex h-13 cursor-pointer list-none items-center gap-2 rounded-card border-[1.5px] border-line bg-white px-4 text-[13px] font-semibold text-charcoal transition-colors hover:border-line-strong hover:bg-sand-light group-open:border-line-strong group-open:bg-sand-light [&::-webkit-details-marker]:hidden">
+              <SendIcon size={16} className="text-maroon" />
+              {c.send}
+              <ChevronRightIcon size={14} className="rotate-90 transition-transform group-open:-rotate-90" />
+            </summary>
+            <div className="absolute right-0 z-20 mt-1.5 w-56 rounded-card bg-white p-1.5 shadow-lift ring-1 ring-line">
+              <a href={telegram} target="_blank" rel="noreferrer" onClick={closeSendMenu} className={menuItem}>
+                <span className={cn(menuIcon, "bg-telegram text-white")}><SendIcon size={15} /></span>
+                Telegram
+              </a>
+              <button type="button" onClick={() => { closeSendMenu(); void messenger(); }} className={menuItem}>
+                <span className={cn(menuIcon, "bg-messenger text-white")}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M12 2C6.5 2 2 6.1 2 11.2c0 2.9 1.4 5.4 3.7 7.1V22l3.4-1.9c.9.3 1.9.4 2.9.4 5.5 0 10-4.1 10-9.2S17.5 2 12 2zm1 12.4l-2.6-2.7-5 2.7 5.5-5.8 2.6 2.7 4.9-2.7-5.4 5.8z" />
+                  </svg>
+                </span>
+                Messenger
+              </button>
+              <button type="button" onClick={() => { closeSendMenu(); setQrOpen(true); }} className={menuItem}>
+                <span className={cn(menuIcon, "bg-charcoal text-white")}><QrIcon size={15} /></span>
+                {c.qr}
+              </button>
+            </div>
+          </details>
+        )}
+        <div className={cn("mt-2.5 flex", wide && "lg:hidden")}>
         <a href={telegram} target="_blank" rel="noreferrer" className={tile}>
           <span className={cn(icon, "bg-telegram text-white")}><SendIcon size={20} /></span>
           Telegram
@@ -140,6 +176,7 @@ export function ShareBar({ slug, title, showView = true, layout = "stack", class
         )}
         </div>
       </div>
+      {note && <div className="mt-2.5 flex items-center gap-1.5 text-xs leading-[1.7] text-muted">{note}</div>}
       <QrSheet open={qrOpen} onClose={() => setQrOpen(false)} url={url} slug={slug} />
     </div>
   );

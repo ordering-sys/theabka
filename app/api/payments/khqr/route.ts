@@ -1,21 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
-import type { KhqrCharge } from "@/lib/data/types";
+import type { KhqrCharge, Tier } from "@/lib/data/types";
 import { missingDetails, type Checkable } from "@/modules/payments/lib/invitation-checks";
 import { getPaymentAdapter, KHQR_TTL_MS, newPaymentReference, ProviderNotConfiguredError } from "@/modules/payments/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
- * POST /api/payments/khqr  { invitationId: string, currency?: "USD" | "KHR" }
+ * POST /api/payments/khqr  { invitationId: string, currency?: "USD" | "KHR", upgrade?: boolean }
  *
- * Creates a KHQR charge to publish a draft. The amount is computed here from
- * the invitation's template tier (plans table), never taken from the client.
+ * Creates a KHQR charge to publish a draft, or with `upgrade: true` to raise a live
+ * Basic invitation to Premium for the price difference. The amount is computed here
+ * from the plans table, never taken from the client.
  * Responds with KhqrCharge (QR payload, both amounts, 10-minute expiry).
  */
 export async function POST(request: NextRequest) {
-  const body = (await request.json().catch(() => null)) as { invitationId?: unknown; currency?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { invitationId?: unknown; currency?: unknown; upgrade?: unknown } | null;
   const invitationId = typeof body?.invitationId === "string" ? body.invitationId : null;
   const currency = body?.currency === "KHR" ? "KHR" : "USD";
+  const upgrade = body?.upgrade === true;
   if (!invitationId) return error(400, "invalid_request");
 
   const supabase = await getSupabaseServerClient();
@@ -26,10 +28,16 @@ export async function POST(request: NextRequest) {
   const { data: inv } = await supabase
     .from("invitations")
     // One string literal so the typed client can infer the row shape.
-    .select("id, user_id, status, template_id, music_url, groom_km, groom_en, bride_km, bride_en, event_date, start_time, venue_name_km, venue_name_en, venue_address_km, venue_address_en, schedule, gift_qr_url, gift_note_km, gift_note_en")
+    .select("id, user_id, status, paid_tier, purged_at, template_id, music_url, groom_km, groom_en, bride_km, bride_en, event_date, start_time, venue_name_km, venue_name_en, venue_address_km, venue_address_en, schedule, gift_qr_url, gift_note_km, gift_note_en")
     .eq("id", invitationId)
     .maybeSingle();
   if (!inv || inv.user_id !== auth.user.id) return error(404, "not_found");
+  if (upgrade) {
+    if (inv.status !== "live") return error(409, "not_live");
+    if (inv.paid_tier !== "basic") return error(409, "already_premium");
+    if (inv.purged_at) return error(409, "invitation_ended");
+    return createCharge({ request, invitationId: inv.id, userId: auth.user.id, currency, kind: "upgrade" });
+  }
   if (inv.status === "live") return error(409, "already_live");
 
   const admin = getSupabaseAdminClient();
@@ -68,6 +76,44 @@ export async function POST(request: NextRequest) {
   if ((photoCount ?? 0) > plan.max_photos) return error(422, "too_many_photos", { maxPhotos: plan.max_photos });
   if (inv.music_url?.startsWith("storage://") && !plan.custom_music) return error(422, "custom_music_requires_premium");
 
+  return createCharge({
+    request,
+    invitationId: inv.id,
+    userId: auth.user.id,
+    currency,
+    kind: "publish",
+    plan: { tier: plan.tier, usdCents: plan.price_usd_cents, khr: plan.price_khr },
+  });
+}
+
+type ChargeInput = {
+  request: NextRequest;
+  invitationId: string;
+  userId: string;
+  currency: "USD" | "KHR";
+  kind: "publish" | "upgrade";
+  /** Publish: the template's plan. Upgrade: omitted, computed as Premium minus Basic. */
+  plan?: { tier: Tier; usdCents: number; khr: number };
+};
+
+/** Create the KHQR with the provider and record the pending payment. */
+async function createCharge({ request, invitationId, userId, currency, kind, plan: given }: ChargeInput) {
+  const admin = getSupabaseAdminClient();
+
+  let plan = given;
+  if (!plan) {
+    const { data: rows } = await admin.from("plans").select("tier, price_usd_cents, price_khr");
+    const basic = rows?.find((r) => r.tier === "basic");
+    const premium = rows?.find((r) => r.tier === "premium");
+    if (!basic || !premium) return error(500, "plan_missing");
+    plan = {
+      tier: "premium",
+      usdCents: premium.price_usd_cents - basic.price_usd_cents,
+      khr: premium.price_khr - basic.price_khr,
+    };
+    if (plan.usdCents <= 0 || plan.khr <= 0) return error(500, "plan_missing");
+  }
+
   let adapter;
   try {
     adapter = getPaymentAdapter();
@@ -76,7 +122,7 @@ export async function POST(request: NextRequest) {
     return error(503, "provider_unavailable");
   }
 
-  const amount = currency === "USD" ? plan.price_usd_cents : plan.price_khr;
+  const amount = currency === "USD" ? plan.usdCents : plan.khr;
   const expiresAt = new Date(Date.now() + KHQR_TTL_MS);
   const reference = newPaymentReference();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
@@ -87,7 +133,7 @@ export async function POST(request: NextRequest) {
       reference,
       amount,
       currency,
-      description: `TheabKa ${plan.tier} invitation`,
+      description: kind === "upgrade" ? "TheabKa upgrade to premium" : `TheabKa ${plan.tier} invitation`,
       expiresAt,
       callbackUrl: `${siteUrl}/api/payments/webhook`,
     });
@@ -97,16 +143,17 @@ export async function POST(request: NextRequest) {
   }
 
   // Older unpaid QRs for this invitation are superseded (a late payment on one is still honoured).
-  await admin.from("payments").update({ status: "expired" }).eq("invitation_id", inv.id).eq("status", "pending");
+  await admin.from("payments").update({ status: "expired" }).eq("invitation_id", invitationId).eq("status", "pending");
 
   const { data: payment, error: insertError } = await admin
     .from("payments")
     .insert({
-      invitation_id: inv.id,
-      user_id: auth.user.id,
+      invitation_id: invitationId,
+      user_id: userId,
       plan: plan.tier,
-      amount_usd_cents: plan.price_usd_cents,
-      amount_khr: plan.price_khr,
+      kind,
+      amount_usd_cents: plan.usdCents,
+      amount_khr: plan.khr,
       currency,
       provider: adapter.id,
       provider_ref: charge.providerRef,
@@ -124,8 +171,8 @@ export async function POST(request: NextRequest) {
     paymentId: payment.id,
     qrPayload: charge.qrPayload,
     currency,
-    amountUsdCents: plan.price_usd_cents,
-    amountKhr: plan.price_khr,
+    amountUsdCents: plan.usdCents,
+    amountKhr: plan.khr,
     expiresAt: charge.expiresAt.toISOString(),
     sandbox: adapter.id === "sandbox",
     merchantName: charge.merchantName ?? "TheabKa",

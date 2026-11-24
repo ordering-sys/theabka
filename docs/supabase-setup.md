@@ -142,11 +142,39 @@ Hosts can delete an invitation from `/app` while it's still a draft (`deleteDraf
 
 - The RLS policy `hosts delete own drafts` allows deleting only the caller's own rows with `status = 'draft'`. A live (paid) invitation can't be deleted from the client; the code also filters on `status = 'draft'` as a second guard.
 - Photos, RSVPs and views go with the row (`on delete cascade`). Payments keep their record, with `invitation_id` set to null.
-- After the row is deleted, the app removes the draft's files under `<user_id>/<invitation_id>/` from all three buckets. This is best effort: if it fails, the files stay private (draft files are readable only by the owner) and can be cleaned up later.
+- Before the row is deleted, the app removes the draft's files under `<user_id>/<invitation_id>/` from all three buckets (owners may list and delete their own files).
+
+### Data retention
+
+The rules live in `modules/retention/lib/policy.ts` and migration `20261124090000_data_retention.sql`; the privacy policy and terms (`modules/legal/content.ts`) describe them to users. Keep all three in sync.
+
+| Data | Kept for |
+| --- | --- |
+| Live invitation | Online until `plans.online_months` after the event date (Basic 3, Premium 6). The period counts from the event date, capped at 12 months after publishing. |
+| Ended invitation | The guest link shows "this invitation has ended" (names and date only). RSVPs, views and file reads stop. |
+| Its content | 30 days after it ends: photos, music, gift QR, RSVPs, views and event details are deleted; `purged_at` is set and the row stays as a tombstone. Hosts can no longer edit it. |
+| Unpaid drafts | Deleted after 3 months without edits (`updated_at`), with their files. |
+| Payments | Pending/expired: deleted after 30 days. Paid: `raw` and `qr_payload` cleared after 30 days; the accounting fields stay. |
+
+The job runs daily at 03:00 Cambodia time: `GET /api/cron/retention` (`modules/retention/server/retention.ts`), scheduled in `vercel.json`. It needs `CRON_SECRET` and `SUPABASE_SERVICE_ROLE_KEY`. Each run handles up to 50 invitations and 50 drafts and is safe to repeat. To run it by hand:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/retention
+```
+
+To test, publish an invitation with the sandbox, then in the SQL editor move it into the past: `update invitations set event_date = current_date - 200, published_at = now() - interval '200 days' where slug = '...';`. The guest link then shows the ended page; run the job and check that its files and RSVPs are gone.
 
 ## 6. Payments
 
-Pricing comes from the `plans` table: Basic 500 cents / 20,000 riel (3 photos), Premium 1,500 cents / 60,000 riel (6 photos and custom music). The server computes the amount from the invitation's template tier; the client never sends an amount.
+Pricing comes from the `plans` table: Basic 500 cents / 20,000 riel (3 photos, 150 RSVPs), Premium 1,500 cents / 60,000 riel (6 photos, custom music, unlimited RSVPs). The server computes the amount from the invitation's template tier; the client never sends an amount.
+
+### Upgrades (Basic → Premium)
+
+A live Basic invitation can pay the difference (1,000 cents / 40,000 riel) from its pay page: POST `/api/payments/khqr` with `upgrade: true`. The payment row has `kind = 'upgrade'` and `plan = 'premium'`; `mark_payment_paid()` raises `paid_tier` to Premium and keeps `published_at`, so the link doesn't change. Purged invitations can't be upgraded.
+
+### RSVP limits
+
+`plans.max_rsvps`: Basic 150, Premium 2,000 (shown as "unlimited"; the number only stops abuse). One RSVP is one row in `rsvps`, for up to 10 people. The `rsvps_guard` trigger refuses RSVPs past the limit (`rsvp_limit_reached`) and more than 40 per invitation in 10 minutes (`rsvp_rate_limited`). The guest page reads `rsvps_open` from `get_published_invitation()` and shows "replies are closed"; hosts deleting RSVPs frees places. For stronger protection against fake replies, add Cloudflare Turnstile to the RSVP form.
 
 ### What must be filled in before paying
 
@@ -198,17 +226,19 @@ Sending it twice returns `{"ok":true,"alreadyPaid":true}` the second time.
 2. In **Project Settings > Environment Variables**, add every key from the table at the top of this doc:
    - Production: the Bakong variables, `PAYMENT_PROVIDER` unset or `bakong`, `NEXT_PUBLIC_SITE_URL=https://YOUR-DOMAIN`.
    - Preview: the Bakong variables, or `PAYMENT_PROVIDER=sandbox` for fake payments (only the Production environment refuses the sandbox).
-   - `SUPABASE_SERVICE_ROLE_KEY`, `PAYMENT_WEBHOOK_SECRET` and provider keys are secrets. Never prefix them with `NEXT_PUBLIC_`.
+   - `SUPABASE_SERVICE_ROLE_KEY`, `PAYMENT_WEBHOOK_SECRET`, `CRON_SECRET` and provider keys are secrets. Never prefix them with `NEXT_PUBLIC_`.
+   - Vercel Cron reads `vercel.json` and calls `/api/cron/retention` daily, sending `CRON_SECRET` automatically.
 3. Add the production domain to Supabase **URL Configuration** and to the Google OAuth client (step 4).
 4. Redeploy after changing env vars (NEXT_PUBLIC_* values are fixed at build time).
 
 ## 8. Launch checklist
 
-- [ ] All four migrations applied; RLS enabled on all tables.
+- [ ] All migrations applied; RLS enabled on all tables.
 - [ ] A test host can create an invitation, see it on `/app`, and delete it while it's a draft.
 - [ ] The pay screen refuses an incomplete invitation and lists what's missing.
 - [ ] Sign-in code emails arrive (inbox, not spam) at Gmail, Yahoo and Outlook addresses through your own SMTP.
 - [ ] Google sign-in works on the production domain.
 - [ ] A small real Bakong payment flips an invitation to live, and the status check isn't refused (HTTP 401/403 in the server log means an expired token or a server outside Cambodia).
 - [ ] `PAYMENT_PROVIDER` is unset or `bakong` in production.
+- [ ] `CRON_SECRET` is set and the retention cron shows a 200 in Vercel's Cron Jobs log.
 - [ ] If you add a `.env.example`, un-ignore it (the default `.gitignore` pattern `.env*` hides it; add `!.env.example`).

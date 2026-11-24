@@ -15,7 +15,8 @@ import { TopBar } from "@/components/ui/TopBar";
 import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
 import { formatPrice, formatRiel, toKhmerNumerals } from "@/lib/khmer";
-import { PLANS, getTemplate, templates, type Tier } from "@/lib/mock-data";
+import { PLANS, UPGRADE_PRICE, getTemplate, templates, type Tier } from "@/lib/mock-data";
+import { Badge } from "@/components/ui/Badge";
 import { getDraft, getPaymentStatus, startPayment as startCharge, type Draft, type KhqrCharge } from "@/lib/store";
 import { inviteUrl } from "@/lib/use-client";
 import { DETAIL_STEP, draftCheckable, missingDetails } from "@/modules/payments/lib/invitation-checks";
@@ -39,6 +40,9 @@ const content = {
     incompleteTitle: "Finish your invitation first", incompleteBody: "Add these before you pay:", add: "Add",
     missing: missingLabels.en,
     qrAlt: "KHQR payment code", alreadyLiveSub: "Your edits are published as soon as they save. There's nothing to pay.", close: "Close",
+    upgradeTitle: "Upgrade to Premium", upgradeSub: "Your link stays the same. Pay only the difference.",
+    upgradeItems: ["Up to 6 photos", "Your own song", "Premium designs", "Opening animation", "Personal invitation for each guest", "Guest list download", "Unlimited guest replies", "Data retention for 6 months"],
+    upgradePay: "Upgrade with KHQR", upgraded: "You're on Premium now!", upgradedSub: "Every Premium feature is on for this invitation.",
   },
   km: {
     title: "មើល និងបង់ប្រាក់", fullPreview: "មើលធៀបការពេញអេក្រង់", closePreview: "បិទការមើលជាមុន", choosePlan: "កញ្ចប់របស់អ្នក",
@@ -57,6 +61,9 @@ const content = {
     incompleteTitle: "សូមបំពេញធៀបការជាមុនសិន", incompleteBody: "សូមបន្ថែមព័ត៌មានទាំងនេះ មុនពេលបង់ប្រាក់៖", add: "បន្ថែម",
     missing: missingLabels.km,
     qrAlt: "កូដបង់ប្រាក់ KHQR", alreadyLiveSub: "ការកែប្រែរបស់អ្នកត្រូវបានផ្សព្វផ្សាយភ្លាមៗពេលរក្សាទុក។ មិនចាំបាច់បង់ប្រាក់ទេ។", close: "បិទ",
+    upgradeTitle: "ដំឡើងទៅកញ្ចប់ពិសេស", upgradeSub: "តំណរបស់អ្នកនៅដដែល។ បង់តែប្រាក់លើសប៉ុណ្ណោះ។",
+    upgradeItems: ["រូបថតរហូតដល់ ៦ សន្លឹក", "បទចម្រៀងផ្ទាល់ខ្លួន", "គំរូពិសេស", "ចលនាបើកធៀប", "ធៀបការផ្ទាល់ឈ្មោះភ្ញៀវម្នាក់ៗ", "ទាញយកបញ្ជីភ្ញៀវ", "ទទួលការឆ្លើយតបពីភ្ញៀវ គ្មានកំណត់", "រក្សាទុកទិន្នន័យរយៈពេល ៦ ខែ"],
+    upgradePay: "ដំឡើងតាម KHQR", upgraded: "អ្នកប្រើកញ្ចប់ពិសេសហើយ!", upgradedSub: "មុខងារពិសេសទាំងអស់ បានបើកសម្រាប់ធៀបការនេះ។",
   },
 };
 
@@ -80,7 +87,11 @@ export function PayScreen({ initial }: { initial: Draft }) {
 
   const template = getTemplate(draft.templateId) ?? templates[0];
   const tier: Tier = template.tier;
-  const price = formatPrice(PLANS[tier].priceUsd, lang);
+  const alreadyLive = initial.status === "live";
+  // A live Basic invitation can pay the difference to become Premium (fixed when the page opens).
+  const [upgradeMode] = useState(alreadyLive && initial.paidTier === "basic" && !initial.purgedAt);
+  const priceUsd = upgradeMode ? UPGRADE_PRICE.usd : PLANS[tier].priceUsd;
+  const price = formatPrice(priceUsd, lang);
   const photos = draft.photos.slice(0, PLANS[tier].maxPhotos);
   const link = inviteUrl(draft.slug).replace(/^https?:\/\//, "");
   const names = `${draft.groomEn.split(" ").at(-1)} & ${draft.brideEn.split(" ").at(-1)}`;
@@ -129,7 +140,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
     setFailed(false);
     setSheet("waiting");
     try {
-      const c = await startCharge(draft.id);
+      const c = await startCharge(draft.id, { upgrade: upgradeMode });
       if (run !== attempt.current) return;
       setCharge(c);
       setLeft(Math.max(0, Math.round((new Date(c.expiresAt).getTime() - Date.now()) / 1000)));
@@ -158,7 +169,6 @@ export function PayScreen({ initial }: { initial: Draft }) {
   const mm = Math.floor(left / 60);
   const ss = String(left % 60).padStart(2, "0");
   const clock = lang === "km" ? toKhmerNumerals(`${mm}:${ss}`) : `${mm}:${ss}`;
-  const alreadyLive = initial.status === "live";
   // The server refuses incomplete invitations too; this explains why and links to the fix.
   const missing = alreadyLive ? [] : missingDetails(draftCheckable(draft));
 
@@ -186,7 +196,28 @@ export function PayScreen({ initial }: { initial: Draft }) {
         </button>
       </div>
 
-      {alreadyLive ? (
+      {upgradeMode ? (
+        <Reveal onMount delay={0.15} className="mx-4 mt-2 rounded-card bg-white p-4 shadow-card">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-bold">{c.upgradeTitle}</h2>
+            <Badge tone="gold">{t.tier.premium}</Badge>
+          </div>
+          <p className="mt-0.5 text-sm text-muted">{c.upgradeSub}</p>
+          <ul className="mt-3 flex flex-col gap-1.5 text-sm">
+            {c.upgradeItems.map((item) => (
+              <li key={item} className="flex items-center gap-2 leading-[1.7]">
+                <CheckIcon size={16} className="shrink-0 text-gold-deep" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <div aria-hidden className="my-3 h-px bg-line" />
+          <div className="flex justify-between gap-3 text-base">
+            <span className="font-bold">{c.total}</span>
+            <span className="font-bold text-maroon">{price.usd} · {price.riel}</span>
+          </div>
+        </Reveal>
+      ) : alreadyLive ? (
         <Reveal onMount delay={0.15} className="mx-4 mt-2 flex flex-col items-center gap-2 rounded-card bg-white p-5 text-center shadow-card">
           <motion.span variants={popIn} initial="hidden" animate="show" className="flex size-12 items-center justify-center rounded-full bg-jade text-white"><CheckIcon size={24} /></motion.span>
           <h2 className="text-lg font-bold">{c.alreadyLive}</h2>
@@ -253,7 +284,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
         </Stagger>
       )}
 
-      {!alreadyLive && (
+      {(!alreadyLive || upgradeMode) && (
         <motion.div
           initial={{ y: "110%" }}
           animate={{ y: "0%" }}
@@ -262,7 +293,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
         >
           <Button fullWidth className="min-h-[52px]" onClick={startPayment} disabled={missing.length > 0}>
             <span className="rounded bg-khqr px-1.5 py-0.5 text-[11px] font-extrabold text-white">KHQR</span>
-            {c.pay} {price.usd}
+            {upgradeMode ? c.upgradePay : c.pay} {price.usd}
           </Button>
         </motion.div>
       )}
@@ -291,7 +322,7 @@ export function PayScreen({ initial }: { initial: Draft }) {
                   </>
                 ) : (
                   <>
-                    ${((charge?.amountUsdCents ?? PLANS[tier].priceUsd * 100) / 100).toFixed(2)}
+                    ${((charge?.amountUsdCents ?? priceUsd * 100) / 100).toFixed(2)}
                     <span className="text-[13px] font-medium text-muted"> USD</span>
                   </>
                 )}
@@ -355,8 +386,8 @@ export function PayScreen({ initial }: { initial: Draft }) {
             <motion.span variants={popIn} initial="hidden" animate="show" className="flex size-[72px] items-center justify-center rounded-full bg-jade text-white">
               <CheckIcon size={36} strokeWidth={2.6} />
             </motion.span>
-            <h3 role="status" className="text-xl font-bold">{c.live}</h3>
-            <p className="text-sm text-muted">{c.liveSub}</p>
+            <h3 role="status" className="text-xl font-bold">{upgradeMode ? c.upgraded : c.live}</h3>
+            <p className="text-sm text-muted">{upgradeMode ? c.upgradedSub : c.liveSub}</p>
             <ShareBar slug={draft.slug} title={names} showView={false} className="mt-1.5 w-full text-left shadow-none ring-1 ring-line" />
             <ButtonLink href={`/app/${draft.id}/dashboard`} fullWidth className="mt-1">{c.toDash}</ButtonLink>
             <ButtonLink href={`/i/${draft.slug}`} variant="secondary" fullWidth>{c.viewGuest}</ButtonLink>

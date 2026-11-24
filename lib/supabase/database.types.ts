@@ -27,6 +27,10 @@ export type PlanRow = {
   price_khr: number;
   max_photos: number;
   custom_music: boolean;
+  /** Months a paid invitation stays online after the event date. */
+  online_months: number;
+  /** RSVPs an invitation accepts (Premium's value is only an abuse cap; the UI says "unlimited"). */
+  max_rsvps: number;
 };
 
 export type ProfileRow = {
@@ -96,12 +100,14 @@ export type InvitationRow = {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  /** Set when retention deleted the content; only the tombstone is left. */
+  purged_at: string | null;
 };
 
-/** Columns a host may write. status / published_at / paid_tier are server-only. */
+/** Columns a host may write. status / published_at / paid_tier / purged_at are server-only. */
 export type InvitationWritable = Omit<
   InvitationRow,
-  "id" | "user_id" | "status" | "paid_tier" | "published_at" | "created_at" | "updated_at" | "custom_music_ref" | "custom_music_name"
+  "id" | "user_id" | "status" | "paid_tier" | "published_at" | "created_at" | "updated_at" | "custom_music_ref" | "custom_music_name" | "purged_at"
 >;
 
 export type PhotoRow = {
@@ -119,8 +125,27 @@ export type RsvpRow = {
   attending: boolean;
   party_size: number;
   message: string | null;
+  /** The personal invitation link this reply came from, if any. */
+  invited_guest_id: string | null;
   created_at: string;
 };
+
+/** A guest the host invited by name (Premium). The link is /i/<slug>/<code>. */
+export type InvitationGuestRow = {
+  id: string;
+  invitation_id: string;
+  title: GuestTitle;
+  name_km: string;
+  name_en: string;
+  companion: "" | "family" | "partner" | "wife" | "husband" | "friend";
+  code: string;
+  sent_at: string | null;
+  opened_at: string | null;
+  created_at: string;
+};
+
+/** Same keys as modules/guest/lib/greeting.ts (lib can't import modules). */
+type GuestTitle = "" | "mr" | "mrs" | "miss" | "he" | "lok_chumteav" | "teacher_m" | "teacher_f";
 
 export type ViewRow = { id: number; invitation_id: string; opened_at: string };
 
@@ -136,6 +161,8 @@ export type PaymentRow = {
   provider_ref: string;
   status: PaymentStatus;
   qr_payload: string | null;
+  /** 'publish' (draft -> live) or 'upgrade' (live Basic -> Premium). */
+  kind: "publish" | "upgrade";
   expires_at: string;
   paid_at: string | null;
   raw: Json | null;
@@ -157,9 +184,15 @@ export type Database = {
         Pick<RsvpRow, "invitation_id" | "guest_name" | "attending"> & Partial<Omit<RsvpRow, "created_at">>
       >;
       views: Table<ViewRow, { invitation_id: string }>;
+      invitation_guests: Table<
+        InvitationGuestRow,
+        Pick<InvitationGuestRow, "invitation_id" | "name_km"> &
+          Partial<Pick<InvitationGuestRow, "title" | "name_en" | "companion">>,
+        Partial<Pick<InvitationGuestRow, "title" | "name_km" | "name_en" | "companion" | "sent_at">>
+      >;
       payments: Table<
         PaymentRow,
-        Omit<PaymentRow, "id" | "status" | "paid_at" | "raw" | "qr_payload" | "created_at" | "updated_at"> &
+        Omit<PaymentRow, "id" | "status" | "paid_at" | "raw" | "qr_payload" | "kind" | "created_at" | "updated_at"> &
           Partial<PaymentRow>
       >;
     };
@@ -173,6 +206,13 @@ export type Database = {
       owns_invitation: { Args: { p_invitation_id: string }; Returns: boolean };
       is_live_invitation: { Args: { p_invitation_id: string }; Returns: boolean };
       invitation_allows_custom_music: { Args: { p_invitation_id: string }; Returns: boolean };
+      retention_due_purges: {
+        Args: { p_grace_days?: number; p_limit?: number };
+        Returns: { id: string; user_id: string; slug: string }[];
+      };
+      purge_invitation_content: { Args: { p_invitation_id: string }; Returns: undefined };
+      get_invited_guest: { Args: { p_slug: string; p_code: string }; Returns: Json };
+      mark_guest_opened: { Args: { p_slug: string; p_code: string }; Returns: undefined };
     };
     Enums: {
       event_type: EventType;

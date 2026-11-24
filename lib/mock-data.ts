@@ -12,10 +12,37 @@ export type EventType = "wedding" | "engagement";
 export type Tier = "basic" | "premium";
 export type InvitationStatus = "draft" | "live";
 
+/**
+ * What each plan includes (the pricing cards list the same things).
+ * `onlineMonths`: how long a published invitation stays online after the event date (plans.online_months).
+ * `openingAnimation`: guests see the animated doors. `guestListDownload`: the host can export RSVPs.
+ * `maxRsvps`: RSVP forms an invitation accepts (one per family or group, up to 10 people each);
+ * null means unlimited (the database still caps Premium at 2,000 against abuse, plans.max_rsvps).
+ */
 export const PLANS = {
-  basic: { priceUsd: 5, priceKhr: 20_000, maxPhotos: 3, customMusic: false },
-  premium: { priceUsd: 15, priceKhr: 60_000, maxPhotos: 6, customMusic: true },
-} as const satisfies Record<Tier, { priceUsd: number; priceKhr: number; maxPhotos: number; customMusic: boolean }>;
+  basic: { priceUsd: 5, priceKhr: 20_000, maxPhotos: 3, customMusic: false, onlineMonths: 3, openingAnimation: false, guestListDownload: false, maxRsvps: 150, personalLinks: false },
+  premium: { priceUsd: 15, priceKhr: 60_000, maxPhotos: 6, customMusic: true, onlineMonths: 6, openingAnimation: true, guestListDownload: true, maxRsvps: null, personalLinks: true },
+} as const satisfies Record<
+  Tier,
+  {
+    priceUsd: number;
+    priceKhr: number;
+    maxPhotos: number;
+    customMusic: boolean;
+    onlineMonths: number;
+    openingAnimation: boolean;
+    guestListDownload: boolean;
+    maxRsvps: number | null;
+    /** Host can invite guests by name, each with a personal link (invitation_guests). */
+    personalLinks: boolean;
+  }
+>;
+
+/** Price of upgrading a live Basic invitation to Premium: the difference. */
+export const UPGRADE_PRICE = {
+  usd: PLANS.premium.priceUsd - PLANS.basic.priceUsd,
+  khr: PLANS.premium.priceKhr - PLANS.basic.priceKhr,
+};
 
 export type Template = {
   id: string;
@@ -93,7 +120,7 @@ export type MusicTrack = { id: string; nameKm: string; nameEn: string; styleKm: 
 export const musicTracks: MusicTrack[] = [
   { id: "sarika", nameKm: "ភ្លេងការ សារិកាកែវ", nameEn: "Sarika Keo (traditional wedding music)", styleKm: "ភ្លេងប្រពៃណី", styleEn: "Traditional", duration: "3:12", url: "/music/sarika.mp3" },
   { id: "lotus", nameKm: "ផ្កាឈូករីក", nameEn: "Lotus in Bloom", styleKm: "ព្យ៉ាណូ", styleEn: "Piano", duration: "2:48", url: "/music/lotus.mp3" },
-  { id: "forever", nameKm: "ស្នេហាអមតៈ", nameEn: "Forever Love", styleKm: "អាកូស្ទិក", styleEn: "Acoustic", duration: "3:30", url: "/music/forever.mp3" },
+  { id: "special-someone", nameKm: "មនុស្សពិសេស", nameEn: "Special Someone", styleKm: "ស្នេហា", styleEn: "Romantic", duration: "3:45", url: "/music/special-someone.mp3" },
   { id: "mangala", nameKm: "ពិធីមង្គល", nameEn: "Mangala Ceremony", styleKm: "ភ្លេងខ្មែរ", styleEn: "Khmer instrumental", duration: "2:55", url: "/music/mangala.mp3" },
   { id: "golden", nameKm: "ថ្ងៃមាស", nameEn: "Golden Day", styleKm: "ភ្លេងខ្សែ", styleEn: "Strings", duration: "3:05", url: "/music/golden.mp3" },
 ];
@@ -178,6 +205,8 @@ export type Rsvp = {
   partySize: number;
   message: string | null;
   createdAt: string; // YYYY-MM-DD
+  /** Set when the reply came from a personal invitation link (Premium). */
+  invitedGuestId?: string | null;
 };
 
 const rsvpRows: [string, boolean, number, string, string][] = [

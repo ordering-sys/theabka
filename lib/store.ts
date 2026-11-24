@@ -8,9 +8,19 @@
  */
 import * as real from "@/lib/data";
 import * as auth from "@/lib/auth/client";
-import type { Draft, KhqrCharge, Photo, PaymentStatusResult, Rsvp, Session, UploadResult } from "@/lib/data/types";
+import type {
+  Draft,
+  InvitationGuest,
+  KhqrCharge,
+  NewInvitationGuest,
+  Photo,
+  PaymentStatusResult,
+  Rsvp,
+  Session,
+  UploadResult,
+} from "@/lib/data/types";
 
-export type { Draft, KhqrCharge, PaymentStatusResult, Rsvp, Session };
+export type { Draft, InvitationGuest, KhqrCharge, NewInvitationGuest, PaymentStatusResult, Rsvp, Session };
 export type { UploadError } from "@/lib/data/types";
 
 // ── Session ──────────────────────────────────────────────────────────────
@@ -78,6 +88,43 @@ export async function getViewCount(invitationId: string): Promise<number> {
   return real.getViewCount(invitationId);
 }
 
+// ── Personal invitation guests (Premium) ─────────────────────────────────
+
+export async function listGuests(invitationId: string): Promise<InvitationGuest[]> {
+  return real.listGuests(invitationId);
+}
+
+/** Throws "guests_require_premium", "guest_limit_reached" or "invitation_ended". */
+export async function addGuests(invitationId: string, guests: NewInvitationGuest[]): Promise<InvitationGuest[]> {
+  return real.addGuests(invitationId, guests);
+}
+
+/** Same link, new greeting: refresh the cached guest pages so it shows right away. */
+export async function updateGuest(invitationId: string, guestId: string, fields: NewInvitationGuest): Promise<InvitationGuest> {
+  const updated = await real.updateGuest(guestId, fields);
+  const { refreshPublishedInvitation } = await import("@/lib/data/actions");
+  void refreshPublishedInvitation(invitationId).catch(() => {});
+  return updated;
+}
+
+/** Their link then shows the general invitation; refresh the cached guest pages. */
+export async function deleteGuest(invitationId: string, guestId: string): Promise<boolean> {
+  const ok = await real.deleteGuest(guestId);
+  if (ok) {
+    const { refreshPublishedInvitation } = await import("@/lib/data/actions");
+    void refreshPublishedInvitation(invitationId).catch(() => {});
+  }
+  return ok;
+}
+
+export async function markGuestSent(guestId: string): Promise<void> {
+  return real.markGuestSent(guestId).catch(() => {});
+}
+
+export async function markGuestOpened(slug: string, code: string): Promise<void> {
+  return real.markGuestOpened(slug, code).catch(() => {});
+}
+
 // ── Uploads ──────────────────────────────────────────────────────────────
 
 export async function uploadPhoto(invitationId: string, file: File, position: number): Promise<UploadResult<{ photo: Photo }>> {
@@ -95,8 +142,9 @@ export async function uploadMusic(invitationId: string, file: File): Promise<Upl
 // ── Payments ─────────────────────────────────────────────────────────────
 
 /** The server computes the amount from the plan; the client never sends a price. */
-export async function startPayment(invitationId: string): Promise<KhqrCharge> {
-  return real.startKhqrPayment(invitationId, "USD");
+/** `upgrade`: a live Basic invitation pays the difference to become Premium. */
+export async function startPayment(invitationId: string, { upgrade = false } = {}): Promise<KhqrCharge> {
+  return real.startKhqrPayment(invitationId, "USD", upgrade);
 }
 
 export async function getPaymentStatus(paymentId: string): Promise<PaymentStatusResult> {

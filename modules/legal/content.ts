@@ -2,6 +2,7 @@ import { PLANS } from "@/lib/mock-data";
 import { COMPANY } from "@/lib/company";
 import { formatPrice, toKhmerNumerals } from "@/lib/khmer";
 import type { LegalDoc } from "@/modules/legal/components/LegalPage";
+import { DRAFT_IDLE_MONTHS, PAYMENT_DETAIL_DAYS, PURGE_GRACE_DAYS } from "@/modules/retention/lib/policy";
 
 /* ─── Shared page chrome ─────────────────────────────────────────────── */
 
@@ -50,13 +51,14 @@ const privacyEn: LegalDoc = {
             "Your language choice (Khmer or English).",
             "The invitation content you enter: the names of the bride, groom and their parents, the event date, time and schedule, the venue name, address and map location, photos, music you upload, and your gift KHQR image and note.",
             "Payment records: the plan, amount, currency, payment reference and status. You pay by scanning a KHQR code in your own banking app, so we never receive your bank login, card number or account balance.",
+            "With Premium, the names and titles of guests you invite by name. Only add people you are actually inviting.",
           ],
         },
         "From guests (people who open an invitation):",
         {
           list: [
             "If you reply to an invitation: your name, whether you will attend, how many people are coming, and any message you write.",
-            "We count how many times an invitation is opened, but we don't record who opened it.",
+            "We count how many times an invitation is opened, but we don't record who opened it, except on a personal invitation link: then we record when that link was first opened, so the host knows you received it. Anyone the link is forwarded to sees your name on it.",
           ],
         },
         "We don't use advertising or analytics trackers. We use one cookie to keep hosts signed in, and your browser stores your language choice.",
@@ -123,9 +125,14 @@ const privacyEn: LegalDoc = {
       body: [
         {
           list: [
-            "We keep your account and invitations for as long as your account is open.",
-            "Published invitations stay online for at least 12 months after the event date.",
+            "Your account stays open until you ask us to delete it.",
+            `Published invitations stay online for ${PLANS.basic.onlineMonths} months after the event date with Basic, or ${PLANS.premium.onlineMonths} months with Premium. The period counts from the event date, but from no later than 12 months after you publish.`,
+            "With a Custom plan, we agree the online period with you in writing before you pay. Everything else in this section applies the same way once that period ends.",
+            `After that, the link shows only the couple's names, the date and a note that the invitation has ended. ${PURGE_GRACE_DAYS} days later we delete its photos, music, gift KHQR, event details, guest replies and view counts. We keep the names, date and link so the link can keep saying that the invitation has ended.`,
+            `Unpaid drafts that you haven't edited for ${DRAFT_IDLE_MONTHS} months are deleted, together with their photos and music.`,
+            `We delete unfinished payment attempts after ${PAYMENT_DETAIL_DAYS} days. For completed payments we keep the amount, plan, date and reference for as long as accounting and tax rules require, and delete the other details from the payment provider after ${PAYMENT_DETAIL_DAYS} days.`,
             "When you ask us to delete your account, we delete your invitations, photos, music and guest replies. We keep payment records, no longer linked to your account, where accounting and tax rules require it.",
+            "Deleted data can stay in our backups for up to 30 days before it is overwritten.",
           ],
         },
       ],
@@ -136,6 +143,7 @@ const privacyEn: LegalDoc = {
         {
           list: [
             "You can see and change your invitation content in the editor at any time.",
+            "You can see your guests' replies on your invitation's dashboard until they are deleted. With Premium you can also download them as a file.",
             "You can ask us for a copy of your data, ask us to correct it, or ask us to delete your account. Email us from your account's email address.",
             "Guests who want their reply removed can ask the host, or email us with the invitation link.",
           ],
@@ -178,13 +186,14 @@ const privacyKm: LegalDoc = {
             "ភាសាដែលអ្នកជ្រើសរើស (ខ្មែរ ឬអង់គ្លេស)។",
             "ខ្លឹមសារធៀបការដែលអ្នកបញ្ចូល៖ ឈ្មោះកូនកំលោះ កូនក្រមុំ និងមាតាបិតា កាលបរិច្ឆេទ ម៉ោង និងកម្មវិធី ឈ្មោះទីកន្លែង អាសយដ្ឋាន និងទីតាំងលើផែនទី រូបថត តន្ត្រីដែលអ្នកបង្ហោះ និងរូប KHQR ព្រមទាំងកំណត់ចំណាំសម្រាប់ចំណងដៃ។",
             "កំណត់ត្រាការបង់ប្រាក់៖ កញ្ចប់ ចំនួនទឹកប្រាក់ រូបិយប័ណ្ណ លេខយោង និងស្ថានភាពនៃការបង់ប្រាក់។ អ្នកបង់ប្រាក់ដោយស្កេន KHQR ក្នុងកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់ ដូច្នេះយើងមិនដែលទទួលបានព័ត៌មានចូលគណនីធនាគារ លេខកាត ឬសមតុល្យគណនីរបស់អ្នកទេ។",
+            "សម្រាប់កញ្ចប់ពិសេស៖ ឈ្មោះ និងគោរមងាររបស់ភ្ញៀវដែលអ្នកអញ្ជើញតាមឈ្មោះ។ សូមបញ្ចូលតែអ្នកដែលអ្នកពិតជាអញ្ជើញប៉ុណ្ណោះ។",
           ],
         },
         "ពីភ្ញៀវ (អ្នកបើកមើលធៀបការ)៖",
         {
           list: [
             "ប្រសិនបើអ្នកឆ្លើយតបធៀបការ៖ ឈ្មោះរបស់អ្នក ថាតើអ្នកនឹងចូលរួមឬអត់ ចំនួនអ្នកដែលមកជាមួយ និងសារដែលអ្នកសរសេរ។",
-            "យើងរាប់ចំនួនដងដែលធៀបការត្រូវបានបើក ប៉ុន្តែមិនកត់ត្រាថាអ្នកណាជាអ្នកបើកទេ។",
+            "យើងរាប់ចំនួនដងដែលធៀបការត្រូវបានបើក ប៉ុន្តែមិនកត់ត្រាថាអ្នកណាជាអ្នកបើកទេ លើកលែងតែតំណធៀបការផ្ទាល់ឈ្មោះ៖ ពេលនោះយើងកត់ត្រាពេលដែលតំណនោះត្រូវបានបើកលើកដំបូង ដើម្បីឱ្យម្ចាស់កម្មវិធីដឹងថាអ្នកបានទទួល។ អ្នកណាដែលទទួលតំណនោះបន្ត នឹងឃើញឈ្មោះរបស់អ្នកនៅលើវា។",
           ],
         },
         "យើងមិនប្រើកម្មវិធីតាមដានសម្រាប់ការផ្សាយពាណិជ្ជកម្ម ឬការវិភាគទេ។ យើងប្រើខូគី (cookie) មួយ ដើម្បីរក្សាការចូលគណនីរបស់ម្ចាស់កម្មវិធី ហើយកម្មវិធីរុករករបស់អ្នករក្សាទុកភាសាដែលអ្នកជ្រើសរើស។",
@@ -251,9 +260,14 @@ const privacyKm: LegalDoc = {
       body: [
         {
           list: [
-            "យើងរក្សាទុកគណនី និងធៀបការរបស់អ្នក ដរាបណាគណនីរបស់អ្នកនៅបើក។",
-            `ធៀបការដែលបានផ្សព្វផ្សាយ នៅលើបណ្ដាញយ៉ាងហោចណាស់ ${toKhmerNumerals(12)} ខែ បន្ទាប់ពីថ្ងៃកម្មវិធី។`,
+            "គណនីរបស់អ្នកនៅបើក រហូតដល់អ្នកស្នើឱ្យលុប។",
+            `ធៀបការដែលបានផ្សព្វផ្សាយ នៅលើបណ្ដាញរយៈពេល ${toKhmerNumerals(PLANS.basic.onlineMonths)} ខែ បន្ទាប់ពីថ្ងៃកម្មវិធី សម្រាប់កញ្ចប់មូលដ្ឋាន ឬ ${toKhmerNumerals(PLANS.premium.onlineMonths)} ខែ សម្រាប់កញ្ចប់ពិសេស។ រយៈពេលនេះរាប់ចាប់ពីថ្ងៃកម្មវិធី ប៉ុន្តែមិនយឺតជាង ${toKhmerNumerals(12)} ខែ បន្ទាប់ពីថ្ងៃដែលអ្នកផ្សព្វផ្សាយឡើយ។`,
+            "សម្រាប់កញ្ចប់ផ្ទាល់ខ្លួន យើងព្រមព្រៀងរយៈពេលនៅលើបណ្ដាញជាមួយអ្នកជាលាយលក្ខណ៍អក្សរ មុនពេលអ្នកបង់ប្រាក់។ ចំណុចផ្សេងទៀតក្នុងផ្នែកនេះ អនុវត្តដូចគ្នា នៅពេលរយៈពេលនោះបញ្ចប់។",
+            `បន្ទាប់មក តំណនឹងបង្ហាញតែឈ្មោះគូស្វាមីភរិយា កាលបរិច្ឆេទ និងសារថាធៀបការបានបញ្ចប់។ ${toKhmerNumerals(PURGE_GRACE_DAYS)} ថ្ងៃក្រោយមក យើងលុបរូបថត តន្ត្រី រូប KHQR ចំណងដៃ ព័ត៌មានកម្មវិធី ការឆ្លើយតបរបស់ភ្ញៀវ និងចំនួនដងដែលបានបើកមើល។ យើងរក្សាទុកតែឈ្មោះ កាលបរិច្ឆេទ និងតំណ ដើម្បីឱ្យតំណនៅតែបង្ហាញថាធៀបការបានបញ្ចប់។`,
+            `ធៀបការព្រាងដែលមិនទាន់បង់ប្រាក់ ហើយអ្នកមិនបានកែសម្រួលរយៈពេល ${toKhmerNumerals(DRAFT_IDLE_MONTHS)} ខែ នឹងត្រូវលុប រួមទាំងរូបថត និងតន្ត្រីរបស់វា។`,
+            `យើងលុបការបង់ប្រាក់ដែលមិនបានបញ្ចប់ បន្ទាប់ពី ${toKhmerNumerals(PAYMENT_DETAIL_DAYS)} ថ្ងៃ។ សម្រាប់ការបង់ប្រាក់ដែលបានបញ្ចប់ យើងរក្សាទុកចំនួនទឹកប្រាក់ កញ្ចប់ កាលបរិច្ឆេទ និងលេខយោង តាមរយៈពេលដែលច្បាប់គណនេយ្យ និងពន្ធដារតម្រូវ ហើយលុបព័ត៌មានលម្អិតផ្សេងទៀតពីអ្នកផ្ដល់សេវាបង់ប្រាក់ បន្ទាប់ពី ${toKhmerNumerals(PAYMENT_DETAIL_DAYS)} ថ្ងៃ។`,
             "នៅពេលអ្នកស្នើឱ្យលុបគណនី យើងលុបធៀបការ រូបថត តន្ត្រី និងការឆ្លើយតបរបស់ភ្ញៀវ។ យើងរក្សាទុកកំណត់ត្រាការបង់ប្រាក់ ដោយលែងភ្ជាប់ជាមួយគណនីរបស់អ្នក តាមតម្រូវការគណនេយ្យ និងពន្ធដារ។",
+            `ទិន្នន័យដែលបានលុប អាចនៅសល់ក្នុងច្បាប់បម្រុងទុក (backup) របស់យើង រហូតដល់ ${toKhmerNumerals(30)} ថ្ងៃ មុនពេលត្រូវសរសេរជាន់លើ។`,
           ],
         },
       ],
@@ -264,6 +278,7 @@ const privacyKm: LegalDoc = {
         {
           list: [
             "អ្នកអាចមើល និងកែប្រែខ្លឹមសារធៀបការរបស់អ្នក ក្នុងផ្ទាំងកែសម្រួលបានគ្រប់ពេល។",
+            "អ្នកអាចមើលការឆ្លើយតបរបស់ភ្ញៀវ នៅលើផ្ទាំងគ្រប់គ្រងធៀបការរបស់អ្នក រហូតដល់ពេលវាត្រូវលុប។ ជាមួយកញ្ចប់ពិសេស អ្នកក៏អាចទាញយកវាជាឯកសារបានដែរ។",
             "អ្នកអាចស្នើសុំច្បាប់ចម្លងទិន្នន័យរបស់អ្នក ស្នើឱ្យកែតម្រូវ ឬស្នើឱ្យលុបគណនីរបស់អ្នក។ សូមផ្ញើអ៊ីមែលមកយើង ពីអាសយដ្ឋានអ៊ីមែលនៃគណនីរបស់អ្នក។",
             "ភ្ញៀវដែលចង់លុបការឆ្លើយតបរបស់ខ្លួន អាចស្នើទៅម្ចាស់ធៀបការ ឬផ្ញើអ៊ីមែលមកយើង ជាមួយតំណធៀបការនោះ។",
           ],
@@ -357,12 +372,15 @@ const termsEn: LegalDoc = {
     },
     {
       heading: "Guest information",
-      body: ["Guest replies are for your event only. Don't sell them or use them to send spam."],
+      body: [
+        "Guest replies are for your event only. Don't sell them or use them to send spam.",
+        `With Basic, an invitation accepts up to ${PLANS.basic.maxRsvps} RSVPs. One RSVP is one form a guest sends, for up to 10 people. After that, guests see that online replies are closed. Premium has no RSVP limit. You can upgrade a published Basic invitation to Premium by paying the difference.`,
+      ],
     },
     {
       heading: "Availability",
       body: [
-        "We work to keep TheabKa running, but it may sometimes be unavailable for maintenance or because of problems outside our control. A published invitation stays online for at least 12 months after the event date, unless you ask us to remove it or it breaks these terms.",
+        `We work to keep TheabKa running, but it may sometimes be unavailable for maintenance or because of problems outside our control. A published invitation stays online for ${PLANS.basic.onlineMonths} months after the event date with Basic, or ${PLANS.premium.onlineMonths} months with Premium (for a Custom plan, the period we agree with you in writing), unless you ask us to remove it or it breaks these terms. After that its content is deleted as described in our Privacy Policy.`,
       ],
     },
     {
@@ -447,12 +465,15 @@ const termsKm: LegalDoc = {
     },
     {
       heading: "ព័ត៌មានភ្ញៀវ",
-      body: ["ការឆ្លើយតបរបស់ភ្ញៀវ គឺសម្រាប់កម្មវិធីរបស់អ្នកតែប៉ុណ្ណោះ។ កុំលក់ ឬប្រើវាដើម្បីផ្ញើសាររំខាន (spam)។"],
+      body: [
+        "ការឆ្លើយតបរបស់ភ្ញៀវ គឺសម្រាប់កម្មវិធីរបស់អ្នកតែប៉ុណ្ណោះ។ កុំលក់ ឬប្រើវាដើម្បីផ្ញើសាររំខាន (spam)។",
+        `សម្រាប់កញ្ចប់មូលដ្ឋាន ធៀបការមួយទទួល RSVP បានរហូតដល់ ${toKhmerNumerals(PLANS.basic.maxRsvps)}។ RSVP មួយ គឺទម្រង់មួយដែលភ្ញៀវផ្ញើ សម្រាប់មនុស្សរហូតដល់ ${toKhmerNumerals(10)} នាក់។ បន្ទាប់មក ភ្ញៀវនឹងឃើញថាការឆ្លើយតបតាមអនឡាញបានបិទ។ កញ្ចប់ពិសេសគ្មានកំណត់ RSVP ទេ។ អ្នកអាចដំឡើងធៀបការកញ្ចប់មូលដ្ឋានដែលបានផ្សព្វផ្សាយ ទៅកញ្ចប់ពិសេស ដោយបង់តែប្រាក់លើស។`,
+      ],
     },
     {
       heading: "ភាពអាចប្រើបាននៃសេវាកម្ម",
       body: [
-        `យើងខិតខំរក្សាឱ្យ TheabKa ដំណើរការជានិច្ច ប៉ុន្តែពេលខ្លះវាអាចមិនដំណើរការ ដោយសារការថែទាំ ឬបញ្ហាក្រៅពីការគ្រប់គ្រងរបស់យើង។ ធៀបការដែលបានផ្សព្វផ្សាយ នៅលើបណ្ដាញយ៉ាងហោចណាស់ ${toKhmerNumerals(12)} ខែ បន្ទាប់ពីថ្ងៃកម្មវិធី លើកលែងតែអ្នកស្នើឱ្យដកចេញ ឬវាបំពានលក្ខខណ្ឌទាំងនេះ។`,
+        `យើងខិតខំរក្សាឱ្យ TheabKa ដំណើរការជានិច្ច ប៉ុន្តែពេលខ្លះវាអាចមិនដំណើរការ ដោយសារការថែទាំ ឬបញ្ហាក្រៅពីការគ្រប់គ្រងរបស់យើង។ ធៀបការដែលបានផ្សព្វផ្សាយ នៅលើបណ្ដាញរយៈពេល ${toKhmerNumerals(PLANS.basic.onlineMonths)} ខែ បន្ទាប់ពីថ្ងៃកម្មវិធី សម្រាប់កញ្ចប់មូលដ្ឋាន ឬ ${toKhmerNumerals(PLANS.premium.onlineMonths)} ខែ សម្រាប់កញ្ចប់ពិសេស (សម្រាប់កញ្ចប់ផ្ទាល់ខ្លួន គឺរយៈពេលដែលយើងព្រមព្រៀងជាមួយអ្នកជាលាយលក្ខណ៍អក្សរ) លើកលែងតែអ្នកស្នើឱ្យដកចេញ ឬវាបំពានលក្ខខណ្ឌទាំងនេះ។ បន្ទាប់មក ខ្លឹមសាររបស់វានឹងត្រូវលុប ដូចមានចែងក្នុងគោលការណ៍ឯកជនភាពរបស់យើង។`,
       ],
     },
     {

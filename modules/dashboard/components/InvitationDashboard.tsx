@@ -6,19 +6,21 @@ import { CountUp, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion
 import { ShareBar } from "@/modules/share/components/ShareBar";
 import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
-import { CheckIcon, ChevronRightIcon, ClockIcon, CloseIcon, DownloadIcon, EditIcon, EyeIcon, MailIcon, PinIcon, SparkleIcon, UserIcon } from "@/components/ui/Icons";
+import { CheckIcon, ChevronRightIcon, ClockIcon, CloseIcon, DownloadIcon, EditIcon, EyeIcon, LockIcon, MailIcon, PinIcon, SparkleIcon, UserIcon } from "@/components/ui/Icons";
 import { Lotus } from "@/components/invitation/TemplateArt";
 import { TopBar } from "@/components/ui/TopBar";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { useContent, useLanguage } from "@/lib/i18n";
-import { formatEnglishDate, formatKhmerDate, formatNumber, formatNumericDate, formatShortDate, toKhmerNumerals } from "@/lib/khmer";
+import { formatEnglishDate, formatKhmerDate, formatNumber, formatPrice, formatNumericDate, formatShortDate, toKhmerNumerals } from "@/lib/khmer";
 import { buildRsvpReportHtml, type ReportInfo } from "@/modules/dashboard/lib/rsvp-export";
 import { buildRsvpXlsx } from "@/modules/dashboard/lib/rsvp-xlsx";
-import { getRsvpStats, getTemplate, templates, type Rsvp } from "@/lib/mock-data";
+import { PLANS, UPGRADE_PRICE, getRsvpStats, getTemplate, templates, type Rsvp } from "@/lib/mock-data";
 import { getRsvps, getViewCount, type Draft, type Session } from "@/lib/store";
 import { AccountMenu } from "./AccountMenu";
+import { GuestList } from "./GuestList";
 import { dashboardContent } from "@/modules/dashboard/content";
+import { retentionState } from "@/modules/retention/lib/policy";
 import { inputClass } from "@/components/ui/field";
 
 type Filter = "all" | "yes" | "no";
@@ -57,6 +59,22 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
   const namesKm = `${short(inv.groomKm)} & ${short(inv.brideKm)}`;
   const venue = lang === "km" ? inv.venueNameKm || inv.venueNameEn : inv.venueNameEn || inv.venueNameKm;
   const live = inv.status === "live";
+  const retention = retentionState(inv);
+  // Guest list download is a Premium benefit (PLANS.*.guestListDownload).
+  const canDownload = !!inv.paidTier && PLANS[inv.paidTier].guestListDownload;
+  // RSVP limit (Basic): counts every RSVP form, attending or not.
+  const rsvpMax = live && inv.paidTier ? PLANS[inv.paidTier].maxRsvps : null;
+  const rsvpUsed = all?.length ?? 0;
+  const rsvpFull = rsvpMax !== null && rsvpUsed >= rsvpMax;
+  const rsvpNear = rsvpMax !== null && !rsvpFull && rsvpUsed >= rsvpMax * 0.8;
+  const upgradePrice = formatPrice(UPGRADE_PRICE.usd, lang);
+  // "Invited by name" tab: Premium uses it; Basic sees it with a lock and an upgrade button.
+  const guestsEnabled = !!inv.paidTier && PLANS[inv.paidTier].personalLinks && retention.kind === "online";
+  const guestsCanUpgrade = inv.paidTier === "basic" && retention.kind === "online";
+  const showGuestTab = live && (guestsEnabled || guestsCanUpgrade);
+  const [tabState, setTab] = useState<"replies" | "guests">("replies");
+  const tab = showGuestTab ? tabState : "replies";
+  const fmtDate = (d: string) => (lang === "km" ? formatKhmerDate(d) : formatEnglishDate(d));
   const chip = "flex items-center gap-1.5 rounded-full bg-sand-light px-3 py-1 leading-[1.6]";
 
   /** What the host sees right now (filter + search) is what gets exported. */
@@ -225,11 +243,32 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
         </Reveal>
 
         <Reveal onMount delay={0.08}>
-          {live ? (
-            <ShareBar slug={inv.slug} title={names} layout="wide" />
+          {retention.kind === "online" ? (
+            <>
+              <ShareBar
+                slug={inv.slug}
+                title={names}
+                layout="wide"
+                note={
+                  <>
+                    <ClockIcon size={14} className="shrink-0 text-gold-deep" />
+                    {c.retention.online(fmtDate(retention.until))}
+                  </>
+                }
+              />
+            </>
+          ) : retention.kind === "ended" || retention.kind === "purged" ? (
+            <div role="status" className="rounded-card bg-white p-4 shadow-card lg:px-5">
+              <p className="text-sm leading-[1.7] text-charcoal">
+                {retention.kind === "ended" ? c.retention.ended(fmtDate(retention.purgeOn), canDownload) : c.retention.purged}
+              </p>
+            </div>
           ) : (
             <div className="flex flex-col gap-3 rounded-card bg-white p-4 shadow-card lg:flex-row lg:items-center lg:justify-between lg:px-5">
-              <p className="text-sm text-muted">{c.draftNote}</p>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm text-muted">{c.draftNote}</p>
+                <p className="text-xs leading-[1.7] text-muted">{c.retention.draft(fmtDate(retention.deleteOn))}</p>
+              </div>
               <ButtonLink href={`/app/${inv.id}/pay`} className="lg:shrink-0">{c.publishCta}</ButtonLink>
             </div>
           )}
@@ -264,26 +303,110 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
           ))}
         </Stagger>
 
+        {rsvpMax !== null && retention.kind === "online" && (
+          <Reveal onMount delay={0.2} className="rounded-card bg-white p-4 shadow-card lg:px-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <p className="text-sm font-semibold text-charcoal">{c.rsvpLimit.used(fmt(rsvpUsed), fmt(rsvpMax))}</p>
+              <p className="text-xs text-muted">{c.rsvpLimit.coming(fmt(stats.totalGuests))}</p>
+            </div>
+            <div
+              role="meter"
+              aria-valuemin={0}
+              aria-valuemax={rsvpMax}
+              aria-valuenow={rsvpUsed}
+              aria-label={c.rsvpLimit.used(fmt(rsvpUsed), fmt(rsvpMax))}
+              className="mt-2 h-2 overflow-hidden rounded-full bg-sand-light"
+            >
+              <div
+                className={cn("h-full rounded-full", rsvpFull ? "bg-maroon" : rsvpNear ? "bg-gold" : "bg-jade")}
+                style={{ width: `${Math.min(100, (rsvpUsed / rsvpMax) * 100)}%` }}
+              />
+            </div>
+            <p className={cn("mt-2 text-xs leading-[1.7]", rsvpFull ? "font-semibold text-maroon" : "text-muted")}>
+              {rsvpFull ? c.rsvpLimit.full : rsvpNear ? c.rsvpLimit.near : c.rsvpLimit.hint}
+            </p>
+            <ButtonLink href={`/app/${inv.id}/pay`} variant={rsvpNear || rsvpFull ? "primary" : "secondary"} size="sm" className="mt-3">
+              {c.rsvpLimit.upgrade(`${upgradePrice.usd} · ${upgradePrice.riel}`)}
+            </ButtonLink>
+          </Reveal>
+        )}
+
         <ButtonLink href={`/app/${inv.id}/edit`} variant="secondary" fullWidth className="lg:hidden">
           <EditIcon size={16} />
           {c.edit}
         </ButtonLink>
 
-        <Reveal as="section" onMount delay={0.25} aria-labelledby="rsvp-title" className="overflow-hidden rounded-card bg-white shadow-card">
+        {/* The guest tab doesn't clip, so its row menus (⋯) can open past the card's bottom edge. */}
+        <Reveal
+          as="section"
+          onMount
+          delay={0.25}
+          aria-labelledby="rsvp-title"
+          className={cn("rounded-card bg-white shadow-card", tab !== "guests" && "overflow-hidden")}
+        >
           <div className="flex items-center justify-between gap-3 px-3.5 py-3 lg:px-5 lg:py-4">
-            <div className="flex items-center gap-3">
-              <span aria-hidden className="hidden size-10 items-center justify-center rounded-[10px] bg-gold-soft text-maroon sm:flex">
-                <MailIcon size={19} />
-              </span>
-              <div>
-                <h2 id="rsvp-title" className="flex items-center gap-2 text-base leading-[1.6] font-bold lg:text-lg">
-                  {c.rsvps}
-                  <span className="rounded-full bg-maroon px-2 text-xs leading-[1.7] font-semibold text-white">{fmt(rows.length)}</span>
-                </h2>
-                <p className="hidden text-xs text-muted sm:block">{c.rsvpsHint}</p>
+            {showGuestTab ? (
+              // Two lists share one card: replies, and guests invited by name (Premium).
+              <div role="tablist" aria-label={c.rsvps} className="flex min-w-0 gap-1 rounded-card bg-sand-light p-1">
+                {(["replies", "guests"] as const).map((key) => {
+                  const on = tab === key;
+                  return (
+                    <button
+                      key={key}
+                      id={`tab-${key}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={on}
+                      aria-controls={`panel-${key}`}
+                      onClick={() => setTab(key)}
+                      className={cn(
+                        "flex min-h-10 cursor-pointer items-center gap-1.5 rounded-[9px] px-3 text-sm font-semibold whitespace-nowrap transition-colors",
+                        on ? "bg-white text-charcoal shadow-card" : "text-muted hover:text-charcoal",
+                      )}
+                    >
+                      {key === "replies" ? (
+                        <>
+                          <span id={on ? "rsvp-title" : undefined}>{c.rsvps}</span>
+                          <span className="rounded-full bg-maroon px-1.5 text-[11px] leading-[1.7] text-white">{fmt(all?.length ?? 0)}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span id={on ? "rsvp-title" : undefined}>{c.guests.tab}</span>
+                          {!guestsEnabled && <LockIcon size={13} className="text-gold-deep" />}
+                        </>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
-            {rows.length === 0 ? (
+            ) : (
+              <div className="flex items-center gap-3">
+                <span aria-hidden className="hidden size-10 items-center justify-center rounded-[10px] bg-gold-soft text-maroon sm:flex">
+                  <MailIcon size={19} />
+                </span>
+                <div>
+                  <h2 id="rsvp-title" className="flex items-center gap-2 text-base leading-[1.6] font-bold lg:text-lg">
+                    {c.rsvps}
+                    <span className="rounded-full bg-maroon px-2 text-xs leading-[1.7] font-semibold text-white">{fmt(rows.length)}</span>
+                  </h2>
+                  <p className="hidden text-xs text-muted sm:block">{c.rsvpsHint}</p>
+                </div>
+              </div>
+            )}
+            {tab === "guests" ? null : !canDownload ? (
+              <span
+                aria-disabled
+                title={c.export.premiumOnly}
+                className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-card border-[1.5px] border-line px-3.5 text-sm font-semibold text-maroon"
+              >
+                <span className="flex items-center gap-1.5 opacity-45">
+                  <DownloadIcon size={16} />
+                  {c.export.button}
+                </span>
+                <Badge tone="gold">{t.tier.premium}</Badge>
+                <span className="sr-only">{c.export.premiumOnly}</span>
+              </span>
+            ) : rows.length === 0 ? (
               <span aria-disabled className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-card border-[1.5px] border-line px-3.5 text-sm font-semibold text-maroon opacity-45">
                 <DownloadIcon size={16} />
                 {c.export.button}
@@ -320,6 +443,12 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
             )}
           </div>
 
+          {tab === "guests" ? (
+            <div id="panel-guests" role="tabpanel" aria-labelledby="tab-guests">
+              <GuestList invitation={inv} rsvps={all ?? []} enabled={guestsEnabled} canUpgrade={guestsCanUpgrade} embedded />
+            </div>
+          ) : (
+          <div id="panel-replies" role={showGuestTab ? "tabpanel" : undefined} aria-labelledby={showGuestTab ? "tab-replies" : undefined}>
           <div className="flex flex-col gap-2.5 border-y border-line bg-sand-light/60 px-3.5 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-5">
             <div className="relative w-full lg:w-80">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted">
@@ -442,6 +571,8 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
                 </table>
               </div>
             </>
+          )}
+          </div>
           )}
         </Reveal>
       </main>

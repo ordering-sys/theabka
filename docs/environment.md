@@ -40,6 +40,9 @@ BAKONG_MERCHANT_NAME=TheabKa
 BAKONG_MERCHANT_CITY=Phnom Penh
 BAKONG_MERCHANT_ID=
 BAKONG_ACQUIRING_BANK=
+
+# ── Data retention cron ───────────────────────────────────────────────
+CRON_SECRET=
 ```
 
 ## What each variable does
@@ -100,6 +103,12 @@ The KHQR code is built by the app; payment is confirmed by asking the Bakong API
 
 You only need the variables for the provider you choose.
 
+### Data retention
+
+| Variable | Needed | Secret? | What it is |
+|---|---|---|---|
+| `CRON_SECRET` | In production | **Yes** | Protects `/api/cron/retention`, the daily job that ends old invitations and deletes expired content (see `docs/supabase-setup.md`, "Data retention"). Generate a long random string (`openssl rand -hex 32`). Vercel Cron sends it automatically; any other scheduler must send `Authorization: Bearer <CRON_SECRET>`. Without it the route refuses every call. |
+
 ### Set automatically (don't add these)
 
 | Variable | Set by |
@@ -110,7 +119,7 @@ You only need the variables for the provider you choose.
 ## Rules for keeping keys safe
 
 - Anything starting with `NEXT_PUBLIC_` is sent to every visitor's browser. Only public values go there.
-- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `PAYMENT_WEBHOOK_SECRET` and `BAKONG_API_TOKEN`. Keep them server-side only.
+- **Secret values:** `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `PAYMENT_WEBHOOK_SECRET`, `BAKONG_API_TOKEN` and `CRON_SECRET`. Keep them server-side only.
 - If a secret leaks (committed, pasted, screenshotted), rotate it in the Supabase or provider dashboard right away.
 - **Each environment gets its own keys.** Use test keys locally and production keys only in Vercel's production environment.
 

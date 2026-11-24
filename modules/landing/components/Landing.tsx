@@ -658,7 +658,7 @@ function Pricing() {
         >
           <PlanHeader name={t.tier.basic} tagline={c.basicTagline} price={basic} once={c.once} taglineClass="text-muted" priceClass="text-maroon" />
           <div aria-hidden className="my-5 h-px bg-line" />
-          <Checklist items={[c.photos.basic, ...c.shared]} tick="jade" />
+          <Checklist items={[c.photos.basic, c.rsvps.basic, ...c.shared, c.online.basic]} tick="jade" />
           <div className="mt-auto pt-6">
             <ButtonLink href={start} variant="secondary" fullWidth>{c.startBasic}</ButtonLink>
           </div>
@@ -685,7 +685,7 @@ function Pricing() {
             {/* One summary row instead of repeating Basic's list, then what Premium adds. */}
             <Checklist items={[c.everythingBasic]} tick="soft" strong />
             <p className="mt-5 mb-2.5 text-xs font-semibold text-gold-light">{c.plus}</p>
-            <Checklist items={[c.photos.premium, ...c.extras]} tick="gold" strong />
+            <Checklist items={[c.photos.premium, c.rsvps.premium, ...c.extras, c.online.premium]} tick="gold" strong />
             <div className="mt-auto pt-6">
               <ButtonLink href={start} variant="gold" fullWidth>{c.startPremium}</ButtonLink>
             </div>

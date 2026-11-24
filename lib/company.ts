@@ -12,4 +12,4 @@ export const COMPANY = {
 } as const;
 
 /** Date the privacy policy and terms were last changed (YYYY-MM-DD). Update it with every edit. */
-export const LEGAL_UPDATED = "2026-11-23";
+export const LEGAL_UPDATED = "2026-11-24";

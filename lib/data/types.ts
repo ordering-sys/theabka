@@ -14,8 +14,32 @@ import type {
 
 export type { Invitation, MusicTrack, Photo, Rsvp, ScheduleItem, Template, Tier };
 
-/** The invitation row plus its photos and the uploaded song's name. */
-export type Draft = Invitation & { photos: Photo[]; customMusicName: string | null };
+/**
+ * The invitation row plus its photos and the uploaded song's name.
+ * `paidTier` and `purgedAt` drive retention (modules/retention/lib/policy.ts);
+ * both are null on the guest page.
+ */
+export type Draft = Invitation & {
+  photos: Photo[];
+  customMusicName: string | null;
+  paidTier: Tier | null;
+  purgedAt: string | null;
+};
+
+/** A guest the host invited by name (Premium). Their link is /i/<slug>/<code>. */
+export type InvitationGuest = {
+  id: string;
+  invitationId: string;
+  title: "" | "mr" | "mrs" | "miss" | "he" | "lok_chumteav" | "teacher_m" | "teacher_f";
+  nameKm: string;
+  nameEn: string;
+  companion: "" | "family" | "partner" | "wife" | "husband" | "friend";
+  code: string;
+  sentAt: string | null;
+  openedAt: string | null;
+};
+
+export type NewInvitationGuest = Pick<InvitationGuest, "title" | "nameKm" | "nameEn" | "companion">;
 
 /** `name` comes from the Google profile; email sign-ins have none. */
 export type Session = { userId: string; email?: string; name?: string; provider: "email" | "google" };

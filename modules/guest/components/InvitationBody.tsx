@@ -5,10 +5,12 @@ import { PinIcon } from "@/components/ui/Icons";
 import { cn } from "@/lib/cn";
 import { formatEnglishDate, formatKhmerDate, formatTime, toKhmerNumerals } from "@/lib/khmer";
 import type { Invitation, Photo, Template } from "@/lib/mock-data";
+import { guestNameEn, guestNameKm, type InvitedGuest } from "@/modules/guest/lib/greeting";
 import { AddToCalendar, DirectionsLink, MadeWith } from "./islands";
 import { GuestReveal, GuestStagger, GuestStaggerItem } from "./reveal";
 
-type Props = { invitation: Invitation; photos: Photo[]; template: Template; url: string };
+/** `guest`: set on a personal link (/i/<slug>/<code>, Premium); the card greets them by name. */
+type Props = { invitation: Invitation; photos: Photo[]; template: Template; url: string; guest?: InvitedGuest };
 
 const INVITE_TEXT = {
   wedding: {
@@ -36,7 +38,7 @@ function SectionTitle({ km, en, accent }: { km: string; en: string; accent: stri
   );
 }
 
-export function InvitationBody({ invitation: inv, photos, template, url }: Props) {
+export function InvitationBody({ invitation: inv, photos, template, url, guest }: Props) {
   const { bg, fg, accent } = template.theme;
   const cover = photos.find((p) => p.id === inv.coverPhotoId) ?? photos[0];
   const text = INVITE_TEXT[template.eventType];
@@ -104,6 +106,14 @@ export function InvitationBody({ invitation: inv, photos, template, url }: Props
       >
         <KbachCorners color={accent} />
         <div className="flex justify-center"><Lotus size={40} color={accent} strokeWidth={1.2} /></div>
+        {guest && (
+          // Personal link (Premium): who this invitation is for.
+          <div className="mx-auto mt-3 max-w-75 rounded-card px-4 py-3" style={{ background: `${accent}14` }}>
+            <p lang="km" className="text-xs leading-[1.7] text-muted">សូមគោរពអញ្ជើញ</p>
+            <p lang="km" className="font-moul text-base leading-[1.9]" style={{ color: accent }}>{guestNameKm(guest)}</p>
+            <p lang="en" className="font-serif text-sm text-ink-soft italic">Dear {guestNameEn(guest)}</p>
+          </div>
+        )}
         <p lang="km" className="mt-3 text-sm leading-[1.9] text-ink-soft">{text.km}</p>
         <p lang="en" className="mt-1.5 font-serif text-sm text-muted italic">{text.en}</p>
 

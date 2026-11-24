@@ -63,7 +63,9 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             <>
               <div style={{ width: 120, height: 2, background: accent, margin: "28px 0" }} />
               <div style={{ fontFamily: "Sans", fontSize: 36 }}>{formatEnglishDate(inv.eventDate)}</div>
-              <div style={{ fontFamily: "Sans", fontSize: 28, opacity: 0.85, marginTop: 6 }}>{inv.venueNameEn}</div>
+              {"venueNameEn" in inv && (
+                <div style={{ fontFamily: "Sans", fontSize: 28, opacity: 0.85, marginTop: 6 }}>{inv.venueNameEn}</div>
+              )}
             </>
           )}
         </div>
