@@ -2,6 +2,7 @@
 import { cn } from "@/lib/cn";
 import { formatEnglishDate, formatKhmerDate, formatTime } from "@/lib/khmer";
 import { getTemplate, templates, type Invitation, type Photo } from "@/lib/mock-data";
+import { BlossomCanopy, PAVILION_SKY } from "./PavilionArt";
 import { Lotus, headingKm } from "./TemplateArt";
 
 type Props = {
@@ -22,14 +23,16 @@ export function InvitationCover({ invitation: inv, photos = [], compact, classNa
   const cover = photos.find((p) => p.id === inv.coverPhotoId) ?? photos[0];
   const groomShort = inv.groomEn.split(" ").at(-1) || inv.groomEn;
   const brideShort = inv.brideEn.split(" ").at(-1) || inv.brideEn;
+  const pavilion = template.theme.decor === "pavilion";
 
   return (
     <div
       className={cn("relative flex h-full flex-col items-center overflow-y-auto text-center", compact ? "p-6" : "p-8", className)}
-      style={{ background: bg, color: fg }}
+      style={{ background: pavilion ? PAVILION_SKY : bg, color: fg }}
     >
+      {pavilion && <BlossomCanopy className={cn("absolute inset-x-0 top-0 w-full", compact ? "h-[110px]" : "h-[140px]")} />}
       <div aria-hidden className={cn("pointer-events-none absolute rounded-[20px] border", compact ? "inset-3.5" : "inset-4")} style={{ borderColor: accent }} />
-      <div className="my-auto flex w-full flex-col items-center py-2">
+      <div className="relative my-auto flex w-full flex-col items-center py-2">
         {cover ? (
           <img
             src={cover.url}

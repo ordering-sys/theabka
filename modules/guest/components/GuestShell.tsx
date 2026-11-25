@@ -17,6 +17,7 @@ import { defaultPartySize, guestNameEn, guestNameKm, type InvitedGuest } from "@
 import { guestContent } from "@/modules/guest/content";
 import { DoorsOpenContext } from "./reveal";
 import { inputClass } from "@/components/ui/field";
+import { BlossomCanopy, DoorArch, PAVILION_SEAL } from "@/components/invitation/PavilionArt";
 
 /**
  * `demo`: the built-in sample invitation. Views and RSVPs aren't saved, and a "Sample" pill links home.
@@ -58,7 +59,9 @@ export function GuestShell({ invitation: inv, template, demo = false, openingAni
   const [sheet, setSheet] = useState<"rsvp" | "gift" | null>(null);
   const [playing, setPlaying] = useState(false);
   const audio = useRef<HTMLAudioElement>(null);
-  const hasMusic = !!inv.musicUrl && !inv.musicUrl.startsWith("custom:");
+  // Set when the song can't load (missing file, expired link): the music button is hidden.
+  const [musicBroken, setMusicBroken] = useState(false);
+  const hasMusic = !!inv.musicUrl && !inv.musicUrl.startsWith("custom:") && !musicBroken;
   const hasGift = !!inv.giftQrUrl;
 
   // Lock page scroll while the doors cover it.
@@ -70,7 +73,17 @@ export function GuestShell({ invitation: inv, template, demo = false, openingAni
   }, [doors]);
 
   function play() {
-    audio.current?.play().then(() => setPlaying(true), () => setPlaying(false));
+    const el = audio.current;
+    if (!el) return;
+    el.play().then(
+      () => setPlaying(true),
+      () => {
+        setPlaying(false);
+        // Some browsers still refuse (power saving, the tap ended before the audio was ready).
+        // Try once more on the guest's next touch anywhere on the page.
+        window.addEventListener("pointerdown", () => void el.play().then(() => setPlaying(true), () => {}), { once: true });
+      },
+    );
   }
 
   function openDoors() {
@@ -150,7 +163,21 @@ export function GuestShell({ invitation: inv, template, demo = false, openingAni
           </motion.button>
         )}
       </motion.div>
-      {hasMusic && <audio ref={audio} src={inv.musicUrl!} loop preload="none" onEnded={() => setPlaying(false)} />}
+      {hasMusic && (
+        <audio
+          ref={audio}
+          src={inv.musicUrl!}
+          loop
+          preload="none"
+          onPause={() => setPlaying(false)}
+          onPlaying={() => setPlaying(true)}
+          onError={() => {
+            console.warn("[guest] music failed to load:", inv.musicUrl);
+            setMusicBroken(true);
+            setPlaying(false);
+          }}
+        />
+      )}
 
       {/* Sticky action bar: slides up once the doors open. */}
       <motion.div
@@ -227,6 +254,10 @@ function Doors({ invitation: inv, template, guest, opening, onOpen }: { invitati
   const initial = (s: string) => (s.split(" ").at(-1) || s).charAt(0).toUpperCase();
   const door = "absolute inset-y-0 w-1/2";
   const doorTransition = { duration: 1, ease: [0.7, 0, 0.3, 1] } as const;
+  // Blush Pavilion: ivory doors with gold arches under a blossom canopy, and a gold seal.
+  const pavilion = template.theme.decor === "pavilion";
+  const doorBg = (side: "left" | "right") =>
+    pavilion ? `linear-gradient(${side === "left" ? 90 : 270}deg, #F9E9E4 0%, #FFF8F3 85%, #F3DCD5 100%)` : bg;
 
   return (
     <button
@@ -238,22 +269,41 @@ function Doors({ invitation: inv, template, guest, opening, onOpen }: { invitati
     >
       <motion.span
         className={cn(door, "left-0 border-r")}
-        style={{ background: bg, borderColor: accent }}
+        style={{ background: doorBg("left"), borderColor: accent }}
         initial={false}
         animate={{ x: opening ? "-100%" : "0%" }}
         transition={doorTransition}
       >
-        <span className="absolute inset-y-4 right-2 left-4 rounded-l-card border" style={{ borderColor: accent }} />
+        {pavilion ? (
+          <DoorArch className="absolute inset-0 size-full" />
+        ) : (
+          <span className="absolute inset-y-4 right-2 left-4 rounded-l-card border" style={{ borderColor: accent }} />
+        )}
       </motion.span>
       <motion.span
         className={cn(door, "right-0 border-l")}
-        style={{ background: bg, borderColor: accent }}
+        style={{ background: doorBg("right"), borderColor: accent }}
         initial={false}
         animate={{ x: opening ? "100%" : "0%" }}
         transition={doorTransition}
       >
-        <span className="absolute inset-y-4 right-4 left-2 rounded-r-card border" style={{ borderColor: accent }} />
+        {pavilion ? (
+          <DoorArch className="absolute inset-0 size-full -scale-x-100" />
+        ) : (
+          <span className="absolute inset-y-4 right-4 left-2 rounded-r-card border" style={{ borderColor: accent }} />
+        )}
       </motion.span>
+      {pavilion && (
+        // Canopy over the door frame; lifts away as the doors open.
+        <motion.span
+          className="absolute inset-x-0 top-0 block h-[150px]"
+          initial={false}
+          animate={opening ? { opacity: 0, y: -40 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
+          <BlossomCanopy className="size-full" />
+        </motion.span>
+      )}
       <motion.span
         className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-center"
         style={{ color: fg }}
@@ -269,11 +319,11 @@ function Doors({ invitation: inv, template, guest, opening, onOpen }: { invitati
         {/* Monogram breathes gently to invite a tap. */}
         <motion.span
           className="flex size-24 items-center justify-center rounded-full border-4"
-          style={{ background: accent, borderColor: "var(--color-gold-light)" }}
+          style={pavilion ? { background: PAVILION_SEAL, borderColor: "rgba(255,255,255,0.35)" } : { background: accent, borderColor: "var(--color-gold-light)" }}
           animate={{ scale: [1, 1.06, 1] }}
           transition={{ duration: 2.4, ease: "easeInOut", repeat: Infinity }}
         >
-          <span lang="en" className="font-serif text-[30px] italic" style={{ color: bg }}>
+          <span lang="en" className="font-serif text-[30px] italic" style={{ color: pavilion ? "var(--color-maroon-dark)" : bg }}>
             {initial(inv.groomEn)}&amp;{initial(inv.brideEn)}
           </span>
         </motion.span>

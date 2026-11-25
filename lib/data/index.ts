@@ -275,6 +275,8 @@ export async function saveDraft(draft: Draft): Promise<boolean> {
   if (moves.some((r) => r.error)) return false;
 
   const { error } = await supabase.from("invitations").update(draftToWritable(draft)).eq("id", draft.id);
+  // e.g. "invalid_music_url" when a built-in song's url differs from the music_tracks table.
+  if (error) console.warn("[editor] save failed:", error.message);
   return !error;
 }
 

@@ -209,7 +209,10 @@ export function rowToTemplate(row: TemplateRow, plans: PlanRow[]): Template {
     tier: row.tier,
     priceUsd: plan ? plan.price_usd_cents / 100 : 0,
     thumbnailUrl: row.thumbnail_url,
-    theme: { bg: str(theme.bg), fg: str(theme.fg), accent: str(theme.accent), ctaFg: str(theme.ctaFg) },
+    theme: {
+      bg: str(theme.bg), fg: str(theme.fg), accent: str(theme.accent), ctaFg: str(theme.ctaFg),
+      ...(theme.decor === "pavilion" ? { decor: "pavilion" as const } : {}),
+    },
   };
 }
 

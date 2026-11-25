@@ -54,17 +54,23 @@ export type Template = {
   tier: Tier;
   priceUsd: number;
   thumbnailUrl: string | null;
-  theme: { bg: string; fg: string; accent: string; ctaFg: string };
+  theme: { bg: string; fg: string; accent: string; ctaFg: string; decor?: TemplateDecor };
 };
+
+/**
+ * Extra artwork a template draws on top of its colours (stored in the theme JSON).
+ * "pavilion": blossom canopy, ivory pillars, gold crest and garden pavilion (Blush Pavilion).
+ */
+export type TemplateDecor = "pavilion";
 
 const t = (
   id: string, nameKm: string, nameEn: string, eventType: EventType, tier: Tier,
-  bg: string, fg: string, accent: string, ctaFg: string,
+  bg: string, fg: string, accent: string, ctaFg: string, decor?: TemplateDecor,
 ): Template => ({
   id, nameKm, nameEn, eventType, tier,
   priceUsd: PLANS[tier].priceUsd,
   thumbnailUrl: null,
-  theme: { bg, fg, accent, ctaFg },
+  theme: decor ? { bg, fg, accent, ctaFg, decor } : { bg, fg, accent, ctaFg },
 });
 
 export const templates: Template[] = [
@@ -76,6 +82,7 @@ export const templates: Template[] = [
   t("rumduol", "រំដួល", "Rumduol", "engagement", "basic", "#F3E3C3", "#2B2B2B", "#7A4A12", "#FFFFFF"),
   t("jade", "សួនមរកត", "Jade Garden", "engagement", "premium", "#3F6B5B", "#F6EEDD", "#E3C277", "#2B2B2B"),
   t("rose", "កុលាបសូត្រ", "Silk Rose", "engagement", "basic", "#F2DCD7", "#2B2B2B", "#8E3B46", "#FFFFFF"),
+  t("pavilion", "ពន្លាពណ៌ផ្កាឈូក", "Blush Pavilion", "wedding", "premium", "#F7D7D3", "#2B2B2B", "#7A5A16", "#FFFFFF", "pavilion"),
 ];
 
 export type ScheduleItem = { id?: string; time: string; titleKm: string; titleEn: string };
@@ -157,7 +164,8 @@ export const sampleInvitation: Invitation = {
     { time: "17:00", titleKm: "ពិធីជប់លៀងអាពាហ៍ពិពាហ៍", titleEn: "Wedding reception" },
   ],
   coverPhotoId: "photo_s1",
-  musicUrl: "/music/sarika.mp3",
+  // The only built-in song with an audio file so far (public/music/).
+  musicUrl: "/music/special-someone.mp3",
   musicMutedDefault: false,
   giftQrUrl: "/sample/khqr.svg",
   giftNoteKm: "អរគុណសម្រាប់ការជូនពរ។",
@@ -170,7 +178,7 @@ export const sampleInvitation: Invitation = {
 /**
  * What a brand-new invitation starts with: the host's own details are empty
  * (the editor shows the sample couple as placeholder hints). The map pin starts
- * in Phnom Penh, the first built-in song is selected, and the gift note is the
+ * in Phnom Penh, "Special Someone" is selected (the built-in song whose file exists), and the gift note is the
  * generic thank-you, since those are fine for most hosts as they are.
  */
 export const blankInvitationContent = {

@@ -4,11 +4,11 @@ import { sampleInvitation, type Invitation, type Photo, type Tier } from "@/lib/
 
 /**
  * The landing page's "see a sample" link (/i/dara-sophea). It isn't in the database,
- * so it's served from the static demo data. Audio files aren't in the repo yet, so the
- * sample has no music. Six placeholder photos live in public/sample/.
+ * so it's served from the static demo data, with the built-in "Special Someone" song.
+ * Six placeholder photos live in public/sample/.
  */
 const SAMPLE = {
-  invitation: { ...sampleInvitation, musicUrl: null } satisfies Invitation,
+  invitation: sampleInvitation satisfies Invitation,
   photos: [1, 2, 3, 4, 5, 6].map((n): Photo => ({
     id: `photo_s${n}`,
     invitationId: sampleInvitation.id,

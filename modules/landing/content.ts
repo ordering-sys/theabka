@@ -9,9 +9,6 @@ const en = {
     sample: "See a sample invitation",
     seeHow: "See how it works",
     trust: ["No app for guests", "Pay by KHQR", "Khmer and English"],
-    liveRsvp: "Live RSVPs",
-    guestsComing: "guests coming",
-    replied: "people replied",
   },
   how: {
     kicker: "HOW IT WORKS",
@@ -21,7 +18,7 @@ const en = {
     next: "Next step",
     start: "Start now",
     steps: [
-      { title: "Pick a template", sub: "8 designs for weddings and engagements", time: "1 minute", note: "Tap any template to preview it full screen before you choose." },
+      { title: "Pick a template", sub: "9 designs for weddings and engagements", time: "1 minute", note: "Tap any template to preview it full screen before you choose." },
       { title: "Add your details", sub: "Names, date, venue, schedule, photos, music and gift", time: "5–10 minutes", note: "The invitation updates as you type. The date is shown in Khmer numerals automatically." },
       { title: "Pay by KHQR", sub: "$5 (20,000 ៛) or $15 (60,000 ៛), paid once", time: "30 seconds", note: "Building and previewing are free. You only pay when you want to publish." },
       { title: "Share and track", sub: "Send the link and watch RSVPs arrive", time: "Until the big day", note: "Editing after publishing is free, and guests see changes right away." },
@@ -42,7 +39,7 @@ const en = {
     preview: "Preview",
     closePreview: "Close preview",
   },
-  templates: { title: "Templates", sub: "8 designs for weddings and engagements", seeAll: "See all", all: "All", use: "Use this template" },
+  templates: { title: "Templates", sub: "9 designs for weddings and engagements", seeAll: "See all", all: "All", use: "Use this template" },
   guests: {
     kicker: "FOR GUESTS",
     title: "Guests open it instantly, no app needed",
@@ -119,9 +116,6 @@ const km: typeof en = {
     sample: "មើលធៀបការឧទាហរណ៍",
     seeHow: "មើលរបៀបដំណើរការ",
     trust: ["ភ្ញៀវមិនចាំបាច់ដំឡើងកម្មវិធី", "បង់តាម KHQR", "ខ្មែរ និងអង់គ្លេស"],
-    liveRsvp: "ការឆ្លើយតបផ្ទាល់",
-    guestsComing: "ភ្ញៀវនឹងចូលរួម",
-    replied: "នាក់បានឆ្លើយតប",
   },
   how: {
     kicker: "របៀបដំណើរការ",
@@ -131,7 +125,7 @@ const km: typeof en = {
     next: "ជំហានបន្ទាប់",
     start: "ចាប់ផ្ដើមឥឡូវ",
     steps: [
-      { title: "ជ្រើសរើសគំរូ", sub: "គំរូ ៨ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ", time: "១ នាទី", note: "ចុចលើគំរូណាមួយ ដើម្បីមើលជាមុនពេញអេក្រង់ មុនពេលជ្រើសរើស។" },
+      { title: "ជ្រើសរើសគំរូ", sub: "គំរូ ៩ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ", time: "១ នាទី", note: "ចុចលើគំរូណាមួយ ដើម្បីមើលជាមុនពេញអេក្រង់ មុនពេលជ្រើសរើស។" },
       { title: "បំពេញព័ត៌មាន", sub: "ឈ្មោះ កាលបរិច្ឆេទ ទីកន្លែង កម្មវិធី រូបថត តន្ត្រី និងចំណងដៃ", time: "៥–១០ នាទី", note: "ធៀបការផ្លាស់ប្ដូរភ្លាមៗពេលអ្នកវាយ។ កាលបរិច្ឆេទបង្ហាញជាលេខខ្មែរដោយស្វ័យប្រវត្តិ។" },
       { title: "បង់តាម KHQR", sub: "$5 (២០,០០០ ៛) ឬ $15 (៦០,០០០ ៛) បង់តែម្ដង", time: "៣០ វិនាទី", note: "ការបង្កើត និងមើលជាមុន ឥតគិតថ្លៃ។ អ្នកបង់តែពេលចង់ផ្សព្វផ្សាយ។" },
       { title: "ចែករំលែក និងតាមដាន", sub: "ផ្ញើតំណ ហើយមើលការឆ្លើយតបចូលមក", time: "រហូតដល់ថ្ងៃការ", note: "ការកែសម្រួលក្រោយផ្សព្វផ្សាយ ឥតគិតថ្លៃ ហើយភ្ញៀវឃើញការផ្លាស់ប្ដូរភ្លាមៗ។" },
@@ -152,7 +146,7 @@ const km: typeof en = {
     preview: "មើលជាមុន",
     closePreview: "បិទការមើលជាមុន",
   },
-  templates: { title: "គំរូធៀបការ", sub: "គំរូ ៨ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ", seeAll: "មើលទាំងអស់", all: "ទាំងអស់", use: "ប្រើគំរូនេះ" },
+  templates: { title: "គំរូធៀបការ", sub: "គំរូ ៩ ប្រភេទ សម្រាប់អាពាហ៍ពិពាហ៍ និងភ្ជាប់ពាក្យ", seeAll: "មើលទាំងអស់", all: "ទាំងអស់", use: "ប្រើគំរូនេះ" },
   guests: {
     kicker: "សម្រាប់ភ្ញៀវ",
     title: "ភ្ញៀវបើកភ្លាម មិនចាំបាច់ដំឡើងកម្មវិធី",

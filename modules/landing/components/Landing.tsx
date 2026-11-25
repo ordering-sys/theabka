@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring, useTransform } from "motion/react";
-import { CountUp, EASE, Reveal, SPRING, Stagger, StaggerItem, fadeUp } from "@/components/motion/Motion";
+import { EASE, Reveal, SPRING, Stagger, StaggerItem, fadeUp } from "@/components/motion/Motion";
 import { ButtonLink } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Header";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
@@ -15,11 +15,12 @@ import { PhoneMock, TemplateThumb } from "@/components/invitation/TemplateArt";
 import { cn } from "@/lib/cn";
 import { COMPANY } from "@/lib/company";
 import { useContent, useLanguage } from "@/lib/i18n";
-import { formatNumber, formatPrice } from "@/lib/khmer";
-import { PLANS, getRsvpStats, rsvps, templates, type EventType } from "@/lib/mock-data";
+import { formatPrice } from "@/lib/khmer";
+import { PLANS, templates, type EventType } from "@/lib/mock-data";
 import { landingContent } from "@/modules/landing/content";
 import { useSession } from "@/modules/auth/components/RequireSession";
 import { useStartHref } from "@/modules/landing/hooks/useStartHref";
+import { EnvelopeMock } from "./EnvelopeMock";
 import { HowItWorks } from "./HowItWorks";
 
 const SAMPLE_INVITE = "/i/dara-sophea";
@@ -320,15 +321,11 @@ function Hero() {
   const c = useContent(landingContent).hero;
   const create = useContent(landingContent).create;
   const { lang } = useLanguage();
-  const stats = getRsvpStats(rsvps);
-  // Share of replies that are "attending".
-  const repliedPct = Math.round((stats.attending / rsvps.length) * 100);
 
-  // Scroll parallax: the phone drifts up slower than the page, the RSVP card faster.
+  // Scroll parallax: the phone (envelope on desktop) drifts up slower than the page.
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const phoneY = useTransform(scrollYProgress, [0, 1], [0, 90]);
-  const cardY = useTransform(scrollYProgress, [0, 1], [0, -60]);
   const glowY = useTransform(scrollYProgress, [0, 1], [0, 140]);
 
   return (
@@ -385,10 +382,8 @@ function Hero() {
         </Stagger>
 
         <div className="relative flex justify-center py-6 lg:flex-[1_1_460px] lg:py-0">
-          {/* Stage sized to the phone, so the halo and glow centre on it. On desktop the
-              RSVP cards hang off its right edge; the right margin balances that overhang
-              so the group sits centred in the column. */}
-          <div className="relative lg:mr-[170px]">
+          {/* Stage sized to the phone (envelope on desktop), so the halo and glow centre on it. */}
+          <div className="relative">
             {/* Warm gold glow behind the phone (desktop only). */}
             <Glow className="top-1/2 left-1/2 -mt-[190px] -ml-[190px] hidden size-[380px] bg-gold/20 lg:block" drift={12} duration={16} />
             {/* Slow-turning gold halo behind the phone. */}
@@ -419,82 +414,14 @@ function Hero() {
                     <PhoneMock />
                   </Link>
                   <div className="hidden lg:block">
-                    <PhoneMock size="lg" />
+                    <EnvelopeMock />
                   </div>
                 </motion.div>
-              </motion.div>
-            </motion.div>
-
-            {/* Overlaps the phone's right edge by 40px so phone, chip and card read as one group. */}
-            <motion.div style={{ y: cardY }} className="absolute bottom-14 left-[calc(100%-40px)] hidden lg:block">
-              <NewReplyChip />
-              <motion.div
-                initial={{ opacity: 0, x: 30, scale: 0.95 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                whileHover={{ y: -4 }}
-                className="w-[210px] rounded-2xl bg-white p-4 shadow-[0_10px_30px_rgba(43,43,43,0.12)]"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
-                  <span aria-hidden className="relative flex size-1.5">
-                    <span className="absolute inset-0 rounded-full bg-jade motion-safe:animate-ping" />
-                    <span className="relative size-1.5 rounded-full bg-jade" />
-                  </span>
-                  {c.liveRsvp}
-                </div>
-                <CountUp
-                  value={stats.totalGuests}
-                  format={(n) => formatNumber(n, lang)}
-                  className="block text-[32px] leading-[1.2] font-bold text-jade-ink"
-                />
-                <div className="text-[13px] text-ink-soft">{c.guestsComing}</div>
-                <div className="mt-3 mb-1.5 h-2 overflow-hidden rounded-full bg-sand">
-                  <motion.div
-                    className="h-full rounded-full bg-linear-to-r from-jade-light to-jade"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${repliedPct}%` }}
-                    transition={{ duration: 1.1, ease: EASE, delay: 1 }}
-                  />
-                </div>
-                <div className="text-xs text-muted">{formatNumber(rsvps.length, lang)} {c.replied}</div>
               </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
-    </div>
-  );
-}
-
-/** Sample replies popping in above the RSVP card, one after another. */
-function NewReplyChip() {
-  const { lang } = useLanguage();
-  const replies = rsvps.filter((r) => r.attending);
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const id = window.setInterval(() => setI((n) => (n + 1) % replies.length), 3200);
-    return () => window.clearInterval(id);
-  }, [replies.length]);
-  const r = replies[i];
-  if (!r) return null;
-  return (
-    <div aria-hidden className="absolute -top-14 -left-10 h-11 w-[230px]">
-      <AnimatePresence mode="popLayout">
-        <motion.div
-          key={r.id}
-          initial={{ opacity: 0, y: 14, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-          transition={{ ...SPRING, delay: i === 0 ? 1.4 : 0 }}
-          className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 pr-3.5 pl-1.5 text-[13px] leading-[1.6] shadow-[0_8px_24px_rgba(43,43,43,0.12)]"
-        >
-          <span className="flex size-7 items-center justify-center rounded-full bg-jade-soft">
-            <CheckIcon size={14} className="text-jade-ink" />
-          </span>
-          <span className="truncate font-semibold text-charcoal">{r.guestName}</span>
-          <span className="shrink-0 font-bold text-jade-ink">+{formatNumber(r.partySize, lang)}</span>
-        </motion.div>
-      </AnimatePresence>
     </div>
   );
 }

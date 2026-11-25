@@ -3,6 +3,7 @@ import { cn } from "@/lib/cn";
 import { formatEnglishDate, formatKhmerDate, toKhmerNumerals } from "@/lib/khmer";
 import { sampleInvitation as inv, type Template } from "@/lib/mock-data";
 import { JasmineDivider, KbachCorners } from "./Kbach";
+import { BlossomCanopy } from "./PavilionArt";
 
 /** Lotus ornament. Invitation artwork only, never host-app chrome. */
 export function Lotus({ size = 28, color, strokeWidth = 1.4 }: { size?: number; color?: string; strokeWidth?: number }) {
@@ -45,7 +46,10 @@ export function TemplateThumb({
         className="relative flex h-full flex-col items-center justify-center gap-0.5 rounded-md border p-1.5 text-center"
         style={{ borderColor: accent, color: fg }}
       >
-        {size === "lg" && <KbachCorners color={accent} />}
+        {template.theme.decor === "pavilion" && (
+          <BlossomCanopy sparse={size === "sm"} className="absolute inset-x-0 top-0 h-2/5 w-full overflow-hidden rounded-t-md" />
+        )}
+        {size === "lg" && template.theme.decor !== "pavilion" && <KbachCorners color={accent} />}
         {s.lotus > 0 && <Lotus size={s.lotus} color={accent} />}
         <div lang="km" className={cn("font-moul leading-[1.9]", size === "lg" && "mt-1", s.head)} style={{ color: accent }}>
           {size === "sm" ? "សិរីមង្គល" : headingKm(template)}

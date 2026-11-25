@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- sample photos are SVGs; real ones come from Supabase Storage */
 import { Lotus, headingKm } from "@/components/invitation/TemplateArt";
 import { JasmineDivider, KbachCorners } from "@/components/invitation/Kbach";
+import { Balustrade, BlossomCanopy, MonogramCrest, PAVILION_PAGE, PAVILION_SKY, PavilionLineArt, Pillar } from "@/components/invitation/PavilionArt";
 import { PinIcon } from "@/components/ui/Icons";
 import { cn } from "@/lib/cn";
 import { formatEnglishDate, formatKhmerDate, formatTime, toKhmerNumerals } from "@/lib/khmer";
@@ -38,6 +39,49 @@ function SectionTitle({ km, en, accent }: { km: string; en: string; accent: stri
   );
 }
 
+/**
+ * Blush Pavilion cover: "save the date" under a blossom canopy, between ivory
+ * pillars, with the couple's gold crest and a garden pavilion. Photos appear in
+ * the gallery instead of behind the names.
+ */
+function PavilionCover({ invitation: inv }: { invitation: Invitation }) {
+  const initial = (s: string) => (s.split(" ").at(-1) || s).charAt(0).toUpperCase();
+  const short = (full: string) => full.split(" ").at(-1) || full;
+  return (
+    <section className="relative h-[800px] overflow-hidden" style={{ background: PAVILION_SKY }}>
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <span className="absolute top-[330px] -left-16 h-[90px] w-[260px] rounded-full bg-white/55 blur-[18px]" />
+        <span className="absolute top-[390px] -right-12 h-[80px] w-[240px] rounded-full bg-white/50 blur-[16px]" />
+        <span className="absolute top-[210px] left-1/4 h-[70px] w-[220px] rounded-full bg-[#FFF0E8]/60 blur-[20px]" />
+      </div>
+      <GuestReveal onMount variant="fadeUp" delay={0.6} className="absolute bottom-[30px] left-1/2 w-[300px] -translate-x-1/2">
+        <PavilionLineArt className="w-full" />
+      </GuestReveal>
+      <Balustrade className="absolute inset-x-0 bottom-0 h-16" />
+      <Pillar side="left" className="absolute top-[150px] bottom-0 left-0 w-[54px]" />
+      <Pillar side="right" className="absolute top-[150px] right-0 bottom-0 w-[54px]" />
+      <BlossomCanopy className="absolute inset-x-0 top-0 h-[180px] w-full" />
+
+      <GuestStagger onMount delay={0.55} stagger={0.14} className="relative flex flex-col items-center px-16 pt-24 text-center">
+        <h1 className="sr-only">
+          <span lang="km">{inv.groomKm} &amp; {inv.brideKm}</span> · <span lang="en">{short(inv.groomEn)} &amp; {short(inv.brideEn)}</span>
+        </h1>
+        <GuestStaggerItem lang="km" className="font-moul text-2xl leading-[1.75] text-gold-deep">
+          សូមរក្សាទុក<br />កាលបរិច្ឆេទ
+        </GuestStaggerItem>
+        <GuestStaggerItem lang="en" className="font-serif text-[15px] text-maroon italic">Save the Date</GuestStaggerItem>
+        <GuestStaggerItem variant="popIn" className="mt-3.5">
+          <MonogramCrest first={initial(inv.groomEn)} second={initial(inv.brideEn)} />
+        </GuestStaggerItem>
+        <GuestStaggerItem className="mt-3.5">
+          <div lang="km" className="text-[19px] leading-[1.7] font-semibold text-maroon">{formatKhmerDate(inv.eventDate)}</div>
+          <div lang="en" className="text-[13px] text-[#6B4A3E]">{formatEnglishDate(inv.eventDate)}</div>
+        </GuestStaggerItem>
+      </GuestStagger>
+    </section>
+  );
+}
+
 export function InvitationBody({ invitation: inv, photos, template, url, guest }: Props) {
   const { bg, fg, accent } = template.theme;
   const cover = photos.find((p) => p.id === inv.coverPhotoId) ?? photos[0];
@@ -46,10 +90,12 @@ export function InvitationBody({ invitation: inv, photos, template, url, guest }
   const timeEn = inv.startTime ? ` · ${formatTime(inv.startTime, "en")}` : "";
   // Gallery: the cover leads, the rest follow.
   const gallery = cover ? [cover, ...photos.filter((p) => p.id !== cover.id)] : photos;
+  const pavilion = template.theme.decor === "pavilion";
 
   return (
-    <div className="pb-28">
+    <div className="pb-28" style={pavilion ? { background: PAVILION_PAGE } : undefined}>
       {/* Cover */}
+      {pavilion ? <PavilionCover invitation={inv} /> : (
       <section className="relative flex h-[580px] items-end overflow-hidden" style={{ background: bg }}>
         {cover && (
           <GuestReveal onMount variant="zoomOut" className="absolute inset-0">
@@ -96,6 +142,7 @@ export function InvitationBody({ invitation: inv, photos, template, url, guest }
           </svg>
         </span>
       </section>
+      )}
 
       {/* Invitation card */}
       <GuestReveal
