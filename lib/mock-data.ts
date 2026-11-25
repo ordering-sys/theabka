@@ -20,8 +20,8 @@ export type InvitationStatus = "draft" | "live";
  * null means unlimited (the database still caps Premium at 2,000 against abuse, plans.max_rsvps).
  */
 export const PLANS = {
-  basic: { priceUsd: 5, priceKhr: 20_000, maxPhotos: 3, customMusic: false, onlineMonths: 3, openingAnimation: false, guestListDownload: false, maxRsvps: 150, personalLinks: false },
-  premium: { priceUsd: 15, priceKhr: 60_000, maxPhotos: 6, customMusic: true, onlineMonths: 6, openingAnimation: true, guestListDownload: true, maxRsvps: null, personalLinks: true },
+  basic: { priceUsd: 5, priceKhr: 20_000, maxPhotos: 3, customMusic: false, onlineMonths: 3, openingAnimation: false, guestListDownload: false, maxRsvps: 150, personalLinks: false, giftLedger: false },
+  premium: { priceUsd: 15, priceKhr: 60_000, maxPhotos: 6, customMusic: true, onlineMonths: 6, openingAnimation: true, guestListDownload: true, maxRsvps: null, personalLinks: true, giftLedger: true },
 } as const satisfies Record<
   Tier,
   {
@@ -35,6 +35,8 @@ export const PLANS = {
     maxRsvps: number | null;
     /** Host can invite guests by name, each with a personal link (invitation_guests). */
     personalLinks: boolean;
+    /** Host can record the gifts they received (gift_entries). */
+    giftLedger: boolean;
   }
 >;
 

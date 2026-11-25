@@ -41,6 +41,28 @@ export type InvitationGuest = {
 
 export type NewInvitationGuest = Pick<InvitationGuest, "title" | "nameKm" | "nameEn" | "companion">;
 
+/**
+ * A gift the host recorded in their ledger (Premium). Never shown to guests.
+ * `amount` is in riel for KHR and in US cents for USD; null only for gold / other.
+ */
+export type GiftEntry = {
+  id: string;
+  invitationId: string;
+  invitedGuestId: string | null;
+  title: InvitationGuest["title"];
+  nameKm: string;
+  nameEn: string;
+  side: "" | "groom" | "bride";
+  kind: "cash" | "transfer" | "gold" | "other";
+  currency: PaymentCurrency | null;
+  amount: number | null;
+  description: string;
+  note: string;
+  createdAt: string;
+};
+
+export type NewGiftEntry = Omit<GiftEntry, "id" | "invitationId" | "createdAt">;
+
 /** `name` comes from the Google profile; email sign-ins have none. */
 export type Session = { userId: string; email?: string; name?: string; provider: "email" | "google" };
 

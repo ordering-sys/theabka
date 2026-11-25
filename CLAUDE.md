@@ -17,7 +17,7 @@ Where the spec and a prototype disagree, follow the prototype and say so (e.g. t
 
 ## Current state
 
-All 9 screens and the extra states are built, plus data retention, RSVP limits, Basic → Premium upgrades and personal guest links. UI code reads and writes data only through `lib/store.ts`, which is backed by Supabase only (`lib/data/`, `lib/auth/`, `app/api/`); `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required (there is no localStorage fallback). Never import `lib/data` directly from components.
+All 9 screens and the extra states are built, plus data retention, RSVP limits, Basic → Premium upgrades, personal guest links and the gift ledger. UI code reads and writes data only through `lib/store.ts`, which is backed by Supabase only (`lib/data/`, `lib/auth/`, `app/api/`); `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required (there is no localStorage fallback). Never import `lib/data` directly from components.
 
 - Server-side guest lookups go through `modules/guest/server/published.ts`; both guest routes render `InvitationPageView` from `modules/guest/server/invitation-page.tsx`.
 - Storage buckets (`photos`, `music`, `gift-qr`) are private. Database columns hold refs (`storage://<bucket>/<path>`, see `lib/data/storage-refs.ts`), turned into signed URLs on read. Upload size and type limits are in `lib/data/limits.ts`; the buckets enforce the same rules.
@@ -73,7 +73,8 @@ There is no test runner yet.
 - `/app/new`: pick a template
 - `/app/[id]/edit`: step-form editor
 - `/app/[id]/pay`: preview and pay; for a live Basic invitation, upgrade to Premium
-- `/app/[id]/dashboard`: share card, stats, RSVP limit meter (Basic), tabs for Replies and Invited by name
+- `/app/[id]/dashboard`: share card, stats, RSVP limit meter (Basic), tabs for Replies, Invited by name and Gifts
+- `/app/[id]/gifts`: the gift ledger as a gift book (Premium)
 - `/api/payments/khqr` (create a charge; `upgrade: true` for upgrades), `/api/payments/status`, `/api/payments/webhook`, `/api/cron/retention`
 
 ## Product rules
@@ -89,11 +90,13 @@ There is no test runner yet.
   | Opening | plain "tap to open" cover | animated doors |
   | Guest list download | no | yes |
   | Personal links per guest | no | yes |
+  | Gift ledger | no | yes |
   | Online after the event | 3 months | 6 months |
 
 - One RSVP is one form a guest sends, for up to 10 people; every reply counts toward the limit, including "not coming". In host-facing copy say "guest replies" or "families", not "RSVPs". The database also throttles RSVPs to 40 per invitation per 10 minutes.
 - Personal links (`invitation_guests`): the host adds guests with a title (លោក, លោកស្រី, កញ្ញា, ឯកឧត្តម, លោកជំទាវ, លោកគ្រូ, អ្នកគ្រូ, or none), a Khmer name, an optional English name, and who comes with them (family, partner, wife, husband, friend, or no one). Greeting text and keys live in `modules/guest/lib/greeting.ts`. Replies from a personal link are linked to the guest and count toward the RSVP limit.
 - The gift section shows the host's own KHQR image. The app never handles gift money.
+- Gift ledger (`gift_entries`, Premium, spec in `docs/gift-ledger-spec.md`): the host records envelopes and gifts they received (giver, side, cash / KHQR / gold / other, amount, note) and downloads them as Excel. The dashboard's "Gifts" tab is a summary that opens `/app/[id]/gifts`, laid out like a paper gift book (សៀវភៅចំណងដៃ): a maroon and gold cover, ruled numbered pages of 12 lines with a total per page, one page on phones and a two-page spread from `lg`. Tapping a line edits it. A "Hide totals" / "Show totals" button masks the riel and dollar totals (cover, page totals and the Gifts tab, not each line's amount); the choice is saved per device in `localStorage` and shared by those screens (`modules/dashboard/hooks/useGiftTotalsHidden.ts`, `modules/dashboard/components/GiftTotals.tsx`). This page is the one place in the host app that uses Khmer ornaments, because it imitates the printed book. Who can see and edit it is decided by `giftLedgerAccess()`. Host only, never shown to guests, so it needs no `invitation:<slug>` refresh. Amounts are riel or US cents; never convert or add the two currencies together. Editable while the invitation is online, read-only after it ends, and purged with the rest of the content. UI in `modules/dashboard/components/GiftBook.tsx` (page), `GiftLedger.tsx` (tab) and `GiftEntrySheet.tsx`, helpers in `modules/dashboard/lib/gift-ledger.ts`.
 - Invitation statuses: draft and live. A paid payment (webhook or status poll) sets the invitation to live via `mark_payment_paid()`.
 - Data retention: a live invitation stays online 3 months (Basic) or 6 months (Premium) after the event date (counted from no later than 12 months after publishing), then shows "ended". 30 days later its content is purged (photos, music, gift QR, RSVPs, views, guest names, event details), keeping only names, date and slug. Unpaid drafts are deleted after 3 months without edits. Unfinished payments are deleted, and raw provider data cleared, after 30 days. Rules live in `modules/retention/lib/policy.ts` and the retention migrations; the privacy policy and terms (`modules/legal/content.ts`, with `LEGAL_UPDATED` in `lib/company.ts`) describe them. Change all of them together.
 

@@ -6,7 +6,7 @@ import { CountUp, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion
 import { ShareBar } from "@/modules/share/components/ShareBar";
 import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
-import { CheckIcon, ChevronRightIcon, ClockIcon, CloseIcon, DownloadIcon, EditIcon, EyeIcon, LockIcon, MailIcon, PinIcon, SparkleIcon, UserIcon } from "@/components/ui/Icons";
+import { CheckIcon, ChevronRightIcon, ClockIcon, CloseIcon, DownloadIcon, EditIcon, EyeIcon, GiftIcon, LockIcon, MailIcon, PinIcon, SparkleIcon, UserIcon } from "@/components/ui/Icons";
 import { Lotus } from "@/components/invitation/TemplateArt";
 import { TopBar } from "@/components/ui/TopBar";
 import { useToast } from "@/components/ui/Toast";
@@ -18,12 +18,15 @@ import { buildRsvpXlsx } from "@/modules/dashboard/lib/rsvp-xlsx";
 import { PLANS, UPGRADE_PRICE, getRsvpStats, getTemplate, templates, type Rsvp } from "@/lib/mock-data";
 import { getRsvps, getViewCount, type Draft, type Session } from "@/lib/store";
 import { AccountMenu } from "./AccountMenu";
+import { GiftLedger } from "./GiftLedger";
 import { GuestList } from "./GuestList";
 import { dashboardContent } from "@/modules/dashboard/content";
 import { retentionState } from "@/modules/retention/lib/policy";
+import { giftLedgerAccess } from "@/modules/dashboard/lib/gift-ledger";
 import { inputClass } from "@/components/ui/field";
 
 type Filter = "all" | "yes" | "no";
+type Tab = "replies" | "guests" | "gifts";
 
 export function InvitationDashboard({ invitation: inv, session }: { invitation: Draft; session: Session }) {
   const c = useContent(dashboardContent).detail;
@@ -72,8 +75,15 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
   const guestsEnabled = !!inv.paidTier && PLANS[inv.paidTier].personalLinks && retention.kind === "online";
   const guestsCanUpgrade = inv.paidTier === "basic" && retention.kind === "online";
   const showGuestTab = live && (guestsEnabled || guestsCanUpgrade);
-  const [tabState, setTab] = useState<"replies" | "guests">("replies");
-  const tab = showGuestTab ? tabState : "replies";
+  // "Gifts" tab: a summary of the gift book (/app/[id]/gifts). Premium reads it until the content
+  // is purged and edits it while online; Basic sees it with a lock and an upgrade button.
+  const gifts = giftLedgerAccess(inv);
+  const showGiftTab = gifts.enabled || gifts.canUpgrade;
+  const tabs: Tab[] = ["replies"];
+  if (showGuestTab) tabs.push("guests");
+  if (showGiftTab) tabs.push("gifts");
+  const [tabState, setTab] = useState<Tab>("replies");
+  const tab: Tab = tabs.includes(tabState) ? tabState : "replies";
   const fmtDate = (d: string) => (lang === "km" ? formatKhmerDate(d) : formatEnglishDate(d));
   const chip = "flex items-center gap-1.5 rounded-full bg-sand-light px-3 py-1 leading-[1.6]";
 
@@ -336,20 +346,21 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
           {c.edit}
         </ButtonLink>
 
-        {/* The guest tab doesn't clip, so its row menus (⋯) can open past the card's bottom edge. */}
+        {/* The guest and gift tabs don't clip, so their row menus (⋯) can open past the card's bottom edge. */}
         <Reveal
           as="section"
           onMount
           delay={0.25}
           aria-labelledby="rsvp-title"
-          className={cn("rounded-card bg-white shadow-card", tab !== "guests" && "overflow-hidden")}
+          className={cn("rounded-card bg-white shadow-card", tab === "replies" && "overflow-hidden")}
         >
-          <div className="flex items-center justify-between gap-3 px-3.5 py-3 lg:px-5 lg:py-4">
-            {showGuestTab ? (
-              // Two lists share one card: replies, and guests invited by name (Premium).
-              <div role="tablist" aria-label={c.rsvps} className="flex min-w-0 gap-1 rounded-card bg-sand-light p-1">
-                {(["replies", "guests"] as const).map((key) => {
+          <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-3 lg:px-5 lg:py-4">
+            {tabs.length > 1 ? (
+              // Lists that share one card: replies, guests invited by name and the gift ledger (Premium).
+              <div role="tablist" aria-label={c.rsvps} className="flex max-w-full min-w-0 gap-1 overflow-x-auto rounded-card bg-sand-light p-1">
+                {tabs.map((key) => {
                   const on = tab === key;
+                  const locked = (key === "guests" && !guestsEnabled) || (key === "gifts" && !gifts.enabled);
                   return (
                     <button
                       key={key}
@@ -360,21 +371,16 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
                       aria-controls={`panel-${key}`}
                       onClick={() => setTab(key)}
                       className={cn(
-                        "flex min-h-10 cursor-pointer items-center gap-1.5 rounded-[9px] px-3 text-sm font-semibold whitespace-nowrap transition-colors",
+                        "flex min-h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-[9px] px-2.5 text-sm leading-[1.6] font-semibold whitespace-nowrap transition-colors sm:px-3",
                         on ? "bg-white text-charcoal shadow-card" : "text-muted hover:text-charcoal",
                       )}
                     >
-                      {key === "replies" ? (
-                        <>
-                          <span id={on ? "rsvp-title" : undefined}>{c.rsvps}</span>
-                          <span className="rounded-full bg-maroon px-1.5 text-[11px] leading-[1.7] text-white">{fmt(all?.length ?? 0)}</span>
-                        </>
-                      ) : (
-                        <>
-                          <span id={on ? "rsvp-title" : undefined}>{c.guests.tab}</span>
-                          {!guestsEnabled && <LockIcon size={13} className="text-gold-deep" />}
-                        </>
+                      {key === "gifts" && <GiftIcon size={15} className={on ? "text-maroon" : undefined} />}
+                      <span id={on ? "rsvp-title" : undefined}>{key === "replies" ? c.rsvps : key === "guests" ? c.guests.tab : c.gifts.tab}</span>
+                      {key === "replies" && (
+                        <span className="rounded-full bg-maroon px-1.5 text-[11px] leading-[1.7] text-white">{fmt(all?.length ?? 0)}</span>
                       )}
+                      {locked && <LockIcon size={13} className="text-gold-deep" />}
                     </button>
                   );
                 })}
@@ -393,7 +399,7 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
                 </div>
               </div>
             )}
-            {tab === "guests" ? null : !canDownload ? (
+            {tab !== "replies" ? null : !canDownload ? (
               <span
                 aria-disabled
                 title={c.export.premiumOnly}
@@ -447,8 +453,12 @@ export function InvitationDashboard({ invitation: inv, session }: { invitation: 
             <div id="panel-guests" role="tabpanel" aria-labelledby="tab-guests">
               <GuestList invitation={inv} rsvps={all ?? []} enabled={guestsEnabled} canUpgrade={guestsCanUpgrade} embedded />
             </div>
+          ) : tab === "gifts" ? (
+            <div id="panel-gifts" role="tabpanel" aria-labelledby="tab-gifts">
+              <GiftLedger invitation={inv} access={gifts} />
+            </div>
           ) : (
-          <div id="panel-replies" role={showGuestTab ? "tabpanel" : undefined} aria-labelledby={showGuestTab ? "tab-replies" : undefined}>
+          <div id="panel-replies" role={tabs.length > 1 ? "tabpanel" : undefined} aria-labelledby={tabs.length > 1 ? "tab-replies" : undefined}>
           <div className="flex flex-col gap-2.5 border-y border-line bg-sand-light/60 px-3.5 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-5">
             <div className="relative w-full lg:w-80">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted">

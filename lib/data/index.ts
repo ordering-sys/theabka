@@ -9,7 +9,7 @@
  */
 import { blankInvitationContent } from "@/lib/mock-data";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { InvitationGuestRow, InvitationRow, PhotoRow } from "@/lib/supabase/database.types";
+import type { GiftEntryRow, InvitationGuestRow, InvitationRow, PhotoRow } from "@/lib/supabase/database.types";
 import {
   GIFT_QR_TYPES,
   HOST_URL_TTL,
@@ -21,8 +21,10 @@ import { draftToWritable, refsFor, rowToDraft, rowToMusicTrack, rowToRsvp, rowTo
 import { newObjectPath, parseRef, signRefs, toRef, type Bucket } from "./storage-refs";
 import type {
   Draft,
+  GiftEntry,
   InvitationGuest,
   KhqrCharge,
+  NewGiftEntry,
   NewInvitationGuest,
   MusicTrack,
   PaymentCurrency,
@@ -137,6 +139,84 @@ export async function markGuestSent(guestId: string): Promise<void> {
 /** A guest opened their personal link (first time only; the database ignores repeats). */
 export async function markGuestOpened(slug: string, code: string): Promise<void> {
   await db().rpc("mark_guest_opened", { p_slug: slug, p_code: code });
+}
+
+/* ─── Gift ledger (Premium, host only) ─────────────────────────────── */
+
+function rowToGiftEntry(row: GiftEntryRow): GiftEntry {
+  return {
+    id: row.id,
+    invitationId: row.invitation_id,
+    invitedGuestId: row.invited_guest_id,
+    title: row.title,
+    nameKm: row.name_km,
+    nameEn: row.name_en,
+    side: row.side,
+    kind: row.kind,
+    currency: row.currency,
+    // bigint can arrive as a string; amounts stay far below Number.MAX_SAFE_INTEGER.
+    amount: row.amount === null ? null : Number(row.amount),
+    description: row.description,
+    note: row.note,
+    createdAt: row.created_at,
+  };
+}
+
+/** The columns a host writes, trimmed to the database's limits. */
+function giftToWritable(g: NewGiftEntry) {
+  const amount = g.amount !== null && Number.isFinite(g.amount) && g.amount > 0 ? Math.round(g.amount) : null;
+  return {
+    invited_guest_id: g.invitedGuestId,
+    title: g.title,
+    name_km: g.nameKm.trim().slice(0, 100),
+    name_en: g.nameEn.trim().slice(0, 100),
+    side: g.side,
+    kind: g.kind,
+    currency: amount === null ? null : g.currency,
+    amount,
+    description: g.description.trim().slice(0, 100),
+    note: g.note.trim().slice(0, 200),
+  };
+}
+
+/** The host's ledger for one invitation, newest first. */
+export async function listGiftEntries(invitationId: string): Promise<GiftEntry[]> {
+  const { data, error } = await db()
+    .from("gift_entries")
+    .select("*")
+    .eq("invitation_id", invitationId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(rowToGiftEntry);
+}
+
+/**
+ * Throws the database guard's code: "gift_ledger_requires_premium", "invitation_ended",
+ * "gift_limit_reached" or "invalid_guest".
+ */
+export async function addGiftEntry(invitationId: string, entry: NewGiftEntry): Promise<GiftEntry> {
+  const row = giftToWritable(entry);
+  if (!row.name_km) throw new Error("name_required");
+  const { data, error } = await db()
+    .from("gift_entries")
+    .insert({ invitation_id: invitationId, ...row })
+    .select("*")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "insert_failed");
+  return rowToGiftEntry(data);
+}
+
+export async function updateGiftEntry(entryId: string, entry: NewGiftEntry): Promise<GiftEntry> {
+  const row = giftToWritable(entry);
+  if (!row.name_km) throw new Error("name_required");
+  const { data, error } = await db().from("gift_entries").update(row).eq("id", entryId).select("*").single();
+  if (error || !data) throw new Error(error?.message ?? "update_failed");
+  return rowToGiftEntry(data);
+}
+
+export async function deleteGiftEntry(entryId: string): Promise<boolean> {
+  const { error, count } = await db().from("gift_entries").delete({ count: "exact" }).eq("id", entryId);
+  return !error && count === 1;
 }
 
 /** Same shape as getSessionMock(). Reads the locally stored session (no network). */

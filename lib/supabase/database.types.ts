@@ -31,6 +31,8 @@ export type PlanRow = {
   online_months: number;
   /** RSVPs an invitation accepts (Premium's value is only an abuse cap; the UI says "unlimited"). */
   max_rsvps: number;
+  /** Host can keep a gift ledger (gift_entries). */
+  gift_ledger: boolean;
 };
 
 export type ProfileRow = {
@@ -147,6 +149,30 @@ export type InvitationGuestRow = {
 /** Same keys as modules/guest/lib/greeting.ts (lib can't import modules). */
 type GuestTitle = "" | "mr" | "mrs" | "miss" | "he" | "lok_chumteav" | "teacher_m" | "teacher_f";
 
+/** A gift the host recorded in their ledger (Premium). Never visible to guests. */
+export type GiftEntryRow = {
+  id: string;
+  invitation_id: string;
+  invited_guest_id: string | null;
+  title: GuestTitle;
+  name_km: string;
+  name_en: string;
+  side: "" | "groom" | "bride";
+  kind: "cash" | "transfer" | "gold" | "other";
+  currency: PaymentCurrency | null;
+  /** Riel, or US cents. Null only for gold / other with a description. */
+  amount: number | null;
+  description: string;
+  note: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type GiftEntryEditable = Pick<
+  GiftEntryRow,
+  "invited_guest_id" | "title" | "name_km" | "name_en" | "side" | "kind" | "currency" | "amount" | "description" | "note"
+>;
+
 export type ViewRow = { id: number; invitation_id: string; opened_at: string };
 
 export type PaymentRow = {
@@ -189,6 +215,11 @@ export type Database = {
         Pick<InvitationGuestRow, "invitation_id" | "name_km"> &
           Partial<Pick<InvitationGuestRow, "title" | "name_en" | "companion">>,
         Partial<Pick<InvitationGuestRow, "title" | "name_km" | "name_en" | "companion" | "sent_at">>
+      >;
+      gift_entries: Table<
+        GiftEntryRow,
+        Pick<GiftEntryRow, "invitation_id" | "name_km"> & Partial<GiftEntryEditable>,
+        Partial<GiftEntryEditable>
       >;
       payments: Table<
         PaymentRow,

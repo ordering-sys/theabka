@@ -41,7 +41,7 @@ const content = {
     missing: missingLabels.en,
     qrAlt: "KHQR payment code", alreadyLiveSub: "Your edits are published as soon as they save. There's nothing to pay.", close: "Close",
     upgradeTitle: "Upgrade to Premium", upgradeSub: "Your link stays the same. Pay only the difference.",
-    upgradeItems: ["Up to 6 photos", "Your own song", "Premium designs", "Opening animation", "Personal invitation for each guest", "Guest list download", "Unlimited guest replies", "Data retention for 6 months"],
+    upgradeItems: ["Up to 6 photos", "Your own song", "Premium designs", "Opening animation", "Personal invitation for each guest", "Guest list download", "Gift ledger", "Unlimited guest replies", "Data retention for 6 months"],
     upgradePay: "Upgrade with KHQR", upgraded: "You're on Premium now!", upgradedSub: "Every Premium feature is on for this invitation.",
   },
   km: {
@@ -62,7 +62,7 @@ const content = {
     missing: missingLabels.km,
     qrAlt: "កូដបង់ប្រាក់ KHQR", alreadyLiveSub: "ការកែប្រែរបស់អ្នកត្រូវបានផ្សព្វផ្សាយភ្លាមៗពេលរក្សាទុក។ មិនចាំបាច់បង់ប្រាក់ទេ។", close: "បិទ",
     upgradeTitle: "ដំឡើងទៅកញ្ចប់ពិសេស", upgradeSub: "តំណរបស់អ្នកនៅដដែល។ បង់តែប្រាក់លើសប៉ុណ្ណោះ។",
-    upgradeItems: ["រូបថតរហូតដល់ ៦ សន្លឹក", "បទចម្រៀងផ្ទាល់ខ្លួន", "គំរូពិសេស", "ចលនាបើកធៀប", "ធៀបការផ្ទាល់ឈ្មោះភ្ញៀវម្នាក់ៗ", "ទាញយកបញ្ជីភ្ញៀវ", "ទទួលការឆ្លើយតបពីភ្ញៀវ គ្មានកំណត់", "រក្សាទុកទិន្នន័យរយៈពេល ៦ ខែ"],
+    upgradeItems: ["រូបថតរហូតដល់ ៦ សន្លឹក", "បទចម្រៀងផ្ទាល់ខ្លួន", "គំរូពិសេស", "ចលនាបើកធៀប", "ធៀបការផ្ទាល់ឈ្មោះភ្ញៀវម្នាក់ៗ", "ទាញយកបញ្ជីភ្ញៀវ", "បញ្ជីចំណងដៃ", "ទទួលការឆ្លើយតបពីភ្ញៀវ គ្មានកំណត់", "រក្សាទុកទិន្នន័យរយៈពេល ៦ ខែ"],
     upgradePay: "ដំឡើងតាម KHQR", upgraded: "អ្នកប្រើកញ្ចប់ពិសេសហើយ!", upgradedSub: "មុខងារពិសេសទាំងអស់ បានបើកសម្រាប់ធៀបការនេះ។",
   },
 };

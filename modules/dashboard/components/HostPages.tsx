@@ -9,6 +9,7 @@ import { useContent } from "@/lib/i18n";
 import { getDraft, type Draft, type Session } from "@/lib/store";
 import { useIsClient } from "@/lib/use-client";
 import { dashboardContent } from "@/modules/dashboard/content";
+import { GiftBook } from "./GiftBook";
 import { InvitationDashboard } from "./InvitationDashboard";
 import { InvitationList } from "./InvitationList";
 import { TemplatePicker } from "@/modules/templates/components/TemplatePicker";
@@ -57,6 +58,11 @@ function Loaded({
 
 export function InvitationDashboardPage() {
   return <WithInvitation variant="detail" render={(inv, s) => <InvitationDashboard invitation={inv} session={s} />} />;
+}
+
+/** The gift ledger as a gift book (Premium). */
+export function GiftBookPage() {
+  return <WithInvitation variant="detail" render={(inv, s) => <GiftBook invitation={inv} session={s} />} />;
 }
 
 export function PayPage() {

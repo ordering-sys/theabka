@@ -39,7 +39,7 @@ Put these in `.env.local` (development) and in Vercel. `NEXT_PUBLIC_*` values ar
 npx supabase login
 npx supabase init                 # creates supabase/config.toml; keeps supabase/migrations
 npx supabase link --project-ref YOUR-PROJECT-REF
-npx supabase db push              # applies the four migrations in order
+npx supabase db push              # applies the migrations in order
 ```
 
 The migrations create:
@@ -50,6 +50,12 @@ The migrations create:
 | `20261122090100_rls.sql` | RLS on every table, grants, helper predicates, `get_published_invitation(slug)` |
 | `20261122090200_storage.sql` | `photos`, `music`, `gift-qr` buckets (private, 10 MB, mime allow-lists) and their policies |
 | `20261123090000_explicit_grants.sql` | Explicit table and function grants for `anon`, `authenticated` and `service_role`. Newer Supabase projects don't grant these by default; without them, creating an invitation fails with "permission denied for table invitations". Idempotent, and it doesn't widen anything the earlier migrations restricted. |
+| `20261124090000_data_retention.sql` | `plans.online_months`, `invitations.purged_at`, online-period helpers, the "ended" guest read, and the retention functions the daily cron calls |
+| `20261124100000_music_special_someone.sql` | Points the built-in song at `public/music/special-someone.mp3` |
+| `20261124110000_rsvp_limits_and_upgrades.sql` | `plans.max_rsvps`, the RSVP limit and burst throttle, and `payments.kind` for Basic → Premium upgrades |
+| `20261124120000_invitation_guests.sql` | `invitation_guests` (personal links, Premium), the guest-facing greeting functions, and `rsvps.invited_guest_id` |
+| `20261124130000_guest_companions.sql` | Replaces `with_family` with `companion` on `invitation_guests` |
+| `20261125090000_gift_ledger.sql` | `plans.gift_ledger` and `gift_entries` (the host's gift ledger, Premium, owner-only RLS, read-only after the online period), and adds the ledger to the retention purge |
 
 Optional: regenerate the TypeScript types once linked:
 

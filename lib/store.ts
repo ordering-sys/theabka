@@ -10,8 +10,10 @@ import * as real from "@/lib/data";
 import * as auth from "@/lib/auth/client";
 import type {
   Draft,
+  GiftEntry,
   InvitationGuest,
   KhqrCharge,
+  NewGiftEntry,
   NewInvitationGuest,
   Photo,
   PaymentStatusResult,
@@ -20,7 +22,7 @@ import type {
   UploadResult,
 } from "@/lib/data/types";
 
-export type { Draft, InvitationGuest, KhqrCharge, NewInvitationGuest, PaymentStatusResult, Rsvp, Session };
+export type { Draft, GiftEntry, InvitationGuest, KhqrCharge, NewGiftEntry, NewInvitationGuest, PaymentStatusResult, Rsvp, Session };
 export type { UploadError } from "@/lib/data/types";
 
 // ── Session ──────────────────────────────────────────────────────────────
@@ -123,6 +125,27 @@ export async function markGuestSent(guestId: string): Promise<void> {
 
 export async function markGuestOpened(slug: string, code: string): Promise<void> {
   return real.markGuestOpened(slug, code).catch(() => {});
+}
+
+// ── Gift ledger (Premium) ────────────────────────────────────────────────
+// Host only and never shown to guests, so no guest cache to refresh.
+
+/** Throws if the ledger couldn't be loaded, so the UI can tell "empty" from "failed". */
+export async function listGiftEntries(invitationId: string): Promise<GiftEntry[]> {
+  return real.listGiftEntries(invitationId);
+}
+
+/** Throws "gift_ledger_requires_premium", "invitation_ended", "gift_limit_reached" or "invalid_guest". */
+export async function addGiftEntry(invitationId: string, entry: NewGiftEntry): Promise<GiftEntry> {
+  return real.addGiftEntry(invitationId, entry);
+}
+
+export async function updateGiftEntry(entryId: string, entry: NewGiftEntry): Promise<GiftEntry> {
+  return real.updateGiftEntry(entryId, entry);
+}
+
+export async function deleteGiftEntry(entryId: string): Promise<boolean> {
+  return real.deleteGiftEntry(entryId);
 }
 
 // ── Uploads ──────────────────────────────────────────────────────────────
