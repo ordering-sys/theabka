@@ -20,6 +20,11 @@ Where the spec and a prototype disagree, follow the prototype and say so (e.g. t
 All 9 screens and the extra states are built, plus data retention, RSVP limits, Basic → Premium upgrades and personal guest links. UI code reads and writes data only through `lib/store.ts`, which is backed by Supabase only (`lib/data/`, `lib/auth/`, `app/api/`); `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required (there is no localStorage fallback). Never import `lib/data` directly from components.
 
 - Server-side guest lookups go through `modules/guest/server/published.ts`; both guest routes render `InvitationPageView` from `modules/guest/server/invitation-page.tsx`.
+- Storage buckets (`photos`, `music`, `gift-qr`) are private. Database columns hold refs (`storage://<bucket>/<path>`, see `lib/data/storage-refs.ts`), turned into signed URLs on read. Upload size and type limits are in `lib/data/limits.ts`; the buckets enforce the same rules.
+- After a host saves a live invitation, call the `refreshPublishedInvitation` server action (`lib/data/actions.ts`) so guests see the edit at once.
+- `proxy.ts` (Next 16's replacement for middleware) keeps the Supabase session cookie fresh on `/app/*` and `/signin` only; guest pages are untouched.
+- Google sign-in runs on our own domain (`/auth/google`, `lib/auth/google-oauth.ts`) when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set, otherwise through Supabase's hosted flow.
+- The Premium guest list download is an Excel file built with `exceljs` (`modules/dashboard/lib/rsvp-xlsx.ts`). Animations use `motion` (`components/motion/`).
 - Templates, plans and music tracks are static in `lib/mock-data.ts` (the database seeds the same ids). Its sample couple and RSVPs are only demo content for the landing page and editor placeholders, never a host's data. The sample invitation is `/i/dara-sophea`, with a sample personal link at `/i/dara-sophea/sample`.
 - Schema, RLS, storage and database functions live in `supabase/migrations/` (apply them in order; never edit an applied one, add a new migration). `lib/supabase/database.types.ts` is hand-written to match them; update it with every migration.
 - Docs: setup steps in `docs/supabase-setup.md`, env vars in `docs/environment.md`.
@@ -41,6 +46,8 @@ Modules may import from `components/`, `lib/` and, when needed, from another mod
 - `npm run build`: production build (run it to check types before calling work done). On this machine it can run out of memory during static page generation (Windows paging file); close the dev server first. If it still fails, `npx next typegen && npx tsc --noEmit -p .` checks types without building.
 - `npm run lint`: ESLint
 - `npx next typegen`: regenerate route types (needed after adding a route, before a standalone `tsc`).
+- `npm run bakong:check`: check the Bakong KHQR settings and token (never prints secrets). `-- --qr 0.01` writes a real $0.01 test QR and waits for payment; `-- --md5 <md5>` looks up one payment.
+- `node --env-file=.env scripts/push-email-templates.mjs [--dry-run]`: push the 6-digit sign-in code email (`supabase/templates/otp-code.html`) to Supabase Auth. Needs `SUPABASE_ACCESS_TOKEN`.
 
 There is no test runner yet.
 
@@ -59,6 +66,7 @@ There is no test runner yet.
 ## Routes
 
 - `/`: landing page (pricing, FAQ). `/privacy`, `/terms`: legal pages. `/signin`: sign in.
+- `/auth/callback` (Supabase auth callback), `/auth/google` and `/auth/google/callback` (Google sign-in on our own domain).
 - `/i/[slug]`: public guest invitation, server-rendered with Open Graph tags. Shows a bilingual "this invitation has ended" page after its online period.
 - `/i/[slug]/[code]`: a guest's personal link (Premium): greets them by title and name, pre-fills and links their RSVP. Unknown codes show the general invitation.
 - `/app`: host dashboard (list of invitations)
